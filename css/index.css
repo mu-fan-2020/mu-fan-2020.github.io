@@ -1544,14 +1544,14 @@ blockquote > :last-child {
   margin-bottom: 0 !important;
 }
 :root {
-  --hl-color: #eff;
-  --hl-bg: #212121;
-  --hltools-bg: #1c1c1c;
-  --hltools-color: rgba(238,255,255,0.8);
-  --hlnumber-bg: #212121;
-  --hlnumber-color: rgba(238,255,255,0.5);
-  --hlscrollbar-bg: #353535;
-  --hlexpand-bg: linear-gradient(180deg, rgba(33,33,33,0.6), rgba(33,33,33,0.9));
+  --hl-color: #90a4ae;
+  --hl-bg: #f6f8fa;
+  --hltools-bg: #e6ebf1;
+  --hltools-color: #90a4ae;
+  --hlnumber-bg: #f6f8fa;
+  --hlnumber-color: rgba(144,164,174,0.5);
+  --hlscrollbar-bg: #dce4eb;
+  --hlexpand-bg: linear-gradient(180deg, rgba(246,248,250,0.6), rgba(246,248,250,0.9));
 }
 figure.highlight table {
   scrollbar-color: var(--hlscrollbar-bg) transparent;
@@ -1566,10 +1566,10 @@ figure.highlight pre .addition {
   color: #105ede;
 }
 figure.highlight pre .meta {
-  color: #c792ea;
+  color: #7c4dff;
 }
 figure.highlight pre .comment {
-  color: #969896;
+  color: rgba(149,165,166,0.8);
 }
 figure.highlight pre .variable,
 figure.highlight pre .attribute,
@@ -1583,10 +1583,10 @@ figure.highlight pre .css .id,
 figure.highlight pre .tag .name,
 figure.highlight pre .css .class,
 figure.highlight pre .css .pseudo {
-  color: #ff5370;
+  color: #e53935;
 }
 figure.highlight pre .tag {
-  color: #89ddff;
+  color: #39adb5;
 }
 figure.highlight pre .number,
 figure.highlight pre .preprocessor,
@@ -1594,10 +1594,10 @@ figure.highlight pre .literal,
 figure.highlight pre .params,
 figure.highlight pre .constant,
 figure.highlight pre .command {
-  color: #f78c6c;
+  color: #f76d47;
 }
 figure.highlight pre .built_in {
-  color: #ffcb6b;
+  color: #ffb62c;
 }
 figure.highlight pre .ruby .class .title,
 figure.highlight pre .css .rules .attribute,
@@ -1610,12 +1610,12 @@ figure.highlight pre .xml .cdata,
 figure.highlight pre .special,
 figure.highlight pre .number,
 figure.highlight pre .formula {
-  color: #c3e88d;
+  color: #91b859;
 }
 figure.highlight pre .keyword,
 figure.highlight pre .title,
 figure.highlight pre .css .hexcolor {
-  color: #89ddff;
+  color: #39adb5;
 }
 figure.highlight pre .function,
 figure.highlight pre .python .decorator,
@@ -1625,14 +1625,14 @@ figure.highlight pre .ruby .title .keyword,
 figure.highlight pre .perl .sub,
 figure.highlight pre .javascript .title,
 figure.highlight pre .coffeescript .title {
-  color: #82aaff;
+  color: #6182b8;
 }
 figure.highlight pre .tag .attr,
 figure.highlight pre .javascript .function {
-  color: #c792ea;
+  color: #7c4dff;
 }
 #article-container figure.highlight .line.marked {
-  background-color: rgba(97,97,97,0.314);
+  background-color: rgba(128,203,196,0.251);
 }
 #article-container figure.highlight table {
   display: block;
@@ -1820,8 +1820,8 @@ figure.highlight pre .javascript .function {
 #article-container figure.highlight {
   margin: 0 0 24px;
   border-radius: 7px;
-  -webkit-box-shadow: 0 5px 10px 0 rgba(0,0,0,0.4);
-  box-shadow: 0 5px 10px 0 rgba(0,0,0,0.4);
+  -webkit-box-shadow: 0 5px 10px 0 rgba(144,164,174,0.4);
+  box-shadow: 0 5px 10px 0 rgba(144,164,174,0.4);
   -webkit-transform: translateZ(0);
 }
 #article-container figure.highlight .highlight-tools:after {
@@ -5826,4 +5826,81 @@ blockquote.pullquote.right {
     #page-header::before{
       background: transparent!important;
       }
-  
+
+      :root {
+        --trans-light: rgba(255, 255, 255, 0.88);
+        --trans-dark: rgba(25, 25, 25, 0.88);
+        --border-style: 1px solid rgb(169, 169, 169);
+        --backdrop-filter: blur(5px) saturate(150%);
+      }
+      
+      /* 首页文章卡片 */
+      #recent-posts > .recent-post-item {
+        background: var(--trans-light);
+        border-radius: 25px;
+        border: var(--border-style);
+      }
+      
+      /* 首页侧栏卡片 */
+      #aside-content .card-widget {
+        background: var(--trans-light);
+        border-radius: 18px;
+        border: var(--border-style);
+      }
+      
+      /* 文章页、归档页、普通页面 */
+      div#post,
+      div#page,
+      div#archive {
+        background: var(--trans-light);
+        border: var(--border-style);
+        border-radius: 20px;
+        --border-style: 2px solid rgb(82, 224, 132);
+      }
+    
+      
+      /* 导航栏 */
+      #page-header.nav-fixed #nav {
+        background: rgba(255, 255, 255, 0.88);
+      }
+      
+      [data-theme="dark"] #page-header.nav-fixed #nav {
+        background: rgba(0, 0, 0, 0.7) !important;
+      }
+      
+      /* 夜间模式遮罩 */
+      [data-theme="dark"] #recent-posts > .recent-post-item,
+      [data-theme="dark"] #aside-content .card-widget,
+      [data-theme="dark"] div#post,
+      [data-theme="dark"] div#archive,
+      [data-theme="dark"] div#page {
+        background: var(--trans-dark);
+      }
+      
+      
+      /* 夜间模式页脚页头遮罩透明 */
+      [data-theme="dark"] #footer::before {
+        background: transparent !important;
+      }
+      [data-theme="dark"] #page-header::before {
+        background: transparent !important;
+      }
+      
+      /* 阅读模式 */
+      .read-mode #aside-content .card-widget {
+        background: rgba(118, 238, 152, 0.5) !important;
+      }
+      .read-mode div#post {
+        background: rgba(114, 227, 146, 0.5) !important;
+      }
+      
+      /* 夜间模式下的阅读模式 */
+      [data-theme="dark"] .read-mode #aside-content .card-widget {
+        background: rgba(25, 25, 25, 0.9) !important;
+        color: #ffffff;
+      }
+      [data-theme="dark"] .read-mode div#post {
+        background: rgba(25, 25, 25, 0.9) !important;
+        color: #ffffff;
+      }
+    
