@@ -1,0 +1,405 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>OpenClaw 架构原理深度解析 | Mufan's Blog</title><meta name="author" content="mufan"><meta name="copyright" content="mufan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="深入剖析 OpenClaw 个人 AI 助手平台的架构设计，探索本地优先、多渠道、跨平台的技术实现原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenClaw 架构原理深度解析">
+<meta property="og:url" content="https://mu-fan-2020.github.io/2026/02/02/openclaw-architecture-analysis/index.html">
+<meta property="og:site_name" content="Mufan&#39;s Blog">
+<meta property="og:description" content="深入剖析 OpenClaw 个人 AI 助手平台的架构设计，探索本地优先、多渠道、跨平台的技术实现原理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mu-fan-2020.github.io/img/covers/openclaw-architecture.jpg">
+<meta property="article:published_time" content="2026-02-02T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-02-03T07:53:28.798Z">
+<meta property="article:author" content="mufan">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="OpenClaw">
+<meta property="article:tag" content="个人助手">
+<meta property="article:tag" content="架构">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mu-fan-2020.github.io/img/covers/openclaw-architecture.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "OpenClaw 架构原理深度解析",
+  "url": "https://mu-fan-2020.github.io/2026/02/02/openclaw-architecture-analysis/",
+  "image": "https://mu-fan-2020.github.io/img/covers/openclaw-architecture.jpg",
+  "datePublished": "2026-02-02T08:00:00.000Z",
+  "dateModified": "2026-02-03T07:53:28.798Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "mufan",
+      "url": "https://mu-fan-2020.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://mu-fan-2020.github.io/2026/02/02/openclaw-architecture-analysis/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'OpenClaw 架构原理深度解析',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      if ($loadingBox.classList.contains('loaded')) return
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+
+  if (document.readyState === 'complete') {
+    preloader.endLoading()
+  } else {
+    window.addEventListener('load', preloader.endLoading)
+    document.addEventListener('DOMContentLoaded', preloader.endLoading)
+    // Add timeout protection: force end after 7 seconds
+    setTimeout(preloader.endLoading, 7000)
+  }
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/covers/openclaw-architecture.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Mufan's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">OpenClaw 架构原理深度解析</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">OpenClaw 架构原理深度解析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-02-02T08:00:00.000Z" title="发表于 2026-02-02 16:00:00">2026-02-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-02-03T07:53:28.798Z" title="更新于 2026-02-03 15:53:28">2026-02-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6/">技术深度</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><blockquote>
+<p>深入剖析 OpenClaw 个人 AI 助手平台的架构设计，探索本地优先、多渠道、跨平台的技术实现原理。</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="#%E5%BC%95%E8%A8%80">引言</a></li>
+<li><a href="#%E6%9E%B6%E6%9E%84%E6%80%BB%E8%A7%88">架构总览</a></li>
+<li><a href="#Gateway-%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E8%AF%A6%E8%A7%A3">Gateway 控制平面详解</a></li>
+<li><a href="#Pi-Agent-%E4%B8%8E%E5%A4%9A%E6%B8%A0%E9%81%93%E6%8E%A5%E5%85%A5">Pi Agent 与多渠道接入</a></li>
+<li><a href="#%E4%BC%9A%E8%AF%9D%E6%A8%A1%E5%9E%8B%E4%B8%8E%E5%B7%A5%E5%85%B7%E7%B3%BB%E7%BB%9F">会话模型与工具系统</a></li>
+<li><a href="#%E5%AE%89%E5%85%A8%E6%A8%A1%E5%9E%8B%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%AE%BF%E9%97%AE">安全模型与远程访问</a></li>
+<li><a href="#Skills-%E7%B3%BB%E7%BB%9F">Skills 系统</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+<hr>
+<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>在人工智能飞速发展的今天，个人AI助手已成为提升效率、简化生活的重要工具。OpenClaw 正是这样一个旨在赋能用户，构建属于自己的、高度可定制化个人AI助手的平台。它不仅仅是一个简单的AI聊天机器人，更是一个本地优先、多渠道、跨平台的智能生态系统。</p>
+<p>OpenClaw 的核心理念在于将AI能力下放至用户边缘设备，强调数据隐私与个性化体验。与依赖云服务的传统AI助手不同，OpenClaw 致力于在确保性能和功能的前提下，最大化地利用本地计算资源。这不仅提供了更低的延迟和更高的安全性，也为用户带来了前所未有的控制权。</p>
+<p><strong>OpenClaw 的核心特点包括：</strong></p>
+<ul>
+<li><strong>本地优先（Local-First）</strong>：尽可能在用户的设备上运行AI模型和处理数据，减少对外部云服务的依赖，增强隐私保护。</li>
+<li><strong>多渠道（Multi-Channel）</strong>：支持通过多种通讯渠道（如Telegram、Discord、Web界面等）与AI助手进行交互，实现无缝体验。</li>
+<li><strong>跨平台（Cross-Platform）</strong>：兼容多种操作系统和硬件环境，从桌面PC到边缘计算设备，确保广泛的部署能力。</li>
+</ul>
+<p>对于技术开发者而言，深入理解 OpenClaw 的架构至关重要。它不仅展示了如何在复杂环境中集成多种AI能力，更提供了一个构建去中心化、隐私友好型AI应用的范例。研究其架构，能帮助我们掌握如何在边缘设备上高效部署和管理AI服务，以及如何设计一套弹性、可扩展的AI助手平台。</p>
+<hr>
+<h2 id="架构总览"><a href="#架构总览" class="headerlink" title="架构总览"></a>架构总览</h2><p>OpenClaw 的架构设计旨在实现高度的模块化和可扩展性，同时兼顾性能与安全性。其核心组件协同工作，构建了一个强大的个人AI助手生态。</p>
+<p>以下是 OpenClaw 核心组件的文本图示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">+-------------------+      +-------------------+</span><br><span class="line">|                   |      |                   |</span><br><span class="line">| Gateway 控制平面  |&lt;----&gt;|   多渠道接入      |</span><br><span class="line">|  (Core Services)  |      | (Telegram, Web,...) |</span><br><span class="line">|                   |      |                   |</span><br><span class="line">+---------+---------+      +---------+---------+</span><br><span class="line">          |                            |</span><br><span class="line">          | RPC (gRPC/HTTP)            |</span><br><span class="line">          |                            |</span><br><span class="line">+---------V---------+      +---------V---------+</span><br><span class="line">|                   |      |                   |</span><br><span class="line">|   Pi Agent (RPC)  |&lt;----&gt;|   工具系统        |</span><br><span class="line">|  (Local Runtime)  |      | (Plugins, Actions) |</span><br><span class="line">|                   |      |                   |</span><br><span class="line">+-------------------+      +-------------------+</span><br><span class="line">          |</span><br><span class="line">          | 安全模型</span><br><span class="line">          | (Auth, RBAC, Data Privacy)</span><br><span class="line">          |</span><br><span class="line">+---------V---------+</span><br><span class="line">|                   |</span><br><span class="line">|  本地AI模型/数据  |</span><br><span class="line">|                   |</span><br><span class="line">+-------------------+</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们将详细解析每个核心组件。</p>
+<h3 id="Gateway-控制平面"><a href="#Gateway-控制平面" class="headerlink" title="Gateway 控制平面"></a>Gateway 控制平面</h3><p>Gateway 控制平面是 OpenClaw 架构的大脑和核心枢纽，负责管理整个系统的运行和协调。它提供了一系列核心服务，包括：</p>
+<ul>
+<li><strong>会话管理</strong>：处理用户与AI助手的交互会话，维护会话状态和上下文。</li>
+<li><strong>路由与调度</strong>：根据请求类型、用户配置和系统负载，将任务路由到合适的 Pi Agent 或工具系统。</li>
+<li><strong>配置管理</strong>：存储和管理用户偏好、AI模型配置、工具集成信息等。</li>
+<li><strong>插件编排</strong>：负责加载、卸载和管理工具系统的各种插件和能力。</li>
+<li><strong>认证与授权</strong>：与安全模型协同，确保只有授权用户才能访问特定资源和功能。</li>
+</ul>
+<p>Gateway 控制平面通常运行在中央服务器或可靠的边缘设备上，作为用户与后端AI能力之间的桥梁。</p>
+<h3 id="Pi-Agent-RPC"><a href="#Pi-Agent-RPC" class="headerlink" title="Pi Agent (RPC)"></a>Pi Agent (RPC)</h3><p>Pi Agent 是 OpenClaw 的本地运行时核心，通常部署在用户的边缘设备上（如树莓派、本地PC、NAS等）。它是实际执行AI推理、处理本地数据和管理设备资源的实体。</p>
+<p><strong>主要职责：</strong></p>
+<ul>
+<li><strong>AI模型本地运行</strong>：承载并运行各种本地AI模型（如LLM、TTS、STT等），执行推理任务。</li>
+<li><strong>RPC 服务</strong>：通过 gRPC 或 HTTP 等远程过程调用（RPC）机制，与 Gateway 控制平面进行通信，接收任务指令并返回执行结果。</li>
+<li><strong>本地资源管理</strong>：管理本地的计算资源（CPU&#x2F;GPU）、存储和外设。</li>
+<li><strong>数据预处理与后处理</strong>：在本地进行数据清洗、格式转换，保护用户隐私。</li>
+<li><strong>与工具系统集成</strong>：作为工具系统的执行环境，调用本地安装的工具插件。</li>
+</ul>
+<p>Pi Agent 的设计强调轻量级和高效性，以适应不同性能的边缘设备。</p>
+<h3 id="多渠道接入"><a href="#多渠道接入" class="headerlink" title="多渠道接入"></a>多渠道接入</h3><p>OpenClaw 旨在提供无缝的用户体验，无论用户身处何种通讯环境。多渠道接入层负责处理来自不同平台的交互请求。</p>
+<p><strong>支持的渠道包括但不限于：</strong></p>
+<ul>
+<li><strong>即时通讯应用集成</strong>：如 Telegram Bot、Discord Bot，用户可以直接在聊天应用中与AI助手对话。</li>
+<li><strong>Web 界面</strong>：提供一个直观的浏览器端用户界面，便于管理助手、查看历史记录和进行高级配置。</li>
+<li><strong>API 接口</strong>：为第三方应用或开发者提供标准API，以便更灵活地集成 OpenClaw 能力。</li>
+<li><strong>语音交互</strong>：通过麦克风输入和扬声器输出，实现自然的语音对话体验。</li>
+</ul>
+<p>每个渠道都通过标准化接口与 Gateway 控制平面交互，确保核心逻辑的统一。</p>
+<h3 id="工具系统"><a href="#工具系统" class="headerlink" title="工具系统"></a>工具系统</h3><p>工具系统是 OpenClaw 赋能AI助手执行复杂任务的关键。它提供了一个可扩展的框架，允许AI助手调用外部工具、API 或自定义功能来完成特定指令。</p>
+<p><strong>核心要素：</strong></p>
+<ul>
+<li><strong>插件化设计</strong>：各种工具以插件的形式存在，易于开发、部署和管理。</li>
+<li><strong>工具注册与发现</strong>：Gateway 维护一个可用的工具列表，AI模型可以根据用户意图选择合适的工具。</li>
+<li><strong>能力抽象</strong>：将复杂的操作抽象为简单的工具函数，供AI模型调用。</li>
+<li><strong>执行环境</strong>：工具可以在 Pi Agent 上本地执行，也可以通过 Gateway 调用云端服务。</li>
+</ul>
+<p><strong>示例工具：</strong></p>
+<ul>
+<li>天气查询</li>
+<li>日历管理</li>
+<li>代码执行</li>
+<li>智能家居控制</li>
+<li>信息检索</li>
+</ul>
+<h3 id="安全模型"><a href="#安全模型" class="headerlink" title="安全模型"></a>安全模型</h3><p>安全性在个人AI助手平台中至关重要，尤其是在本地优先和数据隐私的背景下。OpenClaw 的安全模型贯穿于整个架构。</p>
+<p><strong>关键组成部分：</strong></p>
+<ul>
+<li><strong>认证 (Authentication)</strong>：验证用户身份，确保只有合法用户才能访问系统。可能采用 OAuth2、API Key 或其他身份验证机制。</li>
+<li><strong>授权 (Authorization)</strong>：定义用户对特定资源和操作的访问权限（如基于角色的访问控制 RBAC）。例如，只有管理员才能修改系统配置。</li>
+<li><strong>数据隐私 (Data Privacy)</strong>：<ul>
+<li><strong>本地化存储与处理</strong>：最小化敏感数据传输到云端，尽可能在本地设备处理。</li>
+<li><strong>加密</strong>：对存储在本地和传输中的数据进行加密，防止未授权访问。</li>
+<li><strong>访问控制</strong>：严格控制哪些组件和用户可以访问哪些数据。</li>
+</ul>
+</li>
+<li><strong>安全通信</strong>：所有组件之间的通信（如 Gateway 与 Pi Agent 之间）通过 TLS&#x2F;SSL 进行加密，防止中间人攻击。</li>
+<li><strong>沙箱机制</strong>：对于某些工具或插件，可能在沙箱环境中运行，限制其对系统资源的访问，以降低安全风险。</li>
+</ul>
+<p>OpenClaw 的安全模型旨在构建一个值得信赖的个人AI助手环境，让用户能够放心地管理和使用自己的AI能力。</p>
+<hr>
+<h2 id="Gateway-控制平面详解"><a href="#Gateway-控制平面详解" class="headerlink" title="Gateway 控制平面详解"></a>Gateway 控制平面详解</h2><p>OpenClaw 的 Gateway 控制平面是整个分布式协作系统的核心枢纽，负责管理代理、工具、会话和节点之间的所有通信与协调。其设计旨在提供一个高效、可靠且可扩展的基础架构，以支持复杂的多代理协作场景。</p>
+<h3 id="WebSocket-网络架构"><a href="#WebSocket-网络架构" class="headerlink" title="WebSocket 网络架构"></a>WebSocket 网络架构</h3><p>Gateway 控制平面基于 WebSocket 协议构建，提供了实时、双向的通信能力，这是实现其核心功能的关键。</p>
+<ul>
+<li><strong>默认绑定</strong>：Gateway 的 WebSocket 服务默认绑定在 <code>ws://127.0.0.1:18789</code>，这为本地开发和部署提供了便利的接入点。</li>
+<li><strong>单一控制平面设计</strong>：OpenClaw 采用单一控制平面的设计理念，这意味着所有代理、工具和节点都通过这一个统一的 Gateway 进行连接和管理。这种设计简化了系统架构，降低了管理复杂性，并确保了所有组件之间的一致性通信策略。</li>
+<li><strong>为什么选择 WebSocket</strong>：选择 WebSocket 作为底层通信协议是基于其以下优势：<ul>
+<li><strong>双向通信</strong>：WebSocket 允许客户端和服务器之间建立持久的双向连接，这对于实时消息传递、事件通知和命令执行至关重要。传统的 HTTP 请求-响应模型在高频交互场景下效率低下。</li>
+<li><strong>低延迟</strong>：一旦建立连接，WebSocket 协议通过减少握手次数和头部开销来降低通信延迟，提高了数据传输效率。</li>
+<li><strong>全双工</strong>：客户端和服务器可以同时发送和接收数据，无需等待对方响应，非常适合代理之间的并发协作。</li>
+<li><strong>协议升级</strong>：WebSocket 通过 HTTP 协议的升级机制实现，兼容现有网络基础设施。</li>
+</ul>
+</li>
+<li><strong>网络拓扑</strong>：在典型的 OpenClaw 部署中，Gateway 位于中心位置。所有连接到 OpenClaw 生态系统的组件，包括代理实例、外部工具适配器、前端 Control UI 以及运行在节点上的服务，都将通过 WebSocket 连接到 Gateway。Gateway 负责维护这些连接，并根据内部逻辑转发消息、协调操作。这种星形拓扑结构确保了所有通信都经过 Gateway，便于统一管理和安全控制。</li>
+</ul>
+<h3 id="核心服务"><a href="#核心服务" class="headerlink" title="核心服务"></a>核心服务</h3><p>Gateway 控制平面封装了一系列核心服务，这些服务共同支撑了 OpenClaw 的高级功能。</p>
+<ul>
+<li><strong>会话管理（Main&#x2F;Group&#x2F;Channel sessions）</strong>：Gateway 负责创建、维护和终止不同类型的会话。<ul>
+<li><strong>Main Session</strong>：代表一个顶层的、独立的代理执行上下文，通常由用户直接启动。</li>
+<li><strong>Group Session</strong>：允许一组代理在共享环境中协作，它们可以相互发送消息、共享信息和协调任务。</li>
+<li><strong>Channel Session</strong>：更细粒度的通信通道，用于特定目的的消息交换，例如代理与工具之间、代理与特定节点之间的通信。<br>会话管理系统确保了资源的隔离和有序调度，避免了不同任务之间的干扰。</li>
+</ul>
+</li>
+<li><strong>路由与调度机制</strong>：Gateway 内置了强大的消息路由和任务调度引擎。它能够智能地将传入的消息或任务请求路由到目标代理、工具或节点。调度机制考虑到代理的可用性、负载、优先级和特定任务需求，确保任务能够被高效且适当地处理。例如，当一个代理需要执行一个 <code>exec</code> 命令时，Gateway 会根据命令的 <code>host</code> 参数将其路由到相应的执行环境（如沙箱或特定节点）。</li>
+<li><strong>配置管理系统</strong>：提供了一个集中式的配置存储和分发机制。代理、工具和节点可以通过 Gateway 动态地获取和更新其配置。这使得系统能够灵活地适应变化，无需频繁重启或手动干预。例如，代理可以从配置管理系统获取其行为规则、可访问的工具列表或外部 API 凭证。</li>
+<li><strong>插件编排引擎</strong>：OpenClaw 的强大之处在于其插件化架构。Gateway 的插件编排引擎负责加载、管理和协调各类插件（包括代理插件、工具插件等）。它提供了插件生命周期管理、依赖解析、事件订阅和跨插件通信的机制。通过这个引擎，开发者可以轻松地扩展 OpenClaw 的功能，集成新的 AI 模型、工具或数据源，而无需修改 Gateway 核心代码。</li>
+</ul>
+<h3 id="Canvas-Host"><a href="#Canvas-Host" class="headerlink" title="Canvas Host"></a>Canvas Host</h3><p>Canvas Host 是 Gateway 控制平面的一个重要组成部分，它作为一个轻量级的 HTTP 文件服务器存在，主要目的是为了与前端 Control UI 和 WebView 组件进行集成。</p>
+<ul>
+<li><strong>HTTP 文件服务器（端口 18793）</strong>：Canvas Host 默认监听在 <code>18793</code> 端口，提供标准的 HTTP 文件服务。这意味着它能够向客户端浏览器或 WebView 提供静态文件，例如 HTML、CSS、JavaScript 和其他媒体资源。</li>
+<li><strong>服务路径：<code>/__openclaw__/canvas/</code></strong>：Canvas Host 的静态文件服务根路径被定义为 <code>/__openclaw__/canvas/</code>。所有与 Canvas 相关的资源都将通过这个路径进行访问。这种约定性的路径设计有助于组织和管理 Canvas UI 的资产。</li>
+<li><strong>与 WebView 的集成</strong>：Canvas Host 的核心作用是支持 WebView 的集成。在 OpenClaw 中，代理有时需要渲染复杂的、交互式的用户界面（如数据可视化、图表或自定义表单）。通过 Canvas Host，代理可以将这些 UI 定义为网页文件，并在嵌入式 WebView 中加载显示。代理可以通过 WebSocket 与 WebView 进行通信，发送数据更新或接收用户输入，从而实现丰富的交互体验。</li>
+</ul>
+<h3 id="Control-UI"><a href="#Control-UI" class="headerlink" title="Control UI"></a>Control UI</h3><p>Control UI 是 OpenClaw Gateway 的浏览器端控制界面，为用户提供了直观且功能强大的系统管理和监控工具。</p>
+<ul>
+<li><strong>浏览器端控制界面</strong>：Control UI 是一个完全基于 Web 的应用，可以通过任何现代浏览器访问。它通过 WebSocket 连接到 Gateway，以实现实时的数据同步和命令控制。</li>
+<li><strong>功能</strong>：Control UI 提供了一系列关键功能，使用户能够全面管理 OpenClaw 环境：<ul>
+<li><strong>聊天</strong>：提供一个与代理进行交互的聊天界面，用户可以直接发送指令、提问或提供反馈。</li>
+<li><strong>配置</strong>：允许用户查看和修改系统配置、代理参数、工具设置等。</li>
+<li><strong>节点管理</strong>：显示连接到 Gateway 的所有节点的状态，包括其资源使用、运行任务和连接状态。用户可以管理节点的生命周期。</li>
+<li><strong>会话监控</strong>：实时监控所有活跃的会话，包括 Main、Group 和 Channel sessions。用户可以查看会话的进展、日志输出和代理之间的消息流。</li>
+</ul>
+</li>
+<li><strong>本地访问 vs 远程访问</strong>：<ul>
+<li><strong>本地访问</strong>：在默认配置下，Control UI 可以通过浏览器直接访问 Gateway 所在机器的 <code>http://127.0.0.1:18793/__openclaw__/canvas/</code>（通过 Canvas Host 提供静态资源）或通过配置的 Gateway Web 服务端口进行访问。这适用于本地开发和单机部署。</li>
+<li><strong>远程访问</strong>：对于分布式部署或远程管理场景，Gateway 可以配置为允许来自外部网络的访问。这通常涉及网络配置（如端口转发、防火墙规则）和安全措施（如 SSL&#x2F;TLS 加密、身份验证），以确保远程访问的安全性。远程访问使得用户能够从任何地方监控和管理其 OpenClaw 代理网络。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="Pi-Agent-与多渠道接入"><a href="#Pi-Agent-与多渠道接入" class="headerlink" title="Pi Agent 与多渠道接入"></a>Pi Agent 与多渠道接入</h2><h3 id="Pi-Agent-详解"><a href="#Pi-Agent-详解" class="headerlink" title="Pi Agent 详解"></a>Pi Agent 详解</h3><p>OpenClaw 架构中的 Pi Agent 是部署在边缘设备（如树莓派或其他低功耗硬件）上的核心组件，负责在本地执行任务并与中心 Gateway 通信。其工作原理基于高效的远程过程调用（RPC）模式。当 Gateway 需要 Pi Agent 执行某项任务时，它会通过一个轻量级的 RPC 协议发送指令，例如调用某个本地函数或启动一个服务。Pi Agent 接收到指令后，在本地执行相应的逻辑，并将结果通过同一 RPC 机制返回给 Gateway。这种模式确保了低延迟和高效率的设备间通信，同时减少了网络带宽的占用。</p>
+<p>Pi Agent 与 Gateway 之间的通信机制设计考虑了边缘设备的网络不稳定性。通常采用基于 MQTT 或 WebSocket 的持久连接，并辅以心跳机制和重连策略。所有通信都经过加密，确保数据传输的安全性。这种机制允许 Gateway 实时监控 Pi Agent 的状态，并下发控制指令。</p>
+<p>Pi Agent 具备在本地运行小型 AI 模型的能力，这对于需要实时响应或数据隐私的场景至关重要。例如，图像识别、语音指令处理或异常检测可以在边缘设备上直接完成，无需将所有数据上传到云端。这得益于优化的模型推理引擎，能够充分利用边缘设备的计算资源。</p>
+<p>资源管理是 Pi Agent 的关键功能之一。它监控 CPU、内存、存储和网络使用情况，确保任务执行不会导致设备过载。通过动态调整任务优先级和资源分配，Pi Agent 能够在有限的硬件条件下最大化性能和稳定性。</p>
+<h3 id="多渠道架构"><a href="#多渠道架构" class="headerlink" title="多渠道架构"></a>多渠道架构</h3><p>OpenClaw 的多渠道架构旨在提供无缝的用户交互体验，支持用户通过多种主流通信平台与 AI Agent 进行互动。目前，OpenClaw 支持集成 WhatsApp、Telegram、Discord、Signal 等多种渠道，未来还将不断扩展以覆盖更多平台。这种广泛的渠道支持确保了无论用户偏好何种通信应用，都能轻松接入 OpenClaw 生态。</p>
+<p>核心在于其精巧的渠道适配器设计。每个渠道适配器负责处理特定平台的 API 协议、消息格式转换和认证流程。这意味着，当一个消息从 Telegram 传入时，Telegram 适配器会将其转换为 OpenClaw 内部统一的消息格式；反之，当一个响应需要发送到 WhatsApp 时，WhatsApp 适配器会将其转换为 WhatsApp 兼容的格式。这种模块化的设计使得新渠道的添加变得简单且不影响现有系统。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 简化渠道适配器接口示例</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">ChannelAdapter</span> &#123;</span><br><span class="line">  <span class="attr">platform</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="title function_">receiveMessage</span>(<span class="attr">rawMessage</span>: <span class="built_in">any</span>): <span class="title class_">InternalMessage</span>;</span><br><span class="line">  <span class="title function_">sendMessage</span>(<span class="attr">internalMessage</span>: <span class="title class_">InternalMessage</span>, <span class="attr">recipientId</span>: <span class="built_in">string</span>): <span class="title class_">Promise</span>&lt;<span class="built_in">void</span>&gt;;</span><br><span class="line">  <span class="comment">// ... 其他平台特定方法</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 内部消息格式示例</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">InternalMessage</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">sender</span>: &#123; <span class="attr">id</span>: <span class="built_in">string</span>; <span class="attr">name</span>: <span class="built_in">string</span>; <span class="attr">channel</span>: <span class="built_in">string</span> &#125;;</span><br><span class="line">  <span class="attr">text</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">timestamp</span>: <span class="title class_">Date</span>;</span><br><span class="line">  <span class="comment">// ... 其他消息字段</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>消息路由机制是多渠道架构的另一核心。所有传入的消息首先由统一的入口点接收，然后根据消息来源的渠道类型，被路由到相应的渠道适配器进行预处理。处理后的内部消息随后进入 OpenClaw 的核心逻辑层（通常由 Gateway 协调），再由 AI Agent 进行处理。处理结果会通过反向路由，再次经过目标渠道的适配器，最终发送给用户。</p>
+<p>为实现这种灵活性和可扩展性，OpenClaw 定义了一套统一接口抽象。这意味着无论消息来自哪个渠道，核心 AI 逻辑和业务处理模块都只与这一套抽象接口打交道，无需关心底层渠道的具体实现细节。这大大简化了 AI Agent 的开发复杂性，并提升了系统的可维护性和未来扩展性。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 统一接口抽象示例</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">AgentService</span> &#123;</span><br><span class="line">  <span class="title function_">processMessage</span>(<span class="attr">message</span>: <span class="title class_">InternalMessage</span>): <span class="title class_">Promise</span>&lt;<span class="title class_">AgentResponse</span>&gt;;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">AgentResponse</span> &#123;</span><br><span class="line">  <span class="attr">type</span>: <span class="string">&quot;text&quot;</span> | <span class="string">&quot;image&quot;</span> | <span class="string">&quot;action&quot;</span>;</span><br><span class="line">  <span class="attr">content</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="会话模型与安全模型"><a href="#会话模型与安全模型" class="headerlink" title="会话模型与安全模型"></a>会话模型与安全模型</h2><h3 id="会话模型"><a href="#会话模型" class="headerlink" title="会话模型"></a>会话模型</h3><h4 id="Main-Session（主会话）"><a href="#Main-Session（主会话）" class="headerlink" title="Main Session（主会话）"></a>Main Session（主会话）</h4><p>主会话是 OpenClaw 中每个用户与系统进行个性化交互的核心。它维护着用户独有的对话历史、偏好设置和上下文信息，确保用户在任何时候都能获得连贯且个性化的体验。所有直接发给 OpenClaw 的命令和个人查询都在主会话中处理。主会话的设计旨在提供一个私密、高效且智能的个人助手环境，它的资源分配会根据用户活跃度和任务复杂性进行动态调整，以保证响应速度和系统稳定性。</p>
+<h4 id="Group-Session（群组会话）"><a href="#Group-Session（群组会话）" class="headerlink" title="Group Session（群组会话）"></a>Group Session（群组会话）</h4><p>群组会话专为多用户协作场景设计，允许多个成员在共享的上下文中与 OpenClaw 进行交互。这种会话模式支持团队共同完成任务、共享信息检索以及进行集体决策。OpenClaw 会维护一个对所有参与者可见的统一会话状态，从而实现无缝的团队协作和共同理解。在群组会话中，资源管理侧重于平衡不同参与者的需求，同时确保系统在高并发请求下的响应能力，促进团队生产力。</p>
+<h4 id="Channel-Session（渠道会话）"><a href="#Channel-Session（渠道会话）" class="headerlink" title="Channel Session（渠道会话）"></a>Channel Session（渠道会话）</h4><p>渠道会话负责将 OpenClaw 的功能适配到各种外部通信平台，例如 Telegram、Discord 或 Slack。它作为 OpenClaw 内部逻辑与外部渠道之间的桥梁，将平台特定的消息格式和指令转换为 OpenClaw 可理解的内部表示，并将 OpenClaw 的响应格式化为渠道原生消息。通过渠道会话，OpenClaw 能够无缝集成到用户已有的工作流中，无论用户通过何种平台接入，都能获得一致且高效的交互体验。</p>
+<h4 id="会话隔离与资源管理"><a href="#会话隔离与资源管理" class="headerlink" title="会话隔离与资源管理"></a>会话隔离与资源管理</h4><p>OpenClaw 实施了严格的会话隔离机制，以确保不同会话之间的数据和上下文相互独立，防止信息泄露或混乱。每个会话都在逻辑上独立的运行环境中操作，互不干扰。在资源管理方面，OpenClaw 采用动态分配策略，根据每个会话的当前活动和优先级，智能地分配 CPU、内存和网络 I&#x2F;O 等计算资源。闲置会话的资源会被适度缩减，而活跃会话则会获得必要的计算能力，从而优化整体资源利用率并维护系统的高性能和稳定性。</p>
+<h3 id="安全模型-1"><a href="#安全模型-1" class="headerlink" title="安全模型"></a>安全模型</h3><h4 id="DM-配对模式"><a href="#DM-配对模式" class="headerlink" title="DM 配对模式"></a>DM 配对模式</h4><p>DM（Direct Message）配对模式是 OpenClaw 确保用户身份验证和会话安全的独有机制。它通过一个安全、一次性的过程，将用户的私聊消息通道与特定的 OpenClaw 实例安全绑定。此过程通常涉及生成一个唯一的配对码或链接，用户通过其私聊机器人完成验证。一旦配对成功，所有来自该 DM 渠道的指令都被视为经过身份验证的用户操作，有效防止了未经授权的访问和指令伪造，从而保障了个人数据和操作的隐私与安全。</p>
+<h4 id="Docker-沙箱隔离"><a href="#Docker-沙箱隔离" class="headerlink" title="Docker 沙箱隔离"></a>Docker 沙箱隔离</h4><p>OpenClaw 采用 Docker 容器技术为每个代理或外部工具的执行提供强大的沙箱隔离。这意味着无论是执行第三方工具还是自定义代码，它们都运行在一个独立、受限的 Docker 容器内，与主机系统和其他 OpenClaw 组件完全隔离。这种沙箱机制能够有效遏制潜在的恶意代码或有缺陷的工具对系统造成损害，并严格限制其对网络、文件系统和计算资源的访问权限。即使某个工具存在安全漏洞，其影响也将被严格限制在单个容器内部，极大提升了系统的整体安全性。</p>
+<h4 id="工具白名单-黑名单"><a href="#工具白名单-黑名单" class="headerlink" title="工具白名单&#x2F;黑名单"></a>工具白名单&#x2F;黑名单</h4><p>为了对 OpenClaw 代理可以调用和执行的外部工具进行细粒度控制，系统实现了严格的工具白名单和黑名单机制。白名单模式只允许执行经过预先审批和安全审计的工具，从根本上杜绝了未经授权的第三方代码执行风险。而黑名单模式则用于明确禁止运行已知存在安全隐患或不符合组织策略的特定工具。管理员可以根据实际的安全需求和信任边界，灵活配置这些列表，确保只有受信任且安全的工具才能在 OpenClaw 环境中运行，从而有效降低潜在的安全威胁。</p>
+<h4 id="数据加密与传输安全"><a href="#数据加密与传输安全" class="headerlink" title="数据加密与传输安全"></a>数据加密与传输安全</h4><p>OpenClaw 致力于在整个数据生命周期中通过加密技术保护敏感信息。无论是用户与 OpenClaw 实例之间，还是 OpenClaw 内部服务与外部工具之间的所有数据传输，都强制采用行业标准的 TLS&#x2F;SSL 加密协议，以防止数据在传输过程中被窃听、篡改或拦截。对于存储在数据库或其他持久化存储中的敏感数据，OpenClaw 同样应用静态加密技术。这确保了即使存储介质遭遇未经授权的访问，数据本身也无法被直接解读，从而提供端到端的数据保护，维护数据的机密性。</p>
+<hr>
+<h2 id="Skills-系统"><a href="#Skills-系统" class="headerlink" title="Skills 系统"></a>Skills 系统</h2><p>OpenClaw 的核心能力之一在于其强大的 Skills 系统，它为 Agent 提供了与外部世界交互的接口，并实现了高度的模块化和可扩展性。</p>
+<h3 id="Skills-架构"><a href="#Skills-架构" class="headerlink" title="Skills 架构"></a>Skills 架构</h3><p>OpenClaw 将技能划分为三种主要类型，以适应不同的管理和使用场景：</p>
+<ul>
+<li><strong>Bundled Skills（内置技能）</strong>：这些是 OpenClaw 平台自带的核心技能，通常包括文件操作、系统命令执行、网络请求等基础能力。它们是 Agent 运行的基石，无需额外安装即可使用。</li>
+<li><strong>Managed Skills（托管技能）</strong>：通过 ClawHub 技能注册中心进行管理和分发的技能。用户可以按需安装，这些技能通常由社区或官方开发维护，并能获得定期的更新和支持。它们的生命周期由 ClawHub 控制，确保技能的可用性和安全性。</li>
+<li><strong>Workspace Skills（工作区技能）</strong>：这些是用户在特定工作区内定义和使用的技能。它们通常通过工作区内的 <code>TOOLS.md</code> 文件配置，用于满足特定项目或任务的定制化需求。Workspace Skills 提供了极大的灵活性，允许 Agent 根据当前上下文拥有独特的工具集。</li>
+</ul>
+<h3 id="ClawHub-技能注册中心"><a href="#ClawHub-技能注册中心" class="headerlink" title="ClawHub 技能注册中心"></a>ClawHub 技能注册中心</h3><p>ClawHub 是 OpenClaw 的官方技能注册中心，旨在促进技能的发现、分发和社区协作。</p>
+<ul>
+<li><strong>技能发现与安装</strong>：用户可以通过 ClawHub 浏览、搜索并一键安装所需的技能。ClawHub 提供了一个集中化的平台，简化了技能的管理和部署过程。</li>
+<li><strong>社区贡献机制</strong>：ClawHub 鼓励开发者和社区成员贡献自己的技能。通过标准化的开发和提交流程，高质量的技能可以被集成到 ClawHub 中，丰富整个生态系统，并让所有 OpenClaw 用户受益。</li>
+</ul>
+<h3 id="Workspace-结构"><a href="#Workspace-结构" class="headerlink" title="Workspace 结构"></a>Workspace 结构</h3><p>OpenClaw 的 Workspace 结构是 Agent 运行环境的关键组成部分，它通过一套特定的文件来定义 Agent 的行为和可用工具。</p>
+<ul>
+<li><strong>AGENTS.md, SOUL.md, TOOLS.md 等文件</strong>：<ul>
+<li><code>AGENTS.md</code>：定义了工作区中 Agent 的基本信息、角色和职责。</li>
+<li><code>SOUL.md</code>：包含了 Agent 的核心”灵魂”——即其行为逻辑、目标和个性化指令。</li>
+<li><code>TOOLS.md</code>：详细列出了 Agent 在当前工作区中可以使用的技能和工具。这些工具可以是系统内置的、ClawHub 托管的，或是用户自定义的 Workspace Skills。</li>
+</ul>
+</li>
+<li><strong>注入机制</strong>：当一个 Agent 在特定工作区中启动时，OpenClaw 会将这些 <code>.md</code> 文件中定义的内容动态地注入到 Agent 的运行时环境中。这使得 Agent 能够根据工作区的配置，即时拥有所需的知识、行为模式和操作工具，实现高度上下文感知的自动化。</li>
+</ul>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>OpenClaw 作为一个开源的 Agent 平台，通过其精巧的架构设计和前瞻性的技术选型，为用户提供了一个强大、灵活且安全的自动化解决方案。</p>
+<h3 id="架构优势"><a href="#架构优势" class="headerlink" title="架构优势"></a>架构优势</h3><ul>
+<li><strong>本地优先的隐私保护</strong>：OpenClaw 倡导”本地优先”原则，尽可能在用户本地设备上运行 Agent 和处理数据。这意味着敏感信息在多数情况下不会离开用户控制的环境，从而最大程度地保障了数据隐私和安全。</li>
+<li><strong>模块化与可扩展性</strong>：平台的核心设计理念是模块化。无论是 Agent 的功能、技能集还是与外部服务的集成，都采用高度解耦的模块化方式。这使得系统易于维护、升级和扩展，开发者可以轻松添加新的功能或工具，而不会影响现有系统。</li>
+<li><strong>多渠道统一体验</strong>：OpenClaw 旨在提供跨越多种通信渠道（如 Telegram、Slack、Discord 等）的统一 Agent 体验。通过抽象化的设计，Agent 可以在不同平台上以一致的方式响应和执行任务，为用户带来无缝的交互体验。</li>
+</ul>
+<h3 id="技术亮点"><a href="#技术亮点" class="headerlink" title="技术亮点"></a>技术亮点</h3><ul>
+<li><strong>WebSocket 控制平面</strong>：利用 WebSocket 协议构建了高效、实时的控制平面。这确保了 Agent 与外部系统（如用户界面、其他服务）之间能够进行低延迟、双向的通信，是实现响应式和交互式 Agent 的关键。</li>
+<li><strong>Pi Agent RPC 模式</strong>：引入了 Pi Agent RPC (Remote Procedure Call) 模式，用于 Agent 之间或 Agent 与节点之间的通信。这种模式使得远程功能的调用如同本地调用一般简洁高效，是构建分布式 Agent 系统和服务网格的基石。</li>
+<li><strong>Docker 沙箱隔离</strong>：为了增强安全性和环境一致性，OpenClaw 广泛采用 Docker 沙箱隔离技术。每个 Agent 可以在独立的容器环境中运行，与其他 Agent 或宿主系统隔离。这不仅避免了依赖冲突，还为执行高风险操作提供了安全保障。</li>
+</ul>
+<h3 id="未来展望"><a href="#未来展望" class="headerlink" title="未来展望"></a>未来展望</h3><p>OpenClaw 的发展愿景是构建一个更加开放、智能和普惠的 Agent 生态系统：</p>
+<ul>
+<li><strong>更多渠道支持</strong>：我们将持续扩展对各类通信平台和智能设备的集成，使 OpenClaw Agent 能够触达更广泛的用户群体和应用场景。</li>
+<li><strong>更强的边缘计算能力</strong>：随着物联网和边缘计算的兴起，OpenClaw 将致力于提升 Agent 在边缘设备上运行的效率和能力，实现更低延迟、更数据本地化的智能自动化。</li>
+<li><strong>社区生态发展</strong>：一个强大而活跃的社区是开源项目成功的关键。OpenClaw 将继续投入资源，鼓励开发者贡献技能、分享经验，共同构建一个繁荣的 Agent 生态系统，推动人工智能与自动化技术的普及。</li>
+</ul>
+<hr>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.openclaw.ai/">OpenClaw 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/openclaw/openclaw">OpenClaw GitHub 仓库</a></li>
+<li><a target="_blank" rel="noopener" href="https://clawhub.com/">ClawHub 技能注册中心</a></li>
+</ul>
+<hr>
+<p><strong>本文完整分析了 OpenClaw 的架构设计，从 Gateway 控制平面到 Pi Agent RPC 模式，从多渠道接入到安全模型，全面展示了这个本地优先的个人 AI 助手平台的技术实现。希望本文能为开发者提供有价值的参考。</strong></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://mu-fan-2020.github.io">mufan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://mu-fan-2020.github.io/2026/02/02/openclaw-architecture-analysis/">https://mu-fan-2020.github.io/2026/02/02/openclaw-architecture-analysis/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://mu-fan-2020.github.io" target="_blank">Mufan's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/AI/">AI</a><a class="post-meta__tags" href="/tags/OpenClaw/">OpenClaw</a><a class="post-meta__tags" href="/tags/%E6%9E%B6%E6%9E%84/">架构</a><a class="post-meta__tags" href="/tags/%E4%B8%AA%E4%BA%BA%E5%8A%A9%E6%89%8B/">个人助手</a></div><div class="post-share"><div class="social-share" data-image="/img/covers/openclaw-architecture.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/02/17/openclaw-telegram-topics-concurrency/" title="OpenClaw 实战：如何在 Telegram 实现多任务并发处理"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">OpenClaw 实战：如何在 Telegram 实现多任务并发处理</div></div><div class="info-2"><div class="info-item-1">不少同学在使用 OpenClaw 时都会遇到一个痛点：机器人处理任务时只能“排队”，如果一个任务卡住了，后面的对话就全得等着。其实，OpenClaw 本身就是一个强大的“并发任务引擎”，关键在于你如何利用 Sessions。 在 Telegram 环境下，最简单且优雅的实现方式就是利用 Topics (话题) 功能。 核心思路：一个 Topic &#x3D; 一个独立 SessionOpenClaw 的并发能力建立在 Session 之上：  一条 Session &#x3D; 一条独立任务流（拥有独立的上下文）。 多个 Session &#x3D; OpenClaw 能够同时处理多条互不干扰的任务。  通过在 Telegram 群组中开启 Topics 模式，每一个 Topic 都会被 OpenClaw 识别为独立的 Session。这意味着你可以在同一个群里开辟多条并行车道。 场景规划建议为了让工作流更清晰，建议在群组中至少创建以下三个 Topic：  #Chat：日常闲聊，上下文可以自由发散，不影响正式工作。 #Work：专门办正事，只讨论具体任务和指令。 #Feed：用于...</div></div></div></a><a class="pagination-related" href="/2026/02/02/everything-claude-code-guide/" title="Everything Claude Code 完全使用指南"><img class="cover" src="/img/covers/code-editor.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Everything Claude Code 完全使用指南</div></div><div class="info-2"><div class="info-item-1"> 本文详细介绍 everything-claude-code 项目的核心概念和高效使用方法，这是一个经过 10+ 个月实战验证的 Claude Code 配置集合，由 Anthropic 黑客松获奖者开发。    目录 项目简介 核心工作流 常用命令详解 高级特性 开发技巧 最佳实践 总结   项目简介everything-claude-code 是一个完整的 Claude Code 配置集合，包含：  15+ Agents - 专门的子代理（planner、architect、code-reviewer 等） 30+ Skills - 工作流定义（TDD、持续学习、验证循环等） 20+ Commands - 斜杠命令（&#x2F;plan、&#x2F;tdd、&#x2F;verify 等） Rules - 始终遵循的指南（安全、编码风格、测试等） Hooks - 事件触发的自动化（内存持久化、格式化等） MCP 配置 - 外部服务集成（GitHub、Supabase、Vercel 等）  项目地址: https://github.com/affaan-m/everything-...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/02/02/everything-claude-code-guide/" title="Everything Claude Code 完全使用指南"><img class="cover" src="/img/covers/code-editor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-02</div><div class="info-item-2">Everything Claude Code 完全使用指南</div></div><div class="info-2"><div class="info-item-1"> 本文详细介绍 everything-claude-code 项目的核心概念和高效使用方法，这是一个经过 10+ 个月实战验证的 Claude Code 配置集合，由 Anthropic 黑客松获奖者开发。    目录 项目简介 核心工作流 常用命令详解 高级特性 开发技巧 最佳实践 总结   项目简介everything-claude-code 是一个完整的 Claude Code 配置集合，包含：  15+ Agents - 专门的子代理（planner、architect、code-reviewer 等） 30+ Skills - 工作流定义（TDD、持续学习、验证循环等） 20+ Commands - 斜杠命令（&#x2F;plan、&#x2F;tdd、&#x2F;verify 等） Rules - 始终遵循的指南（安全、编码风格、测试等） Hooks - 事件触发的自动化（内存持久化、格式化等） MCP 配置 - 外部服务集成（GitHub、Supabase、Vercel 等）  项目地址: https://github.com/affaan-m/everything-...</div></div></div></a><a class="pagination-related" href="/2026/02/20/openclaw-qwen-agent-team/" title="从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-20</div><div class="info-item-2">从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</div></div><div class="info-2"><div class="info-item-1">很多人装完 OpenClaw（俗称小龙虾）的第一反应是：这玩意儿怎么用？ 你可能看着那个黑乎乎的终端窗口，或者 Telegram 里那个半天不蹦出一个词的机器人，心里犯嘀咕：这和 ChatGPT 有什么区别？为什么我还要费劲巴拉地折腾服务器？ 我花了半个月时间，烧了 500 美金，把 OpenClaw 从“装上就吃灰”折腾成了真能干活的 AI 员工。今天这篇长文，不聊虚的跑分，只聊工程实战：如何给它搭工位、注灵魂，最后把它升级成一支 7×24 小时全自动运行的 AI 工程师团队。 核心心态：它不是聊天框，是你的远程同事在动手之前，我们先切换一下心态：不要把 OpenClaw 当成一个 AI 助手，把它想象成你刚招的一个远程员工。 人入职了，但工位还没搭好，它现在什么都干不了。你得给它准备电脑（服务器）、选好大脑（模型）、配好网络和工具，最重要的是，你得交代清楚你是谁、你的工作流是什么。 第一部分：给 AI 员工搭个像样的工位1. 硬件与大脑的选择首先，服务器建议直接买海外的（香港、新加坡等），内存 8G 起步。别省这几百块，跑浏览器和自动化脚本极其吃内存，2G 的机器基本上一跑就...</div></div></div></a><a class="pagination-related" href="/2026/02/17/openclaw-telegram-topics-concurrency/" title="OpenClaw 实战：如何在 Telegram 实现多任务并发处理"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-17</div><div class="info-item-2">OpenClaw 实战：如何在 Telegram 实现多任务并发处理</div></div><div class="info-2"><div class="info-item-1">不少同学在使用 OpenClaw 时都会遇到一个痛点：机器人处理任务时只能“排队”，如果一个任务卡住了，后面的对话就全得等着。其实，OpenClaw 本身就是一个强大的“并发任务引擎”，关键在于你如何利用 Sessions。 在 Telegram 环境下，最简单且优雅的实现方式就是利用 Topics (话题) 功能。 核心思路：一个 Topic &#x3D; 一个独立 SessionOpenClaw 的并发能力建立在 Session 之上：  一条 Session &#x3D; 一条独立任务流（拥有独立的上下文）。 多个 Session &#x3D; OpenClaw 能够同时处理多条互不干扰的任务。  通过在 Telegram 群组中开启 Topics 模式，每一个 Topic 都会被 OpenClaw 识别为独立的 Session。这意味着你可以在同一个群里开辟多条并行车道。 场景规划建议为了让工作流更清晰，建议在群组中至少创建以下三个 Topic：  #Chat：日常闲聊，上下文可以自由发散，不影响正式工作。 #Work：专门办正事，只讨论具体任务和指令。 #Feed：用于...</div></div></div></a><a class="pagination-related" href="/2024/02/03/claude-mem-advanced/" title="Claude‑Mem 进阶使用与实现机制指南"><img class="cover" src="/img/covers/claude-mem.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-02-03</div><div class="info-item-2">Claude‑Mem 进阶使用与实现机制指南</div></div><div class="info-2"><div class="info-item-1"> 基于 claude-mem v9.0.12，覆盖安装&#x2F;三段式检索&#x2F;Worker-DB-FTS5&#x2F;Hook&#x2F;Session ID&#x2F;排查与 API，含时序图与诊断脚本    目录 一、使用篇 1. 安装与快速验证 2. 本地服务与日志 3. 配置 4. 搜索：三层工作流 5. 最佳实践   二、机制篇 1. 生命周期钩子 2. Worker 架构 3. 数据面：SQLite + FTS5 4. 上下文构建链路 5. 搜索面 6. Session ID 设计 7. 集成   三、故障排查 四、附录 五、实操示例与时序图   一、使用篇1. 安装与快速验证（Claude Code 插件）在 Claude Code 终端新开会话，执行： 12/plugin marketplace add thedotmack/claude-mem/plugin install claude-mem  重启 Claude Code（确保插件 hooks、worker 正常加载）。 验证：  新建&#x2F;恢复一个项目会话，历史上下文应自动被注入（带”To...</div></div></div></a><a class="pagination-related" href="/2026/02/20/openclaw-agent-system-hardcore/" title="硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-20</div><div class="info-item-2">硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统</div></div><div class="info-2"><div class="info-item-1">随着大模型技术的普惠，构建一个 Agent 原型已经变得异常简单：几行代码调用 LLM，配合一个简单的 ReAct 循环就能跑起来。但在真实的工程实践中，如何让 Agent 在多渠道高并发输入下不乱套？如何处理 LLM 不稳定的上下文限制和 API 故障？如何保证高权限工具调用的安全性？ OpenClaw（原 Clawdbot）作为一个面向多渠道的桌面 Agent 操作系统，其设计中蕴含了大量解决上述“生产级难题”的工程智慧。本文将深入拆解 OpenClaw 的架构设计、调度逻辑、容错机制以及记忆体系，探讨如何构建一套真正稳健、可落地的 Agent 系统。 状态分离：Agent 的“工作室”逻辑在工程设计之初，首要解决的是数据存储的组织方式。OpenClaw 提出了一个非常清晰的拆分思路：将 Agent 的数据分为工作区（Workspace）和状态区（State）。  工作区（Workspace）：存放 Agent 的行为指令（AGENTS.md）和性格设定（SOUL.md）。这部分数据是“逻辑本体”，可以被分发、版本控制，甚至方便地迁移到其他机器。 状态区（State）：包括敏...</div></div></div></a><a class="pagination-related" href="/2026/01/29/clawdbot-guide/" title="Clawdbot 配置完全指南"><img class="cover" src="/img/covers/clawdbot.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-29</div><div class="info-item-2">Clawdbot 配置完全指南</div></div><div class="info-2"><div class="info-item-1"> 本教程记录了在 ARM64 架构 Linux 系统上配置 Clawdbot 的完整过程，包括所有遇到的问题和解决方案。    目录 环境准备 Node.js 环境配置 Clawdbot 安装 常见问题与解决方案 API 配置 Telegram 配对 服务管理   系统环境 操作系统: Armbian (Debian Trixie) 架构: ARM64 (aarch64) Node.js: v22.22.0 (LTS) 包管理器: npm + pnpm   环境准备1. 安装基础工具12345# 更新系统sudo apt update# 安装必要工具sudo apt install -y ca-certificates curl gnupg vim tmux  2. 配置防火墙（可选）1234567891011# 安装 ufwsudo apt install ufw -y# 开放 SSH 端口（重要！避免被锁在外面）sudo ufw allow 22/tcp# 启用防火墙sudo ufw --force enable# 查看状态sudo ufw status verbose   ...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">mufan</div><div class="author-info-description">折腾不止，记录不息</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客 🖤</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80"><span class="toc-number">2.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E6%80%BB%E8%A7%88"><span class="toc-number">3.</span> <span class="toc-text">架构总览</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gateway-%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2"><span class="toc-number">3.1.</span> <span class="toc-text">Gateway 控制平面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pi-Agent-RPC"><span class="toc-number">3.2.</span> <span class="toc-text">Pi Agent (RPC)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E6%B8%A0%E9%81%93%E6%8E%A5%E5%85%A5"><span class="toc-number">3.3.</span> <span class="toc-text">多渠道接入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E7%B3%BB%E7%BB%9F"><span class="toc-number">3.4.</span> <span class="toc-text">工具系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%A8%A1%E5%9E%8B"><span class="toc-number">3.5.</span> <span class="toc-text">安全模型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gateway-%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E8%AF%A6%E8%A7%A3"><span class="toc-number">4.</span> <span class="toc-text">Gateway 控制平面详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#WebSocket-%E7%BD%91%E7%BB%9C%E6%9E%B6%E6%9E%84"><span class="toc-number">4.1.</span> <span class="toc-text">WebSocket 网络架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%9C%8D%E5%8A%A1"><span class="toc-number">4.2.</span> <span class="toc-text">核心服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Canvas-Host"><span class="toc-number">4.3.</span> <span class="toc-text">Canvas Host</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Control-UI"><span class="toc-number">4.4.</span> <span class="toc-text">Control UI</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Pi-Agent-%E4%B8%8E%E5%A4%9A%E6%B8%A0%E9%81%93%E6%8E%A5%E5%85%A5"><span class="toc-number">5.</span> <span class="toc-text">Pi Agent 与多渠道接入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Pi-Agent-%E8%AF%A6%E8%A7%A3"><span class="toc-number">5.1.</span> <span class="toc-text">Pi Agent 详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E6%B8%A0%E9%81%93%E6%9E%B6%E6%9E%84"><span class="toc-number">5.2.</span> <span class="toc-text">多渠道架构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%9A%E8%AF%9D%E6%A8%A1%E5%9E%8B%E4%B8%8E%E5%AE%89%E5%85%A8%E6%A8%A1%E5%9E%8B"><span class="toc-number">6.</span> <span class="toc-text">会话模型与安全模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%9A%E8%AF%9D%E6%A8%A1%E5%9E%8B"><span class="toc-number">6.1.</span> <span class="toc-text">会话模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Main-Session%EF%BC%88%E4%B8%BB%E4%BC%9A%E8%AF%9D%EF%BC%89"><span class="toc-number">6.1.1.</span> <span class="toc-text">Main Session（主会话）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Group-Session%EF%BC%88%E7%BE%A4%E7%BB%84%E4%BC%9A%E8%AF%9D%EF%BC%89"><span class="toc-number">6.1.2.</span> <span class="toc-text">Group Session（群组会话）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Channel-Session%EF%BC%88%E6%B8%A0%E9%81%93%E4%BC%9A%E8%AF%9D%EF%BC%89"><span class="toc-number">6.1.3.</span> <span class="toc-text">Channel Session（渠道会话）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%9A%E8%AF%9D%E9%9A%94%E7%A6%BB%E4%B8%8E%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86"><span class="toc-number">6.1.4.</span> <span class="toc-text">会话隔离与资源管理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%A8%A1%E5%9E%8B-1"><span class="toc-number">6.2.</span> <span class="toc-text">安全模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DM-%E9%85%8D%E5%AF%B9%E6%A8%A1%E5%BC%8F"><span class="toc-number">6.2.1.</span> <span class="toc-text">DM 配对模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Docker-%E6%B2%99%E7%AE%B1%E9%9A%94%E7%A6%BB"><span class="toc-number">6.2.2.</span> <span class="toc-text">Docker 沙箱隔离</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E7%99%BD%E5%90%8D%E5%8D%95-%E9%BB%91%E5%90%8D%E5%8D%95"><span class="toc-number">6.2.3.</span> <span class="toc-text">工具白名单&#x2F;黑名单</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%8A%A0%E5%AF%86%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8"><span class="toc-number">6.2.4.</span> <span class="toc-text">数据加密与传输安全</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Skills-%E7%B3%BB%E7%BB%9F"><span class="toc-number">7.</span> <span class="toc-text">Skills 系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Skills-%E6%9E%B6%E6%9E%84"><span class="toc-number">7.1.</span> <span class="toc-text">Skills 架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ClawHub-%E6%8A%80%E8%83%BD%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83"><span class="toc-number">7.2.</span> <span class="toc-text">ClawHub 技能注册中心</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Workspace-%E7%BB%93%E6%9E%84"><span class="toc-number">7.3.</span> <span class="toc-text">Workspace 结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">8.</span> <span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E4%BC%98%E5%8A%BF"><span class="toc-number">8.1.</span> <span class="toc-text">架构优势</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%80%E6%9C%AF%E4%BA%AE%E7%82%B9"><span class="toc-number">8.2.</span> <span class="toc-text">技术亮点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AA%E6%9D%A5%E5%B1%95%E6%9C%9B"><span class="toc-number">8.3.</span> <span class="toc-text">未来展望</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">9.</span> <span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/ai-rss-and-x-topic-skills/" title="不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill">不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill</a><time datetime="2026-02-20T09:00:00.000Z" title="发表于 2026-02-20 17:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/openclaw-qwen-agent-team/" title="从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记">从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</a><time datetime="2026-02-20T08:00:00.000Z" title="发表于 2026-02-20 16:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/openclaw-agent-system-hardcore/" title="硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统">硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统</a><time datetime="2026-02-20T07:00:00.000Z" title="发表于 2026-02-20 15:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/%E5%A5%87%E7%82%B9%E4%B9%8B%E5%90%8E-%E7%AE%97%E5%8A%9B%E6%97%B6%E4%BB%A3%E7%9A%84%E4%BA%BA%E7%B1%BB%E4%BD%8D%E7%BD%AE%E9%87%8D%E6%8E%92/" title="奇点之后：算力时代的人类位置重排">奇点之后：算力时代的人类位置重排</a><time datetime="2026-02-20T05:40:00.000Z" title="发表于 2026-02-20 13:40:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/17/openclaw-telegram-topics-concurrency/" title="OpenClaw 实战：如何在 Telegram 实现多任务并发处理">OpenClaw 实战：如何在 Telegram 实现多任务并发处理</a><time datetime="2026-02-16T16:45:00.000Z" title="发表于 2026-02-17 00:45:00">2026-02-17</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By mufan</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></span></div><div class="footer_custom_text">用心记录每一次折腾</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>

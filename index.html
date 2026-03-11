@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Mufan's Blog - 折腾不止，记录不息</title><meta name="author" content="mufan"><meta name="copyright" content="mufan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="一个关于技术、AI 和各种折腾的个人博客">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mufan&#39;s Blog">
+<meta property="og:url" content="https://mu-fan-2020.github.io/index.html">
+<meta property="og:site_name" content="Mufan&#39;s Blog">
+<meta property="og:description" content="一个关于技术、AI 和各种折腾的个人博客">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mu-fan-2020.github.io/img/favicon.png">
+<meta property="article:author" content="mufan">
+<meta property="article:tag" content="技术, AI, Linux, 教程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mu-fan-2020.github.io/img/favicon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Mufan's Blog",
+  "alternateName": [
+    "折腾不止，记录不息",
+    "mu-fan-2020.github.io"
+  ],
+  "url": "https://mu-fan-2020.github.io/"
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://mu-fan-2020.github.io/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Mufan\'s Blog',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'home'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      if ($loadingBox.classList.contains('loaded')) return
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+
+  if (document.readyState === 'complete') {
+    preloader.endLoading()
+  } else {
+    window.addEventListener('load', preloader.endLoading)
+    document.addEventListener('DOMContentLoaded', preloader.endLoading)
+    // Add timeout protection: force end after 7 seconds
+    setTimeout(preloader.endLoading, 7000)
+  }
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="full_page fixed" id="page-header" style="background-image: url(/img/covers/cyberpunk-1.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Mufan's Blog</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="site-info"><h1 id="site-title">Mufan's Blog</h1><div id="site-subtitle"><span id="subtitle"></span></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts nc" id="recent-posts"><div class="recent-post-items"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/02/20/ai-rss-and-x-topic-skills/" title="不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill">不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-02-20T09:00:00.000Z" title="发表于 2026-02-20 17:00:00">2026-02-20</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/AI-%E5%B7%A5%E4%BD%9C%E6%B5%81/">AI 工作流</a></span></div><div class="content">在 AI 领域，信息的半衰期极短。作为一名内容创作者或技术观察者，每天醒来面对的往往是排山倒海的信息量。为了缓解这种“信息焦虑”和“选题焦虑”，我并没有去订阅更多的公众号，而是决定利用 AI 为自己量身定制两个自动化工具：一个是基于 Karpathy 推荐信源的 RSS 日报 Skill，另一个是专治收藏夹吃灰的 X（Twitter）选题 Skill。 这篇文章将系统梳理这两个工具的设计思路、技术实现以及我在迭代过程中的踩坑经验。 第一部分：RSS 日报 Skill——对接一手信息的“降噪漏斗”信息排泄链的问题在信息传播中存在一个“信息排泄链”现象：源头信息经过层层翻译、转述、加工，到达受众手中时往往已经丢失了核心细节，甚至充满了误读。为了绕开链路末端的“残渣”，我决定直接对接一手信息源。 机会来自于 Karpathy（OpenAI 联合创始人）推荐的 92 个高质量技术 RSS 订阅源。这些源包含了顶级研究者和博主的个人站点，是真正的 AI 资讯原产地。但问题在于，没人能每天手动刷完 90 多个博客。 需求与设计逻辑我给这个 Skill 定下了 5 个核心需求：支持时间窗口设置...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/02/20/openclaw-qwen-agent-team/" title="从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记">从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-02-20T08:00:00.000Z" title="发表于 2026-02-20 16:00:00">2026-02-20</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/Agent/">Agent</a></span></div><div class="content">很多人装完 OpenClaw（俗称小龙虾）的第一反应是：这玩意儿怎么用？ 你可能看着那个黑乎乎的终端窗口，或者 Telegram 里那个半天不蹦出一个词的机器人，心里犯嘀咕：这和 ChatGPT 有什么区别？为什么我还要费劲巴拉地折腾服务器？ 我花了半个月时间，烧了 500 美金，把 OpenClaw 从“装上就吃灰”折腾成了真能干活的 AI 员工。今天这篇长文，不聊虚的跑分，只聊工程实战：如何给它搭工位、注灵魂，最后把它升级成一支 7×24 小时全自动运行的 AI 工程师团队。 核心心态：它不是聊天框，是你的远程同事在动手之前，我们先切换一下心态：不要把 OpenClaw 当成一个 AI 助手，把它想象成你刚招的一个远程员工。 人入职了，但工位还没搭好，它现在什么都干不了。你得给它准备电脑（服务器）、选好大脑（模型）、配好网络和工具，最重要的是，你得交代清楚你是谁、你的工作流是什么。 第一部分：给 AI 员工搭个像样的工位1. 硬件与大脑的选择首先，服务器建议直接买海外的（香港、新加坡等），内存 8G 起步。别省这几百块，跑浏览器和自动化脚本极其吃内存，2G 的机器基本上一跑就...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/02/20/openclaw-agent-system-hardcore/" title="硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统">硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-02-20T07:00:00.000Z" title="发表于 2026-02-20 15:00:00">2026-02-20</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/Agent/">Agent</a></span></div><div class="content">随着大模型技术的普惠，构建一个 Agent 原型已经变得异常简单：几行代码调用 LLM，配合一个简单的 ReAct 循环就能跑起来。但在真实的工程实践中，如何让 Agent 在多渠道高并发输入下不乱套？如何处理 LLM 不稳定的上下文限制和 API 故障？如何保证高权限工具调用的安全性？ OpenClaw（原 Clawdbot）作为一个面向多渠道的桌面 Agent 操作系统，其设计中蕴含了大量解决上述“生产级难题”的工程智慧。本文将深入拆解 OpenClaw 的架构设计、调度逻辑、容错机制以及记忆体系，探讨如何构建一套真正稳健、可落地的 Agent 系统。 状态分离：Agent 的“工作室”逻辑在工程设计之初，首要解决的是数据存储的组织方式。OpenClaw 提出了一个非常清晰的拆分思路：将 Agent 的数据分为工作区（Workspace）和状态区（State）。  工作区（Workspace）：存放 Agent 的行为指令（AGENTS.md）和性格设定（SOUL.md）。这部分数据是“逻辑本体”，可以被分发、版本控制，甚至方便地迁移到其他机器。 状态区（State）：包括敏...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/02/20/%E5%A5%87%E7%82%B9%E4%B9%8B%E5%90%8E-%E7%AE%97%E5%8A%9B%E6%97%B6%E4%BB%A3%E7%9A%84%E4%BA%BA%E7%B1%BB%E4%BD%8D%E7%BD%AE%E9%87%8D%E6%8E%92/" title="奇点之后：算力时代的人类位置重排">奇点之后：算力时代的人类位置重排</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-02-20T05:40:00.000Z" title="发表于 2026-02-20 13:40:00">2026-02-20</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%80%9D%E8%80%83/">思考</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%80%9D%E8%80%83/AI/">AI</a></span></div><div class="content">一、春节那天，你没看见的那条线春节没回老家，一个人关在城市边缘的办公室里，窗外是亮得过分的商业区，远处高楼上挂着一个巨大灯牌：AGI Bar。 你当然知道那只是一块广告牌，但越看越觉得它像一根刻在天上的刻度尺——文明曲线一路往上蹿，到这儿突然拐弯，开始接近垂直。 所谓“奇点”，对今天的人类，大概就是这种感觉：  不是科幻片里那种“某一天AI觉醒、宣告统治人类”的戏剧性瞬间； 而是在极长的一段时间里，技术像水位一样慢慢上涨，你每天都习惯性往下看一眼，觉得“也就那样”； 某天你忽然发现，水已经涨到胸口，再往前一步就是游泳课了。  关键的那一刀，是底层前提被换掉了：  过去：智能是稀缺资源，好老师、好学校、好公司是稀缺智能的入口；现在：智能第一次变成“可生产”的工业品，可以靠石油、煤、电力、阳光去“炼”。  训练一个顶级模型的过程，本质上就是：  把能源和算力，   转换成可以复用、可以复制、可以出租的“外接智力”。  以前你只能带着一颗脑袋去上班，最豪华的配置是“我 + 一个小团队”。现在的设定变成：  你可以有一整支不睡觉、不涨工资、不需要意义感的智能体队伍； 它们可以在你睡觉的时...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2026/02/17/openclaw-telegram-topics-concurrency/" title="OpenClaw 实战：如何在 Telegram 实现多任务并发处理">OpenClaw 实战：如何在 Telegram 实现多任务并发处理</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-02-16T16:45:00.000Z" title="发表于 2026-02-17 00:45:00">2026-02-17</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/">技术教程</a></span></div><div class="content">不少同学在使用 OpenClaw 时都会遇到一个痛点：机器人处理任务时只能“排队”，如果一个任务卡住了，后面的对话就全得等着。其实，OpenClaw 本身就是一个强大的“并发任务引擎”，关键在于你如何利用 Sessions。 在 Telegram 环境下，最简单且优雅的实现方式就是利用 Topics (话题) 功能。 核心思路：一个 Topic &#x3D; 一个独立 SessionOpenClaw 的并发能力建立在 Session 之上：  一条 Session &#x3D; 一条独立任务流（拥有独立的上下文）。 多个 Session &#x3D; OpenClaw 能够同时处理多条互不干扰的任务。  通过在 Telegram 群组中开启 Topics 模式，每一个 Topic 都会被 OpenClaw 识别为独立的 Session。这意味着你可以在同一个群里开辟多条并行车道。 场景规划建议为了让工作流更清晰，建议在群组中至少创建以下三个 Topic：  #Chat：日常闲聊，上下文可以自由发散，不影响正式工作。 #Work：专门办正事，只讨论具体任务和指令。 #Feed：用于...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2026/02/02/openclaw-architecture-analysis/" title="OpenClaw 架构原理深度解析"><img class="post-bg" src="/img/covers/openclaw-architecture.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="OpenClaw 架构原理深度解析"></a></div><div class="recent-post-info"><a class="article-title" href="/2026/02/02/openclaw-architecture-analysis/" title="OpenClaw 架构原理深度解析">OpenClaw 架构原理深度解析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-02-02T08:00:00.000Z" title="发表于 2026-02-02 16:00:00">2026-02-02</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6/">技术深度</a></span></div><div class="content"> 深入剖析 OpenClaw 个人 AI 助手平台的架构设计，探索本地优先、多渠道、跨平台的技术实现原理。    目录 引言 架构总览 Gateway 控制平面详解 Pi Agent 与多渠道接入 会话模型与工具系统 安全模型与远程访问 Skills 系统 总结   引言在人工智能飞速发展的今天，个人AI助手已成为提升效率、简化生活的重要工具。OpenClaw 正是这样一个旨在赋能用户，构建属于自己的、高度可定制化个人AI助手的平台。它不仅仅是一个简单的AI聊天机器人，更是一个本地优先、多渠道、跨平台的智能生态系统。 OpenClaw 的核心理念在于将AI能力下放至用户边缘设备，强调数据隐私与个性化体验。与依赖云服务的传统AI助手不同，OpenClaw 致力于在确保性能和功能的前提下，最大化地利用本地计算资源。这不仅提供了更低的延迟和更高的安全性，也为用户带来了前所未有的控制权。 OpenClaw 的核心特点包括：  本地优先（Local-First）：尽可能在用户的设备上运行AI模型和处理数据，减少对外部云服务的依赖，增强隐私保护。 多渠道（Multi-Channel）：支持通...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2026/02/02/everything-claude-code-guide/" title="Everything Claude Code 完全使用指南"><img class="post-bg" src="/img/covers/code-editor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Everything Claude Code 完全使用指南"></a></div><div class="recent-post-info"><a class="article-title" href="/2026/02/02/everything-claude-code-guide/" title="Everything Claude Code 完全使用指南">Everything Claude Code 完全使用指南</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-02-02T04:50:00.000Z" title="发表于 2026-02-02 12:50:00">2026-02-02</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/">技术教程</a></span></div><div class="content"> 本文详细介绍 everything-claude-code 项目的核心概念和高效使用方法，这是一个经过 10+ 个月实战验证的 Claude Code 配置集合，由 Anthropic 黑客松获奖者开发。    目录 项目简介 核心工作流 常用命令详解 高级特性 开发技巧 最佳实践 总结   项目简介everything-claude-code 是一个完整的 Claude Code 配置集合，包含：  15+ Agents - 专门的子代理（planner、architect、code-reviewer 等） 30+ Skills - 工作流定义（TDD、持续学习、验证循环等） 20+ Commands - 斜杠命令（&#x2F;plan、&#x2F;tdd、&#x2F;verify 等） Rules - 始终遵循的指南（安全、编码风格、测试等） Hooks - 事件触发的自动化（内存持久化、格式化等） MCP 配置 - 外部服务集成（GitHub、Supabase、Vercel 等）  项目地址: https://github.com/affaan-m/everything-...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2026/01/30/proxychains-guide/" title="Linux 终端代理神器：ProxyChains4 配置与使用指南"><img class="post-bg" src="/img/covers/proxychains.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Linux 终端代理神器：ProxyChains4 配置与使用指南"></a></div><div class="recent-post-info"><a class="article-title" href="/2026/01/30/proxychains-guide/" title="Linux 终端代理神器：ProxyChains4 配置与使用指南">Linux 终端代理神器：ProxyChains4 配置与使用指南</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-01-30T13:35:00.000Z" title="发表于 2026-01-30 21:35:00">2026-01-30</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/">技术教程</a></span></div><div class="content">在 Linux 终端操作时，我们经常遇到 git clone 速度慢、curl 连接超时或者 apt 更新卡住的情况。虽然可以设置环境变量 http_proxy，但并不是所有程序都认这个变量（比如部分 Java 或 Python 程序）。 这时候，你需要 ProxyChains4。它能勾住动态链接库，强制让指定程序通过你配置的代理服务器联网。   1. 安装在 Debian&#x2F;Ubuntu&#x2F;Armbian 系统上安装非常简单： 12sudo apt updatesudo apt install proxychains4 -y  2. 核心配置配置文件位于 /etc/proxychains4.conf。我们需要编辑它： 1sudo vim /etc/proxychains4.conf  关键模式选择在配置文件开头，你会看到几种模式，取消注释其中一种即可启用：  dynamic_chain (推荐)按照列表中出现的顺序尝试代理。如果第一个挂了，自动尝试第二个。智能且容错率高。  strict_chain严格模式。必须按照列表顺序穿过所有代理。如果中间断了一个，连接就...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/2026/01/30/hexo-guide/" title="从零开始搭建 Hexo 博客并部署到 GitHub Pages"><img class="post-bg" src="/img/covers/hexo.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="从零开始搭建 Hexo 博客并部署到 GitHub Pages"></a></div><div class="recent-post-info"><a class="article-title" href="/2026/01/30/hexo-guide/" title="从零开始搭建 Hexo 博客并部署到 GitHub Pages">从零开始搭建 Hexo 博客并部署到 GitHub Pages</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-01-30T12:20:00.000Z" title="发表于 2026-01-30 20:20:00">2026-01-30</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/">技术教程</a></span></div><div class="content">在这个数字时代，拥有一个属于自己的博客是一件很酷的事情。既可以记录学习心得，又可以作为技术展示的窗口。本文将详细介绍如何使用 Hexo 框架搭建静态博客，并搭配美观的 Butterfly 主题，最后部署到 GitHub Pages 上免费托管。   1. 环境准备Hexo 基于 Node.js，所以我们需要先准备好运行环境。 安装 Node.js推荐使用 fnm (Fast Node Manager) 来管理 Node.js 版本，避免权限问题。 123456# 安装 fnmcurl -fsSL https://fnm.vercel.app/install | bash# 安装 Node.js LTS 版本fnm install --ltsfnm use lts  安装 Git如果你是 Linux 用户： 1sudo apt install git  配置 Git 用户信息： 12git config --global user.name &quot;Your Name&quot;git config --global user.email &quot;your_email@ex...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/2026/01/30/tmux-guide/" title="Tmux 完整使用指南"><img class="post-bg" src="/img/covers/tmux.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Tmux 完整使用指南"></a></div><div class="recent-post-info"><a class="article-title" href="/2026/01/30/tmux-guide/" title="Tmux 完整使用指南">Tmux 完整使用指南</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-01-30T03:00:00.000Z" title="发表于 2026-01-30 11:00:00">2026-01-30</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/">技术教程</a></span></div><div class="content"> 本文介绍 tmux 终端复用工具的安装、配置和使用，包括 Oh My Tmux 美化配置和常用操作。    目录 什么是 Tmux 安装 Tmux 基础概念 常用操作 Oh My Tmux 美化 实用技巧 常见问题   什么是 TmuxTmux (Terminal Multiplexer) 是一个终端复用工具，主要功能： 核心优势：  会话持久化 - SSH 断开后程序继续运行 多窗口管理 - 一个终端管理多个会话 分屏操作 - 同时查看多个任务 团队协作 - 多人共享同一会话  适用场景：  远程服务器管理 长时间运行任务 多任务并行操作 结对编程   安装 TmuxDebian&#x2F;Ubuntu12sudo apt updatesudo apt install tmux  CentOS&#x2F;RHEL1sudo yum install tmux  macOS1brew install tmux  验证安装12tmux -V# 输出示例: tmux 3.3a   基础概念Tmux 采用三层结构： Session（会话）  最外层容器 一个 Session 包含多个 ...</div></div></div></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span><a class="page-number" href="/page/2/#content-inner">2</a><a class="extend next" rel="next" href="/page/2/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">mufan</div><div class="author-info-description">折腾不止，记录不息</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客 🖤</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/ai-rss-and-x-topic-skills/" title="不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill">不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill</a><time datetime="2026-02-20T09:00:00.000Z" title="发表于 2026-02-20 17:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/openclaw-qwen-agent-team/" title="从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记">从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</a><time datetime="2026-02-20T08:00:00.000Z" title="发表于 2026-02-20 16:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/openclaw-agent-system-hardcore/" title="硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统">硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统</a><time datetime="2026-02-20T07:00:00.000Z" title="发表于 2026-02-20 15:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/%E5%A5%87%E7%82%B9%E4%B9%8B%E5%90%8E-%E7%AE%97%E5%8A%9B%E6%97%B6%E4%BB%A3%E7%9A%84%E4%BA%BA%E7%B1%BB%E4%BD%8D%E7%BD%AE%E9%87%8D%E6%8E%92/" title="奇点之后：算力时代的人类位置重排">奇点之后：算力时代的人类位置重排</a><time datetime="2026-02-20T05:40:00.000Z" title="发表于 2026-02-20 13:40:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/17/openclaw-telegram-topics-concurrency/" title="OpenClaw 实战：如何在 Telegram 实现多任务并发处理">OpenClaw 实战：如何在 Telegram 实现多任务并发处理</a><time datetime="2026-02-16T16:45:00.000Z" title="发表于 2026-02-17 00:45:00">2026-02-17</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%80%9D%E8%80%83/"><span class="card-category-list-name">思考</span><span class="card-category-list-count">1</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%80%9D%E8%80%83/AI/"><span class="card-category-list-name">AI</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF/"><span class="card-category-list-name">技术</span><span class="card-category-list-count">4</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF/AI-%E5%B7%A5%E4%BD%9C%E6%B5%81/"><span class="card-category-list-name">AI 工作流</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF/Agent/"><span class="card-category-list-name">Agent</span><span class="card-category-list-count">2</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/"><span class="card-category-list-name">技术教程</span><span class="card-category-list-count">6</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6/"><span class="card-category-list-name">技术深度</span><span class="card-category-list-count">1</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E4%BF%A1%E6%81%AF%E6%BA%90/" style="font-size: 1.15em; color: rgb(50, 131, 112);">信息源</a><a href="/tags/%E9%80%89%E9%A2%98/" style="font-size: 1.15em; color: rgb(88, 110, 152);">选题</a><a href="/tags/Skill/" style="font-size: 1.15em; color: rgb(50, 50, 56);">Skill</a><a href="/tags/RSS/" style="font-size: 1.15em; color: rgb(50, 105, 79);">RSS</a><a href="/tags/X-Twitter/" style="font-size: 1.15em; color: rgb(83, 138, 52);">X/Twitter</a><a href="/tags/AI/" style="font-size: 1.45em; color: rgb(78, 50, 162);">AI</a><a href="/tags/Claude/" style="font-size: 1.15em; color: rgb(171, 166, 98);">Claude</a><a href="/tags/Memory/" style="font-size: 1.15em; color: rgb(89, 50, 113);">Memory</a><a href="/tags/RAG/" style="font-size: 1.15em; color: rgb(138, 123, 91);">RAG</a><a href="/tags/DevTools/" style="font-size: 1.15em; color: rgb(155, 159, 135);">DevTools</a><a href="/tags/Clawdbot/" style="font-size: 1.15em; color: rgb(59, 64, 107);">Clawdbot</a><a href="/tags/%E6%95%99%E7%A8%8B/" style="font-size: 1.35em; color: rgb(68, 137, 50);">教程</a><a href="/tags/Linux/" style="font-size: 1.35em; color: rgb(160, 50, 124);">Linux</a><a href="/tags/ARM64/" style="font-size: 1.15em; color: rgb(112, 125, 114);">ARM64</a><a href="/tags/Claude-Code/" style="font-size: 1.15em; color: rgb(182, 79, 187);">Claude Code</a><a href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" style="font-size: 1.15em; color: rgb(120, 50, 151);">开发工具</a><a href="/tags/TDD/" style="font-size: 1.15em; color: rgb(50, 164, 174);">TDD</a><a href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" style="font-size: 1.15em; color: rgb(132, 158, 137);">最佳实践</a><a href="/tags/Hexo/" style="font-size: 1.15em; color: rgb(181, 50, 198);">Hexo</a><a href="/tags/GitHub-Pages/" style="font-size: 1.15em; color: rgb(154, 77, 176);">GitHub Pages</a><a href="/tags/Butterfly/" style="font-size: 1.15em; color: rgb(82, 50, 171);">Butterfly</a><a href="/tags/OpenClaw/" style="font-size: 1.45em; color: rgb(177, 70, 96);">OpenClaw</a><a href="/tags/Agent-%E7%B3%BB%E7%BB%9F/" style="font-size: 1.15em; color: rgb(50, 73, 54);">Agent 系统</a><a href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" style="font-size: 1.25em; color: rgb(50, 57, 188);">工程实践</a><a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 1.15em; color: rgb(50, 164, 111);">架构</a><a href="/tags/%E4%B8%AA%E4%BA%BA%E5%8A%A9%E6%89%8B/" style="font-size: 1.15em; color: rgb(50, 164, 115);">个人助手</a><a href="/tags/Qwen3-5-Plus/" style="font-size: 1.15em; color: rgb(92, 55, 194);">Qwen3.5-Plus</a><a href="/tags/Agent-Team/" style="font-size: 1.15em; color: rgb(50, 50, 50);">Agent Team</a><a href="/tags/Telegram/" style="font-size: 1.15em; color: rgb(50, 197, 85);">Telegram</a><a href="/tags/%E6%95%88%E7%8E%87/" style="font-size: 1.15em; color: rgb(163, 50, 190);">效率</a><a href="/tags/%E4%BB%A3%E7%90%86/" style="font-size: 1.15em; color: rgb(124, 125, 88);">代理</a><a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 1.25em; color: rgb(50, 127, 50);">工具</a><a href="/tags/Tmux/" style="font-size: 1.15em; color: rgb(101, 57, 132);">Tmux</a><a href="/tags/%E7%BB%88%E7%AB%AF/" style="font-size: 1.15em; color: rgb(50, 50, 50);">终端</a><a href="/tags/%E5%A5%87%E7%82%B9/" style="font-size: 1.15em; color: rgb(109, 79, 105);">奇点</a><a href="/tags/%E7%AE%97%E5%8A%9B/" style="font-size: 1.15em; color: rgb(66, 130, 188);">算力</a><a href="/tags/AGI/" style="font-size: 1.15em; color: rgb(50, 110, 72);">AGI</a><a href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93/" style="font-size: 1.15em; color: rgb(50, 78, 85);">智能体</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/02/">
+            <span class="card-archive-list-date">
+              二月 2026
+            </span>
+            <span class="card-archive-list-count">7</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/01/">
+            <span class="card-archive-list-date">
+              一月 2026
+            </span>
+            <span class="card-archive-list-count">4</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/02/">
+            <span class="card-archive-list-date">
+              二月 2024
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">12</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By mufan</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></span></div><div class="footer_custom_text">用心记录每一次折腾</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"><script>window.typedJSFn = {
+  init: str => {
+    window.typed = new Typed('#subtitle', Object.assign({
+      strings: str,
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50,
+    }, null))
+  },
+  run: subtitleType => {
+    if (true) {
+      if (typeof Typed === 'function') {
+        subtitleType()
+      } else {
+        btf.getScript('https://cdn.jsdelivr.net/npm/typed.js@3.0.0/dist/typed.umd.min.js').then(subtitleType)
+      }
+    } else {
+      subtitleType()
+    }
+  },
+  processSubtitle: (content, extraContents = []) => {
+    if (true) {
+      const sub = ["折腾不止，记录不息","技术 · AI · 生活"].slice()
+
+      if (extraContents.length > 0) {
+        sub.unshift(...extraContents)
+      }
+
+      if (typeof content === 'string') {
+        sub.unshift(content)
+      } else if (Array.isArray(content)) {
+        sub.unshift(...content)
+      }
+
+      sub.length > 0 && typedJSFn.init(sub)
+    } else {
+      document.getElementById('subtitle').textContent = typeof content === 'string' ? content :
+        (Array.isArray(content) && content.length > 0 ? content[0] : '')
+    }
+  }
+}
+btf.addGlobalFn('pjaxSendOnce', () => { typed.destroy() }, 'typedDestroy')
+</script><script>function subtitleType () {
+  fetch('https://v1.hitokoto.cn')
+    .then(response => response.json())
+    .then(data => {
+      const from = '出自 ' + data.from
+      typedJSFn.processSubtitle(data.hitokoto, [from])
+    })
+    .catch(err => {
+      console.error('Failed to get the Hitokoto API:', err)
+      typedJSFn.processSubtitle(["折腾不止，记录不息","技术 · AI · 生活"])
+    })
+}
+typedJSFn.run(subtitleType)
+</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>

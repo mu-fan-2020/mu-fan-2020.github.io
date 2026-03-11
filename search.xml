@@ -1,0 +1,2585 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill</title>
+    <url>/2026/02/20/ai-rss-and-x-topic-skills/</url>
+    <content><![CDATA[<p>在 AI 领域，信息的半衰期极短。作为一名内容创作者或技术观察者，每天醒来面对的往往是排山倒海的信息量。为了缓解这种“信息焦虑”和“选题焦虑”，我并没有去订阅更多的公众号，而是决定利用 AI 为自己量身定制两个自动化工具：一个是基于 Karpathy 推荐信源的 RSS 日报 Skill，另一个是专治收藏夹吃灰的 X（Twitter）选题 Skill。</p>
+<p>这篇文章将系统梳理这两个工具的设计思路、技术实现以及我在迭代过程中的踩坑经验。</p>
+<h3 id="第一部分：RSS-日报-Skill——对接一手信息的“降噪漏斗”"><a href="#第一部分：RSS-日报-Skill——对接一手信息的“降噪漏斗”" class="headerlink" title="第一部分：RSS 日报 Skill——对接一手信息的“降噪漏斗”"></a>第一部分：RSS 日报 Skill——对接一手信息的“降噪漏斗”</h3><h4 id="信息排泄链的问题"><a href="#信息排泄链的问题" class="headerlink" title="信息排泄链的问题"></a>信息排泄链的问题</h4><p>在信息传播中存在一个“信息排泄链”现象：源头信息经过层层翻译、转述、加工，到达受众手中时往往已经丢失了核心细节，甚至充满了误读。为了绕开链路末端的“残渣”，我决定直接对接一手信息源。</p>
+<p>机会来自于 Karpathy（OpenAI 联合创始人）推荐的 92 个高质量技术 RSS 订阅源。这些源包含了顶级研究者和博主的个人站点，是真正的 AI 资讯原产地。但问题在于，没人能每天手动刷完 90 多个博客。</p>
+<h4 id="需求与设计逻辑"><a href="#需求与设计逻辑" class="headerlink" title="需求与设计逻辑"></a>需求与设计逻辑</h4><p>我给这个 Skill 定下了 5 个核心需求：支持时间窗口设置（如最近 24 小时）、可自定义推荐篇数、自动生成中文摘要、保留原文链接、全自动生成排版美观的日报。</p>
+<p>整个 Pipeline 的设计分为四个阶段：</p>
+<ol>
+<li><strong>抓取与过滤</strong>：扫描 92 个源，拉取全部更新，并根据预设的时间窗口（如 48 小时内）过滤掉旧文章。</li>
+<li><strong>AI 打分</strong>：将剩余文章交给 Gemini 模型。我设计了三个维度的评分标准，总分 30 分。AI 会根据内容的创新性、技术深度和实用价值进行筛选。</li>
+<li><strong>内容提炼</strong>：对高分文章进行标题翻译和中文摘要生成。</li>
+<li><strong>结构化输出</strong>：将结果整合成一份包含“今日看点”和分类列表的日报。</li>
+</ol>
+<h4 id="从“能用”到“好用”的迭代"><a href="#从“能用”到“好用”的迭代" class="headerlink" title="从“能用”到“好用”的迭代"></a>从“能用”到“好用”的迭代</h4><p>第一版工具跑出来后，我发现虽然省了翻网页的时间，但依然缺乏宏观视角。于是我尝试了一件非常有意思的事：直接问 AI“你觉得这个日报还有哪些优化空间”。</p>
+<p>根据 AI 的建议和我的实际体验，我进行了二次迭代：</p>
+<ul>
+<li><strong>增加可视化</strong>：引入了分类饼图和高频关键词条形图，一眼就能看出当天 AI 圈的热点分布（例如某天 AI&#x2F;ML 内容占了 70% 以上）。</li>
+<li><strong>文章漏斗化</strong>：在日报中展示数据漏斗（例如从 2505 篇文章中筛出 15 篇精选），这种 167:1 的降噪比带来了极高的信息获取效率。</li>
+<li><strong>主题分组</strong>：将零散的文章按 AI&#x2F;ML、工程实践、行业观点等维度分组，方便按需阅读。</li>
+</ul>
+<h3 id="第二部分：X-选题-Skill——把“收藏夹”变成“生产力”"><a href="#第二部分：X-选题-Skill——把“收藏夹”变成“生产力”" class="headerlink" title="第二部分：X 选题 Skill——把“收藏夹”变成“生产力”"></a>第二部分：X 选题 Skill——把“收藏夹”变成“生产力”</h3><h4 id="解决“收藏吃灰”的痛点"><a href="#解决“收藏吃灰”的痛点" class="headerlink" title="解决“收藏吃灰”的痛点"></a>解决“收藏吃灰”的痛点</h4><p>推特是我获取灵感的另一个主战场，但刷推的场景通常在通勤路上，看到好的内容随手一点收藏，回头就忘。等到想写东西时，翻开几百条收藏记录，完全想不起当时觉得哪里好。</p>
+<p>为了解决这个问题，我开发了 X 选题 Skill，核心目标是将碎片化的推文转化为可用的选题建议。</p>
+<h4 id="技术方案选择：为何不用-API？"><a href="#技术方案选择：为何不用-API？" class="headerlink" title="技术方案选择：为何不用 API？"></a>技术方案选择：为何不用 API？</h4><p>推特的官方 API 价格昂贵且限制较多。借鉴了宝玉大佬的思路，我选择了 Chrome CDP（Chrome DevTools Protocol）方案。通过浏览器内置的调试协议，让程序模拟人为滚动和抓取。虽然这需要保持 Chrome 的登录状态，但胜在免费且能精准获取页面内容。</p>
+<h4 id="扫描模式-vs-书签模式"><a href="#扫描模式-vs-书签模式" class="headerlink" title="扫描模式 vs 书签模式"></a>扫描模式 vs 书签模式</h4><p>在迭代过程中，我意识到用户对不同来源内容的心理预期是不同的，因此将 Skill 拆分为两种模式：</p>
+<ol>
+<li><strong>扫描模式</strong>：针对特定列表或首页。这是“大海捞针”，需要通过 AI 排序和数据排序（点赞、转发等加权）找到最热门或最有质量的内容。</li>
+<li><strong>书签模式</strong>：针对已收藏的内容。因为收藏动作已经完成了一次人工筛选，所以这个模式不再进行排序，而是专注于“深度分析+选题建议”。</li>
+</ol>
+<h4 id="交互与报告的优化"><a href="#交互与报告的优化" class="headerlink" title="交互与报告的优化"></a>交互与报告的优化</h4><p>在 v1.0 版本中，每设置一个参数都要进行一轮确认，交互非常繁琐。在 v1.1 中，我将其改造成了一次性并行配置，并支持“记住上次选择”，极大地提升了日常使用体验。</p>
+<p>报告结构也经历了多次重塑：</p>
+<ul>
+<li><strong>全文提取</strong>：针对 X 上的长文章（Article），专门增加了识别并点击展开的逻辑，确保 AI 能读到全文而非只有标题。</li>
+<li><strong>选题建议</strong>：书签模式下的报告不仅有摘要，还会给出具体的写作切入点。例如：“可以结合推文 A 的技术细节和推文 B 的应用案例，写一篇关于 AI 代理落地的深度分析”。</li>
+<li><strong>词云与统计</strong>：通过话题标签云和关键词统计，辅助判断当下的选题热度。</li>
+</ul>
+<h3 id="第三部分：共同的工程经验与方法论"><a href="#第三部分：共同的工程经验与方法论" class="headerlink" title="第三部分：共同的工程经验与方法论"></a>第三部分：共同的工程经验与方法论</h3><p>这两个 Skill 的开发过程，让我总结出了一套用 AI 做工具的迭代方法论：</p>
+<ol>
+<li><strong>解决自己的不爽</strong>：工具的每一次改动（如 X Skill 从多步确认改为单步配置、RSS 日报增加饼图）都不是预先规划好的，而是因为自己在日常使用中觉得“别扭”。这种基于真实痛点的反馈循环是工具进化的核心动力。</li>
+<li><strong>明确排序逻辑</strong>：我曾尝试在 X 选题中使用“混合排序”（数据+AI），结果发现效果极差，因为你无法判断一个高分项到底是因为热度高还是内容好。最终我将其拆分为独立的模式，让信号回归纯粹。</li>
+<li><strong>让 AI 参与设计</strong>：不要只把 AI 当成写代码的工具，要让它参与产品设计。RSS 日报的趋势总结和可视化方案，很大程度上得益于 AI 提供的建议。</li>
+</ol>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>通过这两个 Skill，我建立了一套完整的信息工作流：白天在地铁上随手收藏推特内容，晚上回家一键跑出书签报告拿到选题建议；每天早晨自动接收一份来自全球 92 个顶级信源的 RSS 日报。</p>
+<p>这种“自用 Skill”的价值不在于它的技术多么高深，而在于它真正将我从无效的信息流中解放了出来。在 AI 时代，我们不应该去适应现成的工具，而应该学会利用 AI 为自己打造最顺手的利刃。</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+        <category>AI 工作流</category>
+      </categories>
+      <tags>
+        <tag>信息源</tag>
+        <tag>选题</tag>
+        <tag>Skill</tag>
+        <tag>RSS</tag>
+        <tag>X/Twitter</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Claude‑Mem 进阶使用与实现机制指南</title>
+    <url>/2024/02/03/claude-mem-advanced/</url>
+    <content><![CDATA[<blockquote>
+<p>基于 claude-mem v9.0.12，覆盖安装&#x2F;三段式检索&#x2F;Worker-DB-FTS5&#x2F;Hook&#x2F;Session ID&#x2F;排查与 API，含时序图与诊断脚本</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="#%E4%B8%80%E4%BD%BF%E7%94%A8%E7%AF%87">一、使用篇</a><ul>
+<li><a href="#1-%E5%AE%89%E8%A3%85%E4%B8%8E%E5%BF%AB%E9%80%9F%E9%AA%8C%E8%AF%81claude-code-%E6%8F%92%E4%BB%B6">1. 安装与快速验证</a></li>
+<li><a href="#2-%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8A%A1%E4%B8%8E%E6%97%A5%E5%BF%97worker">2. 本地服务与日志</a></li>
+<li><a href="#3-%E9%85%8D%E7%BD%AEclaude-memsettingsjson">3. 配置</a></li>
+<li><a href="#4-%E6%90%9C%E7%B4%A2%E4%B8%89%E5%B1%82%E5%B7%A5%E4%BD%9C%E6%B5%81mcp-%E5%B7%A5%E5%85%B7--http-api">4. 搜索：三层工作流</a></li>
+<li><a href="#5-%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5context-engineering--progressive-disclosure">5. 最佳实践</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BA%8C%E6%9C%BA%E5%88%B6%E7%AF%87">二、机制篇</a><ul>
+<li><a href="#1-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E9%92%A9%E5%AD%90hooks">1. 生命周期钩子</a></li>
+<li><a href="#2-worker-%E6%9E%B6%E6%9E%84%E5%8D%8F%E8%B0%83%E5%B1%82">2. Worker 架构</a></li>
+<li><a href="#3-%E6%95%B0%E6%8D%AE%E9%9D%A2sqlite--%E8%BF%81%E7%A7%BB--fts5">3. 数据面：SQLite + FTS5</a></li>
+<li><a href="#4-%E4%B8%8A%E4%B8%8B%E6%96%87%E6%9E%84%E5%BB%BA%E9%93%BE%E8%B7%AFcontext">4. 上下文构建链路</a></li>
+<li><a href="#5-%E6%90%9C%E7%B4%A2%E9%9D%A2searchmanager--%E8%B7%AF%E7%94%B1">5. 搜索面</a></li>
+<li><a href="#6-session-id-%E8%AE%BE%E8%AE%A1%E5%85%B3%E9%94%AE">6. Session ID 设计</a></li>
+<li><a href="#7-%E9%9B%86%E6%88%90">7. 集成</a></li>
+</ul>
+</li>
+<li><a href="#%E4%B8%89%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5">三、故障排查</a></li>
+<li><a href="#%E5%9B%9B%E9%99%84%E5%BD%95">四、附录</a></li>
+<li><a href="#%E4%BA%94%E5%AE%9E%E6%93%8D%E7%A4%BA%E4%BE%8B%E4%B8%8E%E6%97%B6%E5%BA%8F%E5%9B%BE">五、实操示例与时序图</a></li>
+</ul>
+<hr>
+<h2 id="一、使用篇"><a href="#一、使用篇" class="headerlink" title="一、使用篇"></a>一、使用篇</h2><h3 id="1-安装与快速验证（Claude-Code-插件）"><a href="#1-安装与快速验证（Claude-Code-插件）" class="headerlink" title="1. 安装与快速验证（Claude Code 插件）"></a>1. 安装与快速验证（Claude Code 插件）</h3><p>在 Claude Code 终端新开会话，执行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/plugin marketplace add thedotmack/claude-mem</span><br><span class="line">/plugin install claude-mem</span><br></pre></td></tr></table></figure>
+
+<p>重启 Claude Code（确保插件 hooks、worker 正常加载）。</p>
+<p><strong>验证：</strong></p>
+<ul>
+<li>新建&#x2F;恢复一个项目会话，历史上下文应自动被注入（带”Token 经济学&#x2F;节省比例”等头部信息）</li>
+<li>访问 Web Viewer：<a href="http://localhost:37777/">http://localhost:37777</a> 能看到实时记忆流与统计</li>
+</ul>
+<p><strong>常见错误与排查：</strong></p>
+<ul>
+<li><strong>端口占用</strong>：37777 已被占用 → 释放端口或在设置中调整 <code>CLAUDE_MEM_WORKER_PORT</code>，并重启 worker</li>
+<li><strong>原生模块 ERR_DLOPEN_FAILED</strong>：首次安装或原生模块不匹配时会触发，插件会清理安装标记并提示”重启 Claude Code 自动修复”</li>
+<li><strong>版本不匹配</strong>：插件版本与 worker 版本不同 → worker 会执行自检并自动重启对齐</li>
+</ul>
+<h3 id="2-本地服务与日志（Worker）"><a href="#2-本地服务与日志（Worker）" class="headerlink" title="2. 本地服务与日志（Worker）"></a>2. 本地服务与日志（Worker）</h3><p><strong>服务端口：</strong> 默认 127.0.0.1:37777（<code>~/.claude-mem/settings.json</code> 可改）</p>
+<p><strong>管理命令</strong>（需安装 Bun ≥1.0）：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在 claude-mem 仓库目录执行</span></span><br><span class="line">bun plugin/scripts/worker-service.cjs start</span><br><span class="line">bun plugin/scripts/worker-service.cjs stop</span><br><span class="line">bun plugin/scripts/worker-service.cjs restart</span><br><span class="line">bun plugin/scripts/worker-service.cjs status</span><br></pre></td></tr></table></figure>
+
+<p><strong>快捷脚本</strong>（package.json）：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm run worker:start</span><br><span class="line">npm run worker:stop</span><br><span class="line">npm run worker:restart</span><br><span class="line">npm run worker:status</span><br><span class="line">npm run worker:logs      <span class="comment"># 打印当日 50 行日志</span></span><br><span class="line">npm run worker:<span class="built_in">tail</span>      <span class="comment"># 持续跟踪日志</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>日志路径：</strong> <code>~/.claude-mem/logs/worker-YYYY-MM-DD.log</code></p>
+<p><strong>Web Viewer：</strong> <a href="http://localhost:37777/">http://localhost:37777</a></p>
+<p><strong>健康与统计：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl -s http://localhost:37777/api/stats | jq</span><br><span class="line">curl -s http://localhost:37777/api/projects | jq</span><br><span class="line">curl -s http://localhost:37777/api/processing-status | jq</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="3-配置（-claude-mem-settings-json）"><a href="#3-配置（-claude-mem-settings-json）" class="headerlink" title="3. 配置（~&#x2F;.claude-mem&#x2F;settings.json）"></a>3. 配置（~&#x2F;.claude-mem&#x2F;settings.json）</h3><p>关键项与默认值（由 SettingsDefaultsManager 注入）：</p>
+<p><strong>Provider 与模型：</strong></p>
+<ul>
+<li><code>CLAUDE_MEM_PROVIDER</code>: <code>claude</code> | <code>gemini</code> | <code>openrouter</code>（默认 <code>claude</code>）</li>
+<li><code>CLAUDE_MEM_MODEL</code>: <code>claude-sonnet-4-5</code></li>
+<li><code>CLAUDE_MEM_GEMINI_API_KEY</code>: “”</li>
+<li><code>CLAUDE_MEM_GEMINI_MODEL</code>: <code>gemini-2.5-flash-lite</code></li>
+<li><code>CLAUDE_MEM_GEMINI_RATE_LIMITING_ENABLED</code>: <code>true</code>（免费层节流）</li>
+<li><code>CLAUDE_MEM_OPENROUTER_API_KEY</code>: “”</li>
+<li><code>CLAUDE_MEM_OPENROUTER_MODEL</code>: <code>xiaomi/mimo-v2-flash:free</code></li>
+<li><code>CLAUDE_MEM_OPENROUTER_MAX_CONTEXT_MESSAGES</code>: <code>20</code></li>
+<li><code>CLAUDE_MEM_OPENROUTER_MAX_TOKENS</code>: <code>100000</code></li>
+</ul>
+<p><strong>系统与模式：</strong></p>
+<ul>
+<li><code>CLAUDE_MEM_WORKER_HOST</code>: <code>127.0.0.1</code></li>
+<li><code>CLAUDE_MEM_WORKER_PORT</code>: <code>37777</code></li>
+<li><code>CLAUDE_MEM_DATA_DIR</code>: <code>~/.claude-mem</code></li>
+<li><code>CLAUDE_MEM_LOG_LEVEL</code>: <code>INFO</code></li>
+<li><code>CLAUDE_MEM_MODE</code>: <code>code</code>（非 code 模式会从模式配置中接管”观察类型&#x2F;概念”过滤）</li>
+</ul>
+<p><strong>上下文注入参数（Context Engineering）：</strong></p>
+<ul>
+<li><code>CLAUDE_MEM_CONTEXT_OBSERVATIONS</code>: <code>50</code>（时间线总观察条数）</li>
+<li><code>CLAUDE_MEM_CONTEXT_FULL_COUNT</code>: <code>5</code>（展开详情的观察数量）</li>
+<li><code>CLAUDE_MEM_CONTEXT_FULL_FIELD</code>: <code>narrative</code> | <code>facts</code>（默认 <code>narrative</code>）</li>
+<li><code>CLAUDE_MEM_CONTEXT_SESSION_COUNT</code>: <code>10</code>（包含的最近会话数）</li>
+<li><code>CLAUDE_MEM_CONTEXT_OBSERVATION_TYPES</code>: 见默认常量（decision&#x2F;bugfix&#x2F;feature&#x2F;refactor&#x2F;discovery 等）</li>
+<li><code>CLAUDE_MEM_CONTEXT_OBSERVATION_CONCEPTS</code>: 默认概念集合（如 files, tests, plans, etc.）</li>
+</ul>
+<p><strong>显示开关：</strong></p>
+<ul>
+<li><code>CLAUDE_MEM_CONTEXT_SHOW_READ_TOKENS</code>: <code>true</code></li>
+<li><code>CLAUDE_MEM_CONTEXT_SHOW_WORK_TOKENS</code>: <code>true</code></li>
+<li><code>CLAUDE_MEM_CONTEXT_SHOW_SAVINGS_AMOUNT</code>: <code>true</code></li>
+<li><code>CLAUDE_MEM_CONTEXT_SHOW_SAVINGS_PERCENT</code>: <code>true</code></li>
+<li><code>CLAUDE_MEM_CONTEXT_SHOW_LAST_SUMMARY</code>: <code>true</code></li>
+<li><code>CLAUDE_MEM_CONTEXT_SHOW_LAST_MESSAGE</code>: <code>false</code></li>
+</ul>
+<p><strong>工具跳过（避免循环或高成本工具）：</strong></p>
+<ul>
+<li><code>CLAUDE_MEM_SKIP_TOOLS</code>: <code>ListMcpResourcesTool,SlashCommand,Skill,TodoWrite,AskUserQuestion</code></li>
+</ul>
+<p><strong>隐私与过滤：</strong><br>在会话内容中使用 <code>&lt;private&gt; ... &lt;/private&gt;</code> 可标记敏感内容，排除持久化存储。</p>
+<p><strong>多项目&#x2F;工作树（Worktree）：</strong><br>支持跨项目时间线联合注入：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl --get <span class="string">&#x27;http://localhost:37777/api/context/inject&#x27;</span> \</span><br><span class="line">  --data-urlencode <span class="string">&#x27;projects=parent-repo,feature-worktree&#x27;</span> \</span><br><span class="line">  --data-urlencode <span class="string">&#x27;colors=false&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="4-搜索：三层工作流（MCP-工具-HTTP-API）"><a href="#4-搜索：三层工作流（MCP-工具-HTTP-API）" class="headerlink" title="4. 搜索：三层工作流（MCP 工具 &amp; HTTP API）"></a>4. 搜索：三层工作流（MCP 工具 &amp; HTTP API）</h3><p><strong>工作流（10x Token 节省理念）：</strong></p>
+<ol>
+<li><code>search</code> → 先取精简索引（ID、摘要）</li>
+<li><code>timeline</code> → 对感兴趣的命中点拉取上下文时间线</li>
+<li><code>get_observations</code> → 只对筛选后的 ID 拉取全文详情</li>
+</ol>
+<p><strong>HTTP 路由速览（部分）：</strong></p>
+<p><strong>检索：</strong></p>
+<ul>
+<li>统一检索：<code>GET /api/search?query=...&amp;type=observations&amp;limit=20</code></li>
+<li>时间线：<code>GET /api/timeline?anchor=123</code> 或 <code>GET /api/timeline?query=...</code></li>
+<li>观察按类型&#x2F;概念&#x2F;文件：<ul>
+<li><code>GET /api/search/by-type?type=bugfix&amp;limit=10</code></li>
+<li><code>GET /api/search/by-concept?concept=discovery&amp;limit=5</code></li>
+<li><code>GET /api/search/by-file?filePath=src/services/context/ContextBuilder.ts</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>上下文：</strong></p>
+<ul>
+<li><code>GET /api/context/recent?project=xxx&amp;limit=3</code></li>
+<li><code>GET /api/context/preview?project=xxx</code></li>
+<li><code>GET /api/context/inject?projects=a,b&amp;colors=true</code></li>
+</ul>
+<p><strong>示例（curl）：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 全文检索观察</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/search/observations?query=authentication&amp;limit=5&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 决策与变更类捷径</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/decisions?limit=10&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/changes?limit=10&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 基于命中点拉取时间线</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/timeline?anchor=123&amp;depth_before=5&amp;depth_after=5&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过查询先找最佳匹配，再取时间线</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/timeline/by-query?query=SQLite%20FTS5&amp;depth_before=10&amp;depth_after=10&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Claude Desktop 技能与 mem-search：</strong> 对话内自然语言查询你的项目历史，底层走上述”三段式”检索。</p>
+<h3 id="5-最佳实践（Context-Engineering-Progressive-Disclosure）"><a href="#5-最佳实践（Context-Engineering-Progressive-Disclosure）" class="headerlink" title="5. 最佳实践（Context Engineering &#x2F; Progressive Disclosure）"></a>5. 最佳实践（Context Engineering &#x2F; Progressive Disclosure）</h3><ul>
+<li><strong>渐进披露</strong>：先小索引后放大，严格按需取全文，避免把”项目史书”全塞进上下文</li>
+<li><strong>Token 经济学面板解读</strong>：<ul>
+<li>Header 会展示读取&#x2F;工作 Token、节省金额与百分比（由 ContextBuilder + TokenCalculator 汇总）</li>
+<li><code>CLAUDE_MEM_CONTEXT_FULL_COUNT</code> 控制”展开全文”的条目数，谨慎调大</li>
+</ul>
+</li>
+<li><strong>过滤策略</strong>：在 code 模式外，可通过 ModeManager 的模式配置一次性切换”观察类型&#x2F;概念”集合</li>
+<li><strong>私密数据</strong>：用 <code>&lt;private&gt;</code> 标签，避免泄漏与污染长期记忆</li>
+</ul>
+<hr>
+<h2 id="二、机制篇"><a href="#二、机制篇" class="headerlink" title="二、机制篇"></a>二、机制篇</h2><h3 id="1-生命周期钩子（Hooks）"><a href="#1-生命周期钩子（Hooks）" class="headerlink" title="1. 生命周期钩子（Hooks）"></a>1. 生命周期钩子（Hooks）</h3><p><strong>核心事件（源码&#x2F;文档约定）：</strong></p>
+<ul>
+<li>SessionStart</li>
+<li>UserPromptSubmit</li>
+<li>PostToolUse</li>
+<li>Stop</li>
+<li>SessionEnd</li>
+</ul>
+<p><strong>Smart Install：</strong> 非生命周期钩子，负责依赖缓存&#x2F;检测，加速并稳定首次安装与升级体验。</p>
+<p><strong>作用：</strong> 在各事件点采集”观测（observations）&#x2F;摘要（session_summaries）&#x2F;用户提示（prompts）”并入库，为后续上下文注入与检索提供素材。</p>
+<h3 id="2-Worker-架构（协调层）"><a href="#2-Worker-架构（协调层）" class="headerlink" title="2. Worker 架构（协调层）"></a>2. Worker 架构（协调层）</h3><p><code>src/services/worker-service.ts</code>：300+ 行的”薄协调器”。</p>
+<p><strong>职责：</strong></p>
+<ul>
+<li><strong>服务器与路由</strong>：<code>src/services/server/*</code>（Express），注册 Viewer&#x2F;Session&#x2F;Data&#x2F;Search&#x2F;Settings&#x2F;Logs 等路由；对 <code>/api/context/inject</code> 提供”初始化等待”防 404</li>
+<li><strong>MCP 客户端</strong>：通过 Stdio 连接内部 <code>mcp-server.cjs</code>，为搜索工具链提供代理</li>
+<li><strong>进程与健康</strong>：<ul>
+<li>Orphan Reaper 定期清理孤儿子进程（Issue #737）</li>
+<li>Pending Queue 恢复：冷启动自动恢复未完成队列（如崩溃后）</li>
+<li>版本自检 + 自动重启；PID 文件与健康检查；优雅停机（信号处理与 httpShutdown）</li>
+</ul>
+</li>
+<li><strong>SSE 广播</strong>：向 Web Viewer 推送处理状态（队列深度、活动会话）</li>
+</ul>
+<p><strong>管理 API（节选）：</strong></p>
+<ul>
+<li>&#x2F;api&#x2F;pending-queue（查看&#x2F;处理&#x2F;清理）</li>
+<li>&#x2F;api&#x2F;stats、&#x2F;api&#x2F;projects、&#x2F;api&#x2F;processing-status</li>
+</ul>
+<h3 id="3-数据面：SQLite-迁移-FTS5"><a href="#3-数据面：SQLite-迁移-FTS5" class="headerlink" title="3. 数据面：SQLite + 迁移 + FTS5"></a>3. 数据面：SQLite + 迁移 + FTS5</h3><p><strong>主要表</strong>（见 <code>src/services/sqlite/migrations.ts</code> v1-v7）：</p>
+<ul>
+<li><code>sessions</code>：会话元信息</li>
+<li><code>memories</code>：压缩片段（v2 引入层次字段）</li>
+<li><code>overviews</code>：历史版本摘要表（后由 <code>session_summaries</code> 取代）</li>
+<li><code>sdk_sessions</code>：SDK 会话（content&#x2F;memory 双 ID）</li>
+<li><code>observations</code>：关键观测（含 <code>type</code>、<code>title</code>、<code>subtitle</code>、<code>narrative</code>、<code>facts</code>、<code>concepts</code>、<code>files_read</code>、<code>files_modified</code>、<code>discovery_tokens</code> 等）</li>
+<li><code>session_summaries</code>：结构化会话摘要（request&#x2F;investigated&#x2F;learned&#x2F;completed&#x2F;next_steps&#x2F;notes&#x2F;…）</li>
+<li><strong>FTS5 虚表</strong>：<code>observations_fts</code>、<code>session_summaries_fts</code>（含触发器维护增删改同步）</li>
+</ul>
+<p><strong>ROI 度量：</strong> <code>discovery_tokens</code> 记录发现&#x2F;生成各观测与摘要的 Token 成本，为经济学面板提供依据。</p>
+<p><strong>入库路径：</strong> 如 <code>storeObservation(db, contentSessionId, project, obs, ...)</code> 将结构化 JSON 写入 observations。</p>
+<h3 id="4-上下文构建链路（Context）"><a href="#4-上下文构建链路（Context）" class="headerlink" title="4. 上下文构建链路（Context）"></a>4. 上下文构建链路（Context）</h3><p><strong>调用链：</strong> <code>ContextConfigLoader → ObservationCompiler → ContextBuilder</code></p>
+<ul>
+<li><strong>ContextConfigLoader</strong>：读取 <code>~/.claude-mem/settings.json</code>；在非 code 模式下由 ModeManager 的模式配置接管”观察类型&#x2F;概念集合”</li>
+<li><strong>ObservationCompiler</strong>：按类型&#x2F;概念&#x2F;项目查询最近观察与摘要，组装时间线，并解析”上次会话的 assistant 消息”<ul>
+<li>Transcript 路径：<code>~/.claude/projects/&lt;cwd-用-替换斜杠&gt;/&lt;sessionId&gt;.jsonl</code></li>
+<li>多项目：<code>queryObservationsMulti/querySummariesMulti</code> 支持 worktree 合流</li>
+</ul>
+</li>
+<li><strong>ContextBuilder</strong>：<ul>
+<li>计算 Token 经济学</li>
+<li>渲染 Header&#x2F;Timeline（含 fullObservationIds 展开）&#x2F;最近摘要&#x2F;Previously&#x2F;Footers</li>
+<li><code>useColors=true</code> 时输出 ANSI 彩色（终端友好）</li>
+</ul>
+</li>
+</ul>
+<p><strong>空态处理：</strong> 无数据时输出友好的空态提示（Markdown&#x2F;ANSI 两种）。</p>
+<h3 id="5-搜索面（SearchManager-路由）"><a href="#5-搜索面（SearchManager-路由）" class="headerlink" title="5. 搜索面（SearchManager + 路由）"></a>5. 搜索面（SearchManager + 路由）</h3><ul>
+<li><strong>统一检索</strong>：<code>GET /api/search</code>（observations&#x2F;sessions&#x2F;prompts）与 <code>GET /api/timeline</code></li>
+<li><strong>语义捷径</strong>：<code>/api/decisions</code>、<code>/api/changes</code>、<code>/api/how-it-works</code></li>
+<li><strong>细分维度</strong>：<code>/api/search/by-type</code>、<code>/api/search/by-concept</code>、<code>/api/search/by-file</code></li>
+<li><strong>上下文相关</strong>：<code>/api/context/recent</code>、<code>/api/context/timeline</code>、<code>/api/context/preview</code>、<code>/api/context/inject</code></li>
+<li><strong>分页与直取</strong>：<code>/api/observations</code>、<code>/api/summaries</code>、<code>/api/observation/:id</code>、批量 <code>/api/observations/batch</code></li>
+</ul>
+<h3 id="6-Session-ID-设计（关键）"><a href="#6-Session-ID-设计（关键）" class="headerlink" title="6. Session ID 设计（关键）"></a>6. Session ID 设计（关键）</h3><p><strong>双 ID：</strong></p>
+<ul>
+<li><code>contentSessionId</code>（用户在 Claude Code 的对话 ID）</li>
+<li><code>memorySessionId</code>（SDK agent 内部会话 ID，用于 resume）</li>
+</ul>
+<p><strong>流程：</strong></p>
+<ol>
+<li>Hook 先创建 <code>sdk_sessions</code>，<code>memory_session_id</code> 为空</li>
+<li>首条 SDK 消息返回真实 <code>session_id</code> → 回写到 <code>memory_session_id</code></li>
+<li>后续请求才使用 <code>resume: memory_session_id</code>（严禁用 contentSessionId）</li>
+</ol>
+<p><strong>观测入库为何用 contentSessionId：</strong> 观测在整个用户会话生命周期保持稳定关联，避免 resume 语义混淆；详见 <code>docs/SESSION_ID_ARCHITECTURE.md</code>。</p>
+<h3 id="7-集成"><a href="#7-集成" class="headerlink" title="7. 集成"></a>7. 集成</h3><ul>
+<li><strong>Cursor</strong>：<code>CursorHooksInstaller</code> 自动安装&#x2F;更新 hooks，与 Cursor IDE 集成上下文与命令</li>
+<li><strong>Claude Desktop 技能</strong>：对话中直接查询持久化记忆，底层复用三段式检索与 HTTP API</li>
+</ul>
+<hr>
+<h2 id="三、故障排查"><a href="#三、故障排查" class="headerlink" title="三、故障排查"></a>三、故障排查</h2><ul>
+<li><strong>端口被占用（37777）</strong>：<ul>
+<li><code>bun plugin/scripts/worker-service.cjs status</code> 查看；占用则 <code>stop</code> 再 <code>start</code>；或改 <code>CLAUDE_MEM_WORKER_PORT</code></li>
+</ul>
+</li>
+<li><strong>原生模块 <code>ERR_DLOPEN_FAILED</code></strong>：<ul>
+<li>Context 初始化捕获该错误后会清理 <code>~/.claude/plugins/marketplaces/thedotmack/plugin/.install-version</code> 标记，并提示重启 Claude Code 自动 rebuild</li>
+</ul>
+</li>
+<li><strong>版本不匹配自动重启</strong>：<ul>
+<li>Worker 健康检查到插件版本与自身不一致时，先 <code>httpShutdown</code> 再等待端口释放并重启</li>
+</ul>
+</li>
+<li><strong>数据库健康</strong>：<ul>
+<li><code>~/.claude-mem/claude-mem.db</code> 存在与大小；<code>/api/stats</code> 统计；FTS5 表和触发器创建是否成功</li>
+</ul>
+</li>
+<li><strong>权限与路径</strong>：<ul>
+<li><code>~/.claude-mem</code>、<code>~/.claude/projects</code> 可写；Windows 上注意路径与 PID 文件权限</li>
+</ul>
+</li>
+<li><strong>队列卡死&#x2F;遗留</strong>：<ul>
+<li><code>/api/pending-queue</code> 查看；<code>/api/pending-queue/process</code> 触发恢复；<code>/api/pending-queue/failed</code> 或 <code>/all</code> 清理</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="四、附录"><a href="#四、附录" class="headerlink" title="四、附录"></a>四、附录</h2><h3 id="A-常用命令"><a href="#A-常用命令" class="headerlink" title="A. 常用命令"></a>A. 常用命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 插件安装（Claude Code 内）</span></span><br><span class="line">/plugin marketplace add thedotmack/claude-mem</span><br><span class="line">/plugin install claude-mem</span><br><span class="line"></span><br><span class="line"><span class="comment"># Worker（仓库目录）</span></span><br><span class="line">bun plugin/scripts/worker-service.cjs start|stop|restart|status</span><br><span class="line">npm run worker:logs</span><br><span class="line"></span><br><span class="line"><span class="comment"># API 速查</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/stats&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/search?query=XXX&amp;type=observations&amp;limit=20&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/timeline?anchor=123&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/context/inject?projects=a,b&amp;colors=true&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="B-环境要求"><a href="#B-环境要求" class="headerlink" title="B. 环境要求"></a>B. 环境要求</h3><ul>
+<li>Node.js ≥ 18</li>
+<li>Bun ≥ 1.0（管理 worker 与脚本）</li>
+</ul>
+<h3 id="C-目录结构总览（关键路径）"><a href="#C-目录结构总览（关键路径）" class="headerlink" title="C. 目录结构总览（关键路径）"></a>C. 目录结构总览（关键路径）</h3><ul>
+<li>插件与脚本：<code>plugin/plugin/*</code>（hooks、ui、skills、scripts、mcp-server.cjs）</li>
+<li>Worker 源码：<code>src/services/worker-service.ts</code>（协调层）</li>
+<li>HTTP 路由：<code>src/services/worker/http/routes/*.ts</code></li>
+<li>上下文：<code>src/services/context/*</code>（Config → Query → Render）</li>
+<li>数据库：<code>src/services/sqlite/*</code>（迁移、FTS5、存取函数）</li>
+<li>工具常量：<code>src/shared/*</code>（paths、defaults、utils）</li>
+</ul>
+<h3 id="D-API-速查表（节选）"><a href="#D-API-速查表（节选）" class="headerlink" title="D. API 速查表（节选）"></a>D. API 速查表（节选）</h3><p><strong>检索：</strong></p>
+<ul>
+<li><code>GET /api/search?query=...&amp;type=observations&amp;limit=20</code></li>
+<li><code>GET /api/search/sessions?query=...&amp;limit=20</code></li>
+<li><code>GET /api/search/prompts?query=...&amp;limit=20</code></li>
+<li><code>GET /api/search/by-type?type=decision|bugfix|feature|refactor|discovery</code></li>
+<li><code>GET /api/search/by-concept?concept=...</code></li>
+<li><code>GET /api/search/by-file?filePath=...</code></li>
+</ul>
+<p><strong>时间线：</strong></p>
+<ul>
+<li><code>GET /api/timeline?anchor=123</code> | <code>GET /api/timeline?query=...</code></li>
+<li><code>GET /api/timeline/by-query?query=...&amp;mode=auto</code></li>
+</ul>
+<p><strong>上下文：</strong></p>
+<ul>
+<li><code>GET /api/context/recent?project=...&amp;limit=3</code></li>
+<li><code>GET /api/context/timeline?anchor=...&amp;depth_before=10&amp;depth_after=10</code></li>
+<li><code>GET /api/context/preview?project=...</code></li>
+<li><code>GET /api/context/inject?projects=a,b&amp;colors=true</code></li>
+</ul>
+<p><strong>数据直取&#x2F;分页：</strong></p>
+<ul>
+<li><code>GET /api/observations?offset=0&amp;limit=20&amp;project=...</code></li>
+<li><code>POST /api/observations/batch { ids: [...] }</code></li>
+<li><code>GET /api/observation/:id</code></li>
+<li><code>GET /api/session/:id</code></li>
+</ul>
+<p><strong>管理与队列：</strong></p>
+<ul>
+<li><code>GET /api/stats</code>、<code>GET /api/projects</code>、<code>GET /api/processing-status</code></li>
+<li><code>GET /api/pending-queue</code></li>
+<li><code>POST /api/pending-queue/process { sessionLimit?: number }</code></li>
+<li><code>DELETE /api/pending-queue/failed</code> | <code>DELETE /api/pending-queue/all</code></li>
+</ul>
+<hr>
+<h2 id="五、实操示例与时序图"><a href="#五、实操示例与时序图" class="headerlink" title="五、实操示例与时序图"></a>五、实操示例与时序图</h2><h3 id="1-本机快速自检与排错"><a href="#1-本机快速自检与排错" class="headerlink" title="1. 本机快速自检与排错"></a>1. 本机快速自检与排错</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切到仓库根目录</span></span><br><span class="line"><span class="built_in">cd</span> ~/clawd/repos/claude-mem</span><br><span class="line"><span class="comment"># 启动/状态/日志</span></span><br><span class="line">bun plugin/scripts/worker-service.cjs start</span><br><span class="line">bun plugin/scripts/worker-service.cjs status</span><br><span class="line">npm run worker:logs</span><br><span class="line"></span><br><span class="line"><span class="comment"># 端口/服务/数据库/日志综合体检（需要 jq）</span></span><br><span class="line">bash ../../scripts/claude-mem-diagnose.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># API 验证</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/stats&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/search/observations?query=ContextBuilder&amp;limit=3&#x27;</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:37777/api/context/preview?project=claude-mem&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-典型工作流（三段式检索）"><a href="#2-典型工作流（三段式检索）" class="headerlink" title="2. 典型工作流（三段式检索）"></a>2. 典型工作流（三段式检索）</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">用户在 Claude 对话中询问历史 →</span><br><span class="line">  1) search：获取命中索引（少量 token）</span><br><span class="line">  2) timeline：围绕命中点拉一段时间线（筛选范围）</span><br><span class="line">  3) get_observations：只取最终需要的少量全文（节省 ~10x token）</span><br><span class="line">→ 将关键片段注入当前上下文，继续推理或实现。</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="3-Hook-→-SDK-→-DB-→-Context-→-Viewer-时序（简化）"><a href="#3-Hook-→-SDK-→-DB-→-Context-→-Viewer-时序（简化）" class="headerlink" title="3. Hook → SDK → DB → Context → Viewer 时序（简化）"></a>3. Hook → SDK → DB → Context → Viewer 时序（简化）</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">[SessionStart/UserPromptSubmit/PostToolUse/Stop/SessionEnd]</span><br><span class="line">  ↓ 采集事件 &amp; 生成观测/摘要</span><br><span class="line">[SDKAgent]</span><br><span class="line">  ↓ 首条 SDK 消息返回 real memorySessionId（回写）</span><br><span class="line">  ↓ 观测以 contentSessionId 入库（保持用户会话稳定关联）</span><br><span class="line">[SQLite + FTS5]</span><br><span class="line">  ↓ 触发器同步虚表，供全文/混合检索</span><br><span class="line">[ContextBuilder]</span><br><span class="line">  ↓ 读取设置 → 查询 ObservationCompiler → 计算 Token 经济学</span><br><span class="line">  ↓ 渲染 Header/Timeline/Last Summary/Previously/Footer</span><br><span class="line">[Worker Web Viewer @37777]</span><br><span class="line">  ↓ SSE 推送处理状态，API 提供搜索/时间线/上下文注入</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-可视化时序图（PlantUML-已渲染-SVG）"><a href="#4-可视化时序图（PlantUML-已渲染-SVG）" class="headerlink" title="4. 可视化时序图（PlantUML + 已渲染 SVG）"></a>4. 可视化时序图（PlantUML + 已渲染 SVG）</h3><p>下图展示了 Claude-Mem 从会话启动、SDK 捕获、数据库存储、上下文构建到 Web Viewer 的完整流程：</p>
+<p><img src="/img/diagrams/claude-mem-seq.svg" alt="Claude-Mem 时序图"></p>
+<p><strong>图例说明：</strong></p>
+<ul>
+<li><strong>会话启动与安装自检</strong>：Hook 初始化、Worker 启动 HTTP 服务、数据库迁移</li>
+<li><strong>首次消息与会话建立</strong>：SDK Session 创建、memory_session_id 回写</li>
+<li><strong>观测与摘要产生</strong>：事件采集、入库、FTS5 同步</li>
+<li><strong>上下文构建与注入</strong>：ContextBuilder 渲染时间线、Token 经济学计算</li>
+<li><strong>可视化与检索</strong>：Web Viewer 提供搜索&#x2F;时间线&#x2F;统计 API</li>
+</ul>
+<hr>
+<p><strong>—— 完 ——</strong></p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+        <tag>Claude</tag>
+        <tag>Memory</tag>
+        <tag>RAG</tag>
+        <tag>DevTools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Clawdbot 配置完全指南</title>
+    <url>/2026/01/29/clawdbot-guide/</url>
+    <content><![CDATA[<blockquote>
+<p>本教程记录了在 ARM64 架构 Linux 系统上配置 Clawdbot 的完整过程，包括所有遇到的问题和解决方案。</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87">环境准备</a></li>
+<li><a href="#Node-js-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE">Node.js 环境配置</a></li>
+<li><a href="#Clawdbot-%E5%AE%89%E8%A3%85">Clawdbot 安装</a></li>
+<li><a href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">常见问题与解决方案</a></li>
+<li><a href="#API-%E9%85%8D%E7%BD%AE">API 配置</a></li>
+<li><a href="#Telegram-%E9%85%8D%E5%AF%B9">Telegram 配对</a></li>
+<li><a href="#%E6%9C%8D%E5%8A%A1%E7%AE%A1%E7%90%86">服务管理</a></li>
+</ul>
+<hr>
+<h2 id="系统环境"><a href="#系统环境" class="headerlink" title="系统环境"></a>系统环境</h2><ul>
+<li><strong>操作系统</strong>: Armbian (Debian Trixie)</li>
+<li><strong>架构</strong>: ARM64 (aarch64)</li>
+<li><strong>Node.js</strong>: v22.22.0 (LTS)</li>
+<li><strong>包管理器</strong>: npm + pnpm</li>
+</ul>
+<hr>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><h3 id="1-安装基础工具"><a href="#1-安装基础工具" class="headerlink" title="1. 安装基础工具"></a>1. 安装基础工具</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 更新系统</span></span><br><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装必要工具</span></span><br><span class="line"><span class="built_in">sudo</span> apt install -y ca-certificates curl gnupg vim tmux</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-配置防火墙（可选）"><a href="#2-配置防火墙（可选）" class="headerlink" title="2. 配置防火墙（可选）"></a>2. 配置防火墙（可选）</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装 ufw</span></span><br><span class="line"><span class="built_in">sudo</span> apt install ufw -y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开放 SSH 端口（重要！避免被锁在外面）</span></span><br><span class="line"><span class="built_in">sudo</span> ufw allow 22/tcp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用防火墙</span></span><br><span class="line"><span class="built_in">sudo</span> ufw --force <span class="built_in">enable</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line"><span class="built_in">sudo</span> ufw status verbose</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意</strong>: 如果需要开放其他端口（如 Web 服务），记得先配置规则再启用防火墙。</p>
+</blockquote>
+<hr>
+<h2 id="Node-js-环境配置"><a href="#Node-js-环境配置" class="headerlink" title="Node.js 环境配置"></a>Node.js 环境配置</h2><h3 id="问题-1-系统自带的-Node-js-版本过旧"><a href="#问题-1-系统自带的-Node-js-版本过旧" class="headerlink" title="问题 1: 系统自带的 Node.js 版本过旧"></a>问题 1: 系统自带的 Node.js 版本过旧</h3><p><strong>现象</strong>: 使用 <code>apt install nodejs</code> 安装的版本可能不满足 Clawdbot 要求。</p>
+<p><strong>解决方案</strong>: 使用 fnm (Fast Node Manager) 管理 Node.js 版本</p>
+<h4 id="步骤-1-安装-fnm"><a href="#步骤-1-安装-fnm" class="headerlink" title="步骤 1: 安装 fnm"></a>步骤 1: 安装 fnm</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 下载并安装 fnm</span></span><br><span class="line">curl -fsSL https://fnm.vercel.app/install | bash</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤-2-配置-Fish-Shell"><a href="#步骤-2-配置-Fish-Shell" class="headerlink" title="步骤 2: 配置 Fish Shell"></a>步骤 2: 配置 Fish Shell</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置 FNM_PATH 环境变量</span></span><br><span class="line"><span class="built_in">set</span> -Ux FNM_PATH <span class="string">&quot;/home/youruser/.local/share/fnm&quot;</span></span><br><span class="line">fish_add_path <span class="variable">$FNM_PATH</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加自动切换功能</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;fnm env --use-on-cd | source&#x27;</span> &gt;&gt; ~/.config/fish/config.fish</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新加载配置</span></span><br><span class="line"><span class="built_in">source</span> ~/.config/fish/config.fish</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤-3-安装-Node-js-LTS-版本"><a href="#步骤-3-安装-Node-js-LTS-版本" class="headerlink" title="步骤 3: 安装 Node.js LTS 版本"></a>步骤 3: 安装 Node.js LTS 版本</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装 Node.js v22 (LTS)</span></span><br><span class="line">fnm install 22</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用该版本</span></span><br><span class="line">fnm use 22</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证安装</span></span><br><span class="line">node -v  <span class="comment"># 应该显示 v22.x.x</span></span><br><span class="line">npm -v   <span class="comment"># 应该显示 npm 版本</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-配置-pnpm（可选但推荐）"><a href="#3-配置-pnpm（可选但推荐）" class="headerlink" title="3. 配置 pnpm（可选但推荐）"></a>3. 配置 pnpm（可选但推荐）</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启用 corepack</span></span><br><span class="line">corepack <span class="built_in">enable</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 准备 pnpm</span></span><br><span class="line">corepack prepare pnpm@latest --activate</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置 pnpm</span></span><br><span class="line">pnpm setup</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置 PNPM_HOME 环境变量</span></span><br><span class="line"><span class="built_in">set</span> -Ux PNPM_HOME <span class="string">&quot;/home/youruser/.local/share/pnpm&quot;</span></span><br><span class="line">fish_add_path <span class="variable">$PNPM_HOME</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置全局 bin 目录</span></span><br><span class="line">pnpm config <span class="built_in">set</span> global-bin-dir <span class="string">&quot;/home/youruser/.local/share/pnpm&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Clawdbot-安装"><a href="#Clawdbot-安装" class="headerlink" title="Clawdbot 安装"></a>Clawdbot 安装</h2><h3 id="方法-1-使用-npm-全局安装（推荐）"><a href="#方法-1-使用-npm-全局安装（推荐）" class="headerlink" title="方法 1: 使用 npm 全局安装（推荐）"></a>方法 1: 使用 npm 全局安装（推荐）</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install -g clawdbot</span><br></pre></td></tr></table></figure>
+
+<h3 id="初始化配置"><a href="#初始化配置" class="headerlink" title="初始化配置"></a>初始化配置</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 运行 onboard 向导（推荐）</span></span><br><span class="line">clawdbot onboard --install-daemon</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者手动初始化</span></span><br><span class="line">clawdbot daemon install</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>提示</strong>: <code>onboard</code> 命令会引导你完成所有配置步骤，包括 API 密钥、工作目录等。</p>
+</blockquote>
+<hr>
+<h2 id="常见问题与解决方案"><a href="#常见问题与解决方案" class="headerlink" title="常见问题与解决方案"></a>常见问题与解决方案</h2><h3 id="问题-1-配置文件混乱导致启动失败"><a href="#问题-1-配置文件混乱导致启动失败" class="headerlink" title="问题 1: 配置文件混乱导致启动失败"></a>问题 1: 配置文件混乱导致启动失败</h3><p><strong>现象</strong>: </p>
+<ul>
+<li><code>clawdbot health</code> 报错</li>
+<li>服务无法启动</li>
+<li>配置文件格式错误</li>
+</ul>
+<p><strong>解决方案</strong>: 完全清理并重新安装</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 停止并移除服务</span></span><br><span class="line">systemctl --user stop clawdbot-gateway</span><br><span class="line">systemctl --user <span class="built_in">disable</span> clawdbot-gateway</span><br><span class="line"><span class="built_in">rm</span> -rf ~/.config/systemd/user/clawdbot-gateway.service</span><br><span class="line">systemctl --user daemon-reload</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 强制杀掉所有 node 进程</span></span><br><span class="line">killall -9 node 2&gt;/dev/null</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 卸载全局包</span></span><br><span class="line">npm uninstall -g clawdbot</span><br><span class="line">pnpm remove -g clawdbot 2&gt;/dev/null</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 清理所有缓存和临时目录</span></span><br><span class="line">npm cache clean --force</span><br><span class="line">pnpm store prune 2&gt;/dev/null</span><br><span class="line"><span class="built_in">rm</span> -rf ~/.npm</span><br><span class="line"><span class="built_in">rm</span> -rf ~/.local/share/pnpm</span><br><span class="line"><span class="built_in">rm</span> -rf ~/.pnpm-state</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 删除 Clawdbot 的所有数据</span></span><br><span class="line"><span class="built_in">rm</span> -rf ~/.clawdbot</span><br><span class="line"><span class="built_in">rm</span> -rf ~/clawd</span><br><span class="line"><span class="built_in">rm</span> -rf /tmp/clawdbot</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 清理环境变量</span></span><br><span class="line"><span class="built_in">set</span> -e ANTHROPIC_BASE_URL</span><br><span class="line"><span class="built_in">set</span> -e ANTHROPIC_API_KEY</span><br><span class="line"><span class="built_in">set</span> -e HTTPS_PROXY</span><br><span class="line"><span class="built_in">set</span> -e HTTP_PROXY</span><br></pre></td></tr></table></figure>
+
+<p><strong>然后重新安装</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 重新安装 clawdbot</span></span><br><span class="line">npm install -g clawdbot</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新初始化</span></span><br><span class="line">clawdbot onboard --install-daemon</span><br></pre></td></tr></table></figure>
+
+<h3 id="问题-2-ARM64-架构下-better-sqlite3-编译失败"><a href="#问题-2-ARM64-架构下-better-sqlite3-编译失败" class="headerlink" title="问题 2: ARM64 架构下 better-sqlite3 编译失败"></a>问题 2: ARM64 架构下 better-sqlite3 编译失败</h3><p><strong>现象</strong>: </p>
+<ul>
+<li>使用 <code>better-sqlite3</code> 的项目无法运行</li>
+<li>报错：<code>Could not locate the bindings file</code></li>
+</ul>
+<p><strong>解决方案</strong>: 使用 JSON 文件或其他数据库替代</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 不要使用 better-sqlite3</span></span><br><span class="line"><span class="comment">// const Database = require(&#x27;better-sqlite3&#x27;);</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 改用 JSON 文件</span></span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> db = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(fs.<span class="title function_">readFileSync</span>(<span class="string">&#x27;data.json&#x27;</span>, <span class="string">&#x27;utf8&#x27;</span>));</span><br></pre></td></tr></table></figure>
+
+<h3 id="问题-3-配置文件-JSON-格式错误"><a href="#问题-3-配置文件-JSON-格式错误" class="headerlink" title="问题 3: 配置文件 JSON 格式错误"></a>问题 3: 配置文件 JSON 格式错误</h3><p><strong>现象</strong>: </p>
+<ul>
+<li>服务启动失败</li>
+<li>日志显示 JSON 解析错误</li>
+</ul>
+<p><strong>解决方案</strong>: 手动编辑配置文件，确保格式正确</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 编辑配置文件</span></span><br><span class="line">vim ~/.clawdbot/clawdbot.json</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证 JSON 格式</span></span><br><span class="line">node -e <span class="string">&quot;JSON.parse(require(&#x27;fs&#x27;).readFileSync(require(&#x27;os&#x27;).homedir() + &#x27;/.clawdbot/clawdbot.json&#x27;))&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>提示</strong>: 使用支持 JSON 语法高亮的编辑器（如 vim 或 VSCode）可以避免格式错误。</p>
+</blockquote>
+<hr>
+<h2 id="API-配置"><a href="#API-配置" class="headerlink" title="API 配置"></a>API 配置</h2><h3 id="配置-Anthropic-API（使用第三方中转）"><a href="#配置-Anthropic-API（使用第三方中转）" class="headerlink" title="配置 Anthropic API（使用第三方中转）"></a>配置 Anthropic API（使用第三方中转）</h3><h4 id="方法-1-直接编辑配置文件（推荐）"><a href="#方法-1-直接编辑配置文件（推荐）" class="headerlink" title="方法 1: 直接编辑配置文件（推荐）"></a>方法 1: 直接编辑配置文件（推荐）</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 创建 Agent 配置目录</span></span><br><span class="line"><span class="built_in">mkdir</span> -p ~/.clawdbot/agents/main/agent/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建 auth-profiles.json</span></span><br><span class="line"><span class="built_in">cat</span> &gt; ~/.clawdbot/agents/main/agent/auth-profiles.json &lt;&lt; <span class="string">&#x27;EOF&#x27;</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;anthropic&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;baseUrl&quot;</span>: <span class="string">&quot;https://your-api-proxy.com/v1&quot;</span>,</span><br><span class="line">    <span class="string">&quot;apiKey&quot;</span>: <span class="string">&quot;sk-ant-your-api-key&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 验证配置</span></span><br><span class="line"><span class="built_in">cat</span> ~/.clawdbot/agents/main/agent/auth-profiles.json</span><br></pre></td></tr></table></figure>
+
+<h4 id="方法-2-使用环境变量（不推荐）"><a href="#方法-2-使用环境变量（不推荐）" class="headerlink" title="方法 2: 使用环境变量（不推荐）"></a>方法 2: 使用环境变量（不推荐）</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置环境变量</span></span><br><span class="line"><span class="built_in">set</span> -x ANTHROPIC_BASE_URL <span class="string">&quot;https://your-api-proxy.com&quot;</span></span><br><span class="line"><span class="built_in">set</span> -x ANTHROPIC_API_KEY <span class="string">&quot;sk-ant-your-api-key&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意</strong>: 环境变量方式可能导致配置冲突，推荐使用配置文件方式。</p>
+</blockquote>
+<h4 id="重要提示"><a href="#重要提示" class="headerlink" title="重要提示"></a>重要提示</h4><ol>
+<li><p><strong>baseUrl 路径</strong>: </p>
+<ul>
+<li>官方 API: <code>https://api.anthropic.com</code></li>
+<li>第三方中转: 通常需要 <code>/v1</code> 后缀</li>
+</ul>
+</li>
+<li><p><strong>API Key 格式</strong>: </p>
+<ul>
+<li>必须以 <code>sk-ant-</code> 开头</li>
+<li>完整复制，不要遗漏任何字符</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="Telegram-配对"><a href="#Telegram-配对" class="headerlink" title="Telegram 配对"></a>Telegram 配对</h2><h3 id="步骤-1-查看配对码"><a href="#步骤-1-查看配对码" class="headerlink" title="步骤 1: 查看配对码"></a>步骤 1: 查看配对码</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 列出所有待配对的请求</span></span><br><span class="line">clawdbot pairing list</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者只查看 Telegram 的配对请求</span></span><br><span class="line">clawdbot pairing list telegram</span><br></pre></td></tr></table></figure>
+
+<h3 id="步骤-2-批准配对"><a href="#步骤-2-批准配对" class="headerlink" title="步骤 2: 批准配对"></a>步骤 2: 批准配对</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 批准配对（使用配对码）</span></span><br><span class="line">clawdbot pairing approve telegram &lt;配对码&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 示例</span></span><br><span class="line">clawdbot pairing approve telegram S9RXS6J4</span><br></pre></td></tr></table></figure>
+
+<h3 id="步骤-3-验证连接"><a href="#步骤-3-验证连接" class="headerlink" title="步骤 3: 验证连接"></a>步骤 3: 验证连接</h3><p>在 Telegram 中向你的 bot 发送消息，测试是否正常响应。</p>
+<hr>
+<h2 id="服务管理"><a href="#服务管理" class="headerlink" title="服务管理"></a>服务管理</h2><h3 id="启动和停止服务"><a href="#启动和停止服务" class="headerlink" title="启动和停止服务"></a>启动和停止服务</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动服务</span></span><br><span class="line">systemctl --user start clawdbot-gateway</span><br><span class="line"></span><br><span class="line"><span class="comment"># 停止服务</span></span><br><span class="line">systemctl --user stop clawdbot-gateway</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启服务</span></span><br><span class="line">systemctl --user restart clawdbot-gateway</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看服务状态</span></span><br><span class="line">systemctl --user status clawdbot-gateway</span><br></pre></td></tr></table></figure>
+
+<h3 id="查看日志"><a href="#查看日志" class="headerlink" title="查看日志"></a>查看日志</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 实时查看日志（systemd）</span></span><br><span class="line">journalctl --user -u clawdbot-gateway -f</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看最近 50 条日志</span></span><br><span class="line">journalctl --user -u clawdbot-gateway -n 50</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志文件</span></span><br><span class="line"><span class="built_in">tail</span> -f ~/.clawdbot/logs/gateway.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或使用 clawdbot 命令</span></span><br><span class="line">clawdbot logs --follow</span><br></pre></td></tr></table></figure>
+
+<h3 id="健康检查"><a href="#健康检查" class="headerlink" title="健康检查"></a>健康检查</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 检查服务健康状态</span></span><br><span class="line">clawdbot health</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行诊断并自动修复</span></span><br><span class="line">clawdbot doctor --fix</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置代理（如果需要）"><a href="#配置代理（如果需要）" class="headerlink" title="配置代理（如果需要）"></a>配置代理（如果需要）</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置代理环境变量</span></span><br><span class="line"><span class="built_in">set</span> -x HTTP_PROXY <span class="string">&quot;http://your-proxy:port&quot;</span></span><br><span class="line"><span class="built_in">set</span> -x HTTPS_PROXY <span class="string">&quot;http://your-proxy:port&quot;</span></span><br><span class="line"><span class="built_in">set</span> -x ALL_PROXY <span class="string">&quot;http://your-proxy:port&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启服务使代理生效</span></span><br><span class="line">systemctl --user restart clawdbot-gateway</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><h3 id="1-定期备份配置"><a href="#1-定期备份配置" class="headerlink" title="1. 定期备份配置"></a>1. 定期备份配置</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 备份配置目录</span></span><br><span class="line"><span class="built_in">cp</span> -r ~/.clawdbot ~/.clawdbot.backup.$(<span class="built_in">date</span> +%Y%m%d)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 备份工作目录</span></span><br><span class="line"><span class="built_in">cp</span> -r ~/clawd ~/clawd.backup.$(<span class="built_in">date</span> +%Y%m%d)</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-监控服务状态"><a href="#2-监控服务状态" class="headerlink" title="2. 监控服务状态"></a>2. 监控服务状态</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置开机自启</span></span><br><span class="line">systemctl --user <span class="built_in">enable</span> clawdbot-gateway</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查是否已启用</span></span><br><span class="line">systemctl --user is-enabled clawdbot-gateway</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-清理会话数据（如果遇到问题）"><a href="#3-清理会话数据（如果遇到问题）" class="headerlink" title="3. 清理会话数据（如果遇到问题）"></a>3. 清理会话数据（如果遇到问题）</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 清理所有会话</span></span><br><span class="line"><span class="built_in">rm</span> -rf ~/.clawdbot/agents/main/agent/sessions/*</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启服务</span></span><br><span class="line">systemctl --user restart clawdbot-gateway</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="故障排查"><a href="#故障排查" class="headerlink" title="故障排查"></a>故障排查</h2><h3 id="问题：服务无法启动"><a href="#问题：服务无法启动" class="headerlink" title="问题：服务无法启动"></a>问题：服务无法启动</h3><p><strong>检查步骤</strong>:</p>
+<ol>
+<li>查看日志找出错误原因</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">journalctl --user -u clawdbot-gateway -n 100</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>验证配置文件格式</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">node -e <span class="string">&quot;JSON.parse(require(&#x27;fs&#x27;).readFileSync(require(&#x27;os&#x27;).homedir() + &#x27;/.clawdbot/clawdbot.json&#x27;))&quot;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>检查 API 配置</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cat</span> ~/.clawdbot/agents/main/agent/auth-profiles.json</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>重新加载 systemd</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl --user daemon-reload</span><br></pre></td></tr></table></figure>
+
+<h3 id="问题：API-调用失败"><a href="#问题：API-调用失败" class="headerlink" title="问题：API 调用失败"></a>问题：API 调用失败</h3><p><strong>可能原因</strong>:</p>
+<ul>
+<li>API Key 错误或过期</li>
+<li>baseUrl 配置错误</li>
+<li>网络连接问题（需要代理）</li>
+</ul>
+<p><strong>解决方案</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 验证 API 配置</span></span><br><span class="line"><span class="built_in">cat</span> ~/.clawdbot/agents/main/agent/auth-profiles.json</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 测试网络连接</span></span><br><span class="line">curl -I https://api.anthropic.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 如果需要代理，设置环境变量</span></span><br><span class="line"><span class="built_in">set</span> -x HTTPS_PROXY <span class="string">&quot;http://your-proxy:port&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="问题：Telegram-无响应"><a href="#问题：Telegram-无响应" class="headerlink" title="问题：Telegram 无响应"></a>问题：Telegram 无响应</h3><p><strong>检查步骤</strong>:</p>
+<ol>
+<li>确认配对成功</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">clawdbot pairing list</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>查看服务日志</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">clawdbot logs --follow</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>重启服务</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl --user restart clawdbot-gateway</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="参考资源"><a href="#参考资源" class="headerlink" title="参考资源"></a>参考资源</h2><h3 id="官方文档"><a href="#官方文档" class="headerlink" title="官方文档"></a>官方文档</h3><ul>
+<li><strong>Clawdbot 官网</strong>: <a href="https://clawd.bot/">https://clawd.bot</a></li>
+<li><strong>官方文档</strong>: <a href="https://docs.clawd.bot/">https://docs.clawd.bot</a></li>
+<li><strong>GitHub 仓库</strong>: <a href="https://github.com/clawdbot/clawdbot">https://github.com/clawdbot/clawdbot</a></li>
+<li><strong>Discord 社区</strong>: <a href="https://discord.com/invite/clawd">https://discord.com/invite/clawd</a></li>
+<li><strong>技能市场</strong>: <a href="https://clawdhub.com/">https://clawdhub.com</a></li>
+</ul>
+<h3 id="常用命令速查"><a href="#常用命令速查" class="headerlink" title="常用命令速查"></a>常用命令速查</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 服务管理</span></span><br><span class="line">clawdbot daemon install          <span class="comment"># 安装守护进程</span></span><br><span class="line">clawdbot daemon start            <span class="comment"># 启动服务</span></span><br><span class="line">clawdbot daemon stop             <span class="comment"># 停止服务</span></span><br><span class="line">clawdbot daemon status           <span class="comment"># 查看状态</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置管理</span></span><br><span class="line">clawdbot onboard                 <span class="comment"># 初始化向导</span></span><br><span class="line">clawdbot configure               <span class="comment"># 配置向导</span></span><br><span class="line">clawdbot health                  <span class="comment"># 健康检查</span></span><br><span class="line">clawdbot doctor --fix            <span class="comment"># 诊断并修复</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配对管理</span></span><br><span class="line">clawdbot pairing list            <span class="comment"># 查看配对请求</span></span><br><span class="line">clawdbot pairing approve         <span class="comment"># 批准配对</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 日志查看</span></span><br><span class="line">clawdbot logs --follow           <span class="comment"># 实时查看日志</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="关键要点"><a href="#关键要点" class="headerlink" title="关键要点"></a>关键要点</h3><ol>
+<li><p><strong>使用 fnm 管理 Node.js 版本</strong> - 避免系统包管理器安装的版本过旧，推荐使用 v22 LTS 版本</p>
+</li>
+<li><p><strong>完全清理后重新安装</strong> - 遇到配置问题时，完全清理是最可靠的解决方案，记得备份重要数据</p>
+</li>
+<li><p><strong>API 配置使用配置文件方式</strong> - 不要依赖环境变量，注意 baseUrl 的 <code>/v1</code> 后缀</p>
+</li>
+<li><p><strong>定期查看日志</strong> - 日志是排查问题的最佳工具，使用 <code>journalctl</code> 或 <code>clawdbot logs</code></p>
+</li>
+<li><p><strong>ARM64 架构注意事项</strong> - 某些 npm 包可能需要编译，优先选择纯 JavaScript 实现的替代方案</p>
+</li>
+</ol>
+<h3 id="成功标志"><a href="#成功标志" class="headerlink" title="成功标志"></a>成功标志</h3><p>当你看到以下输出时，说明配置成功：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ clawdbot health</span><br><span class="line">Gateway is running</span><br><span class="line">API connection successful</span><br><span class="line">Telegram connected</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="下一步"><a href="#下一步" class="headerlink" title="下一步"></a>下一步</h2><p>配置完成后，你可以：</p>
+<ol>
+<li><p><strong>探索功能</strong> - 在 Telegram 中与 bot 对话，尝试不同的命令和功能</p>
+</li>
+<li><p><strong>自定义配置</strong> - 编辑 <code>SOUL.md</code> 定义 bot 的个性，编辑 <code>USER.md</code> 添加你的信息</p>
+</li>
+<li><p><strong>安装技能</strong> - 访问 <a href="https://clawdhub.com/">https://clawdhub.com</a> 浏览可用技能</p>
+</li>
+<li><p><strong>加入社区</strong> - Discord: <a href="https://discord.com/invite/clawd">https://discord.com/invite/clawd</a></p>
+</li>
+</ol>
+<hr>
+<blockquote>
+<p><strong>文档更新</strong>: 2026-01-29</p>
+<p>本教程基于实际配置过程整理，如有问题或建议，欢迎反馈！</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>技术教程</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+        <tag>Clawdbot</tag>
+        <tag>教程</tag>
+        <tag>Linux</tag>
+        <tag>ARM64</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Everything Claude Code 完全使用指南</title>
+    <url>/2026/02/02/everything-claude-code-guide/</url>
+    <content><![CDATA[<blockquote>
+<p>本文详细介绍 everything-claude-code 项目的核心概念和高效使用方法，这是一个经过 10+ 个月实战验证的 Claude Code 配置集合，由 Anthropic 黑客松获奖者开发。</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="#%E9%A1%B9%E7%9B%AE%E7%AE%80%E4%BB%8B">项目简介</a></li>
+<li><a href="#%E6%A0%B8%E5%BF%83%E5%B7%A5%E4%BD%9C%E6%B5%81">核心工作流</a></li>
+<li><a href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3">常用命令详解</a></li>
+<li><a href="#%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7">高级特性</a></li>
+<li><a href="#%E5%BC%80%E5%8F%91%E6%8A%80%E5%B7%A7">开发技巧</a></li>
+<li><a href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5">最佳实践</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+<hr>
+<h2 id="项目简介"><a href="#项目简介" class="headerlink" title="项目简介"></a>项目简介</h2><p><strong>everything-claude-code</strong> 是一个完整的 Claude Code 配置集合，包含：</p>
+<ul>
+<li><strong>15+ Agents</strong> - 专门的子代理（planner、architect、code-reviewer 等）</li>
+<li><strong>30+ Skills</strong> - 工作流定义（TDD、持续学习、验证循环等）</li>
+<li><strong>20+ Commands</strong> - 斜杠命令（&#x2F;plan、&#x2F;tdd、&#x2F;verify 等）</li>
+<li><strong>Rules</strong> - 始终遵循的指南（安全、编码风格、测试等）</li>
+<li><strong>Hooks</strong> - 事件触发的自动化（内存持久化、格式化等）</li>
+<li><strong>MCP 配置</strong> - 外部服务集成（GitHub、Supabase、Vercel 等）</li>
+</ul>
+<p><strong>项目地址</strong>: <a href="https://github.com/affaan-m/everything-claude-code">https://github.com/affaan-m/everything-claude-code</a></p>
+<p><strong>作者背景</strong>: 2025 年 9 月 Anthropic x Forum Ventures 黑客松获奖者，完全使用 Claude Code 构建了 <a href="https://zenith.chat/">zenith.chat</a>。</p>
+<hr>
+<h2 id="核心工作流"><a href="#核心工作流" class="headerlink" title="核心工作流"></a>核心工作流</h2><h3 id="标准开发流程"><a href="#标准开发流程" class="headerlink" title="标准开发流程"></a>标准开发流程</h3><p>开发新功能的推荐流程：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 规划阶段</span></span><br><span class="line">/plan <span class="string">&quot;功能描述&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 等待确认后，TDD 开发</span></span><br><span class="line">/tdd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 遇到构建错误时</span></span><br><span class="line">/build-fix</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 完成后进行代码审查</span></span><br><span class="line">/code-review</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 最终验证</span></span><br><span class="line">/verify</span><br></pre></td></tr></table></figure>
+
+<h3 id="流程说明"><a href="#流程说明" class="headerlink" title="流程说明"></a>流程说明</h3><ol>
+<li><strong>规划先行</strong> - <code>/plan</code> 会重述需求、识别风险、创建分步计划，<strong>等待您确认</strong>后才动手</li>
+<li><strong>测试驱动</strong> - <code>/tdd</code> 遵循 RED-GREEN-REFACTOR 循环</li>
+<li><strong>自动修复</strong> - <code>/build-fix</code> 自动诊断和修复构建错误</li>
+<li><strong>质量保证</strong> - <code>/code-review</code> 检查代码质量、安全性、可维护性</li>
+<li><strong>全面验证</strong> - <code>/verify</code> 运行验证循环确保一切正常</li>
+</ol>
+<hr>
+<h2 id="常用命令详解"><a href="#常用命令详解" class="headerlink" title="常用命令详解"></a>常用命令详解</h2><h3 id="1-plan-规划命令"><a href="#1-plan-规划命令" class="headerlink" title="1. &#x2F;plan - 规划命令"></a>1. &#x2F;plan - 规划命令</h3><p><strong>用途</strong>: 在开始编码前创建详细的实施计划</p>
+<p><strong>输出内容</strong>:</p>
+<ul>
+<li>重述需求（确保理解正确）</li>
+<li>分阶段实施计划</li>
+<li>识别依赖和风险</li>
+<li>估算复杂度和时间</li>
+</ul>
+<p><strong>使用场景</strong>:</p>
+<ul>
+<li>开始新功能</li>
+<li>重大架构变更</li>
+<li>复杂重构</li>
+<li>需求不明确时</li>
+</ul>
+<p><strong>示例</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/plan 添加用户认证功能</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键特性</strong>: 会<strong>等待您确认</strong>后才开始写代码。如果计划不满意，可以回复 <code>modify: [修改内容]</code>。</p>
+<hr>
+<h3 id="2-tdd-测试驱动开发"><a href="#2-tdd-测试驱动开发" class="headerlink" title="2. &#x2F;tdd - 测试驱动开发"></a>2. &#x2F;tdd - 测试驱动开发</h3><p><strong>用途</strong>: 遵循 TDD 方法论开发功能</p>
+<p><strong>流程</strong>:</p>
+<ol>
+<li>定义接口</li>
+<li>写失败的测试（RED）</li>
+<li>实现最小代码（GREEN）</li>
+<li>重构优化（REFACTOR）</li>
+<li>验证 80%+ 覆盖率</li>
+</ol>
+<p><strong>为什么使用 TDD</strong>:</p>
+<ul>
+<li>确保代码可测试</li>
+<li>减少 bug</li>
+<li>更好的设计</li>
+<li>重构更安全</li>
+</ul>
+<hr>
+<h3 id="3-code-review-代码审查"><a href="#3-code-review-代码审查" class="headerlink" title="3. &#x2F;code-review - 代码审查"></a>3. &#x2F;code-review - 代码审查</h3><p><strong>用途</strong>: 全面审查代码质量</p>
+<p><strong>检查项</strong>:</p>
+<ul>
+<li>代码质量和可读性</li>
+<li>安全漏洞</li>
+<li>性能问题</li>
+<li>最佳实践遵循</li>
+<li>测试覆盖率</li>
+</ul>
+<hr>
+<h3 id="4-build-fix-构建错误修复"><a href="#4-build-fix-构建错误修复" class="headerlink" title="4. &#x2F;build-fix - 构建错误修复"></a>4. &#x2F;build-fix - 构建错误修复</h3><p><strong>用途</strong>: 自动诊断和修复构建失败</p>
+<p><strong>适用场景</strong>:</p>
+<ul>
+<li>编译错误</li>
+<li>依赖问题</li>
+<li>配置错误</li>
+<li>类型错误</li>
+</ul>
+<hr>
+<h3 id="5-verify-验证循环"><a href="#5-verify-验证循环" class="headerlink" title="5. &#x2F;verify - 验证循环"></a>5. &#x2F;verify - 验证循环</h3><p><strong>用途</strong>: 运行完整的验证循环</p>
+<p><strong>验证内容</strong>:</p>
+<ul>
+<li>所有测试通过</li>
+<li>代码覆盖率达标</li>
+<li>符合编码规范</li>
+<li>无安全问题</li>
+</ul>
+<hr>
+<h2 id="高级特性"><a href="#高级特性" class="headerlink" title="高级特性"></a>高级特性</h2><h3 id="内存持久化"><a href="#内存持久化" class="headerlink" title="内存持久化"></a>内存持久化</h3><p><strong>问题</strong>: Claude Code 每次会话结束后会丢失上下文</p>
+<p><strong>解决方案</strong>: 使用 Hooks 自动保存&#x2F;加载会话状态</p>
+<p><strong>工作原理</strong>:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">会话开始 → PreSessionStart hook → 加载上次的上下文</span><br><span class="line">  ↓</span><br><span class="line">工作中...</span><br><span class="line">  ↓</span><br><span class="line">会话结束 → PostSessionEnd hook → 保存当前状态</span><br></pre></td></tr></table></figure>
+
+<p><strong>保存内容</strong>:</p>
+<ul>
+<li>当前任务状态</li>
+<li>已完成的步骤</li>
+<li>待办事项列表</li>
+<li>重要决策记录</li>
+<li>遇到的问题</li>
+</ul>
+<p><strong>实际效果</strong>:</p>
+<p>没有内存持久化：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">第一天：实现了用户认证</span><br><span class="line">第二天：Claude 忘记了，可能重复实现</span><br></pre></td></tr></table></figure>
+
+<p>有内存持久化：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">第一天：实现了用户认证，保存状态</span><br><span class="line">第二天：Claude 自动加载：&quot;上次我们完成了认证，现在继续做授权&quot;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="持续学习系统"><a href="#持续学习系统" class="headerlink" title="持续学习系统"></a>持续学习系统</h3><p><strong>两个版本</strong>:</p>
+<h4 id="v1-基础版"><a href="#v1-基础版" class="headerlink" title="v1 - 基础版"></a>v1 - 基础版</h4><ul>
+<li>从会话中手动提取模式</li>
+<li>使用 <code>/learn</code> 命令触发</li>
+<li>生成可复用的 skills</li>
+</ul>
+<h4 id="v2-Instinct-版（推荐）"><a href="#v2-Instinct-版（推荐）" class="headerlink" title="v2 - Instinct 版（推荐）"></a>v2 - Instinct 版（推荐）</h4><ul>
+<li>自动学习您的编码模式</li>
+<li>基于信心评分</li>
+<li>可以导入&#x2F;导出&#x2F;演化</li>
+</ul>
+<p><strong>使用方法</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看已学习的 instincts</span></span><br><span class="line">/instinct-status</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导入别人的 instincts</span></span><br><span class="line">/instinct-import &lt;file&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导出您的 instincts 分享</span></span><br><span class="line">/instinct-export</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将相关 instincts 聚合成 skills</span></span><br><span class="line">/evolve</span><br></pre></td></tr></table></figure>
+
+<p><strong>效果</strong>:</p>
+<ul>
+<li>学习前：每次都要告诉 Claude 使用 immutable 数据结构</li>
+<li>学习后：Claude 自动知道项目偏好并应用</li>
+</ul>
+<hr>
+<h3 id="验证循环"><a href="#验证循环" class="headerlink" title="验证循环"></a>验证循环</h3><p><strong>两种验证模式</strong>:</p>
+<h4 id="1-Checkpoint-验证"><a href="#1-Checkpoint-验证" class="headerlink" title="1. Checkpoint 验证"></a>1. Checkpoint 验证</h4><p><strong>特点</strong>: 在关键节点手动验证<br><strong>使用场景</strong>: 大功能的里程碑检查</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 保存当前验证状态</span></span><br><span class="line">/checkpoint</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行验证</span></span><br><span class="line">/verify</span><br></pre></td></tr></table></figure>
+
+<p><strong>流程</strong>:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">完成 Phase 1 → /checkpoint → 保存状态</span><br><span class="line">完成 Phase 2 → /checkpoint → 保存状态</span><br><span class="line">完成 Phase 3 → /verify → 全面验证</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-Continuous-Evals（持续评估）"><a href="#2-Continuous-Evals（持续评估）" class="headerlink" title="2. Continuous Evals（持续评估）"></a>2. Continuous Evals（持续评估）</h4><p><strong>特点</strong>: 每次代码变更后自动验证<br><strong>使用场景</strong>: 快速迭代开发</p>
+<p><strong>自动检查</strong>:</p>
+<ul>
+<li>测试通过</li>
+<li>代码覆盖率 ≥ 80%</li>
+<li>无 console.log</li>
+<li>无硬编码密钥</li>
+<li>符合编码规范</li>
+</ul>
+<p><strong>验证指标 (Pass@k)</strong>:</p>
+<ul>
+<li>Pass@1: 第一次尝试成功率</li>
+<li>Pass@3: 三次尝试内成功率</li>
+<li>Pass@5: 五次尝试内成功率</li>
+</ul>
+<p><strong>目标</strong>:</p>
+<ul>
+<li>简单任务：Pass@1 &gt; 80%</li>
+<li>中等任务：Pass@3 &gt; 90%</li>
+<li>复杂任务：Pass@5 &gt; 95%</li>
+</ul>
+<hr>
+<h3 id="并行化工作流"><a href="#并行化工作流" class="headerlink" title="并行化工作流"></a>并行化工作流</h3><h4 id="Git-Worktrees-方法"><a href="#Git-Worktrees-方法" class="headerlink" title="Git Worktrees 方法"></a>Git Worktrees 方法</h4><p><strong>问题</strong>: 一个 Claude 实例同时只能做一件事</p>
+<p><strong>解决方案</strong>: 使用 Git Worktrees 创建多个工作目录</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主分支：feature-auth</span></span><br><span class="line">git worktree add ../project-frontend feature-frontend</span><br><span class="line"></span><br><span class="line"><span class="comment"># 现在有两个独立目录：</span></span><br><span class="line">project/          → Claude 实例 1：做后端</span><br><span class="line">project-frontend/ → Claude 实例 2：做前端</span><br></pre></td></tr></table></figure>
+
+<p><strong>适用场景</strong>:</p>
+<ol>
+<li><p><strong>前后端并行开发</strong></p>
+<ul>
+<li>实例 1：API 开发</li>
+<li>实例 2：UI 开发</li>
+</ul>
+</li>
+<li><p><strong>多功能并行</strong></p>
+<ul>
+<li>实例 1：用户认证</li>
+<li>实例 2：支付集成</li>
+<li>实例 3：通知系统</li>
+</ul>
+</li>
+<li><p><strong>测试和开发分离</strong></p>
+<ul>
+<li>实例 1：写新功能</li>
+<li>实例 2：写测试</li>
+</ul>
+</li>
+</ol>
+<h4 id="Cascade-方法"><a href="#Cascade-方法" class="headerlink" title="Cascade 方法"></a>Cascade 方法</h4><p><strong>概念</strong>: 一个实例完成后，触发下一个实例</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">实例 1: 设计 API → 完成</span><br><span class="line">  ↓ 触发</span><br><span class="line">实例 2: 实现 API → 完成</span><br><span class="line">  ↓ 触发</span><br><span class="line">实例 3: 写测试 → 完成</span><br><span class="line">  ↓ 触发</span><br><span class="line">实例 4: 部署</span><br></pre></td></tr></table></figure>
+
+<p><strong>何时扩展实例</strong>:</p>
+<p>单实例够用：</p>
+<ul>
+<li>小功能（&lt; 3 个文件）</li>
+<li>简单修复</li>
+<li>文档更新</li>
+</ul>
+<p>需要多实例：</p>
+<ul>
+<li>大功能（&gt; 5 个文件）</li>
+<li>前后端都要改</li>
+<li>多个独立模块</li>
+</ul>
+<hr>
+<h3 id="Subagent-编排"><a href="#Subagent-编排" class="headerlink" title="Subagent 编排"></a>Subagent 编排</h3><h4 id="核心问题：上下文传递"><a href="#核心问题：上下文传递" class="headerlink" title="核心问题：上下文传递"></a>核心问题：上下文传递</h4><p><strong>挑战</strong>: 主 agent 派发任务给 subagent 时，如何传递足够的上下文？</p>
+<p><strong>错误做法</strong>:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">主 agent → subagent: &quot;去实现用户认证&quot;</span><br><span class="line">subagent: &quot;什么是用户认证？用什么技术栈？&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>正确做法</strong>:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">主 agent → subagent: </span><br><span class="line">  &quot;实现用户认证</span><br><span class="line">   技术栈: Next.js + Supabase</span><br><span class="line">   需求: JWT token, refresh token</span><br><span class="line">   文件: lib/auth.ts</span><br><span class="line">   参考: 现有的 lib/db.ts 模式&quot;</span><br></pre></td></tr></table></figure>
+
+<h4 id="迭代检索模式"><a href="#迭代检索模式" class="headerlink" title="迭代检索模式"></a>迭代检索模式</h4><p><strong>原理</strong>: 逐步细化上下文，而不是一次性传递所有信息</p>
+<p><strong>步骤</strong>:</p>
+<p>第一轮 - 高层概述：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">主 agent: &quot;需要实现用户认证&quot;</span><br><span class="line">subagent: &quot;了解，需要哪些具体功能？&quot;</span><br></pre></td></tr></table></figure>
+
+<p>第二轮 - 细化需求：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">主 agent: &quot;注册、登录、登出、token 刷新&quot;</span><br><span class="line">subagent: &quot;明白，使用什么数据库？&quot;</span><br></pre></td></tr></table></figure>
+
+<p>第三轮 - 技术细节：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">主 agent: &quot;Supabase，参考 lib/db.ts 的连接方式&quot;</span><br><span class="line">subagent: &quot;收到，开始实现&quot;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="可用的-Subagents"><a href="#可用的-Subagents" class="headerlink" title="可用的 Subagents"></a>可用的 Subagents</h4><p>项目包含 <strong>15+ 专门的 subagents</strong>：</p>
+<p><strong>规划类</strong>:</p>
+<ul>
+<li><code>planner</code> - 功能规划</li>
+<li><code>architect</code> - 架构设计</li>
+</ul>
+<p><strong>开发类</strong>:</p>
+<ul>
+<li><code>tdd-guide</code> - TDD 开发</li>
+<li><code>refactor-cleaner</code> - 重构清理</li>
+</ul>
+<p><strong>审查类</strong>:</p>
+<ul>
+<li><code>code-reviewer</code> - 代码审查</li>
+<li><code>security-reviewer</code> - 安全审查</li>
+<li><code>go-reviewer</code> - Go 代码审查</li>
+</ul>
+<p><strong>测试类</strong>:</p>
+<ul>
+<li><code>e2e-runner</code> - E2E 测试</li>
+</ul>
+<p><strong>修复类</strong>:</p>
+<ul>
+<li><code>build-error-resolver</code> - 构建错误修复</li>
+<li><code>go-build-resolver</code> - Go 构建错误修复</li>
+</ul>
+<p><strong>文档类</strong>:</p>
+<ul>
+<li><code>doc-updater</code> - 文档同步</li>
+</ul>
+<hr>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><h3 id="Rules（规则）"><a href="#Rules（规则）" class="headerlink" title="Rules（规则）"></a>Rules（规则）</h3><p><strong>Rules &#x3D; 始终遵循的指南</strong></p>
+<p>放在 <code>~/.claude/rules/</code> 的文件会被每次会话自动加载。</p>
+<h4 id="项目包含的-Rules"><a href="#项目包含的-Rules" class="headerlink" title="项目包含的 Rules"></a>项目包含的 Rules</h4><p><strong>1. security.md - 安全规则</strong></p>
+<ul>
+<li>禁止硬编码密钥、API token</li>
+<li>必须使用环境变量</li>
+<li>必须验证所有用户输入</li>
+<li>必须使用参数化查询（防 SQL 注入）</li>
+</ul>
+<p><strong>2. coding-style.md - 编码风格</strong></p>
+<ul>
+<li>优先使用 immutable 数据结构</li>
+<li>单文件不超过 300 行</li>
+<li>函数不超过 50 行</li>
+<li>有意义的变量名</li>
+</ul>
+<p><strong>3. testing.md - 测试要求</strong></p>
+<ul>
+<li>TDD 优先</li>
+<li>代码覆盖率 ≥ 80%</li>
+<li>每个 PR 必须包含测试</li>
+</ul>
+<p><strong>4. git-workflow.md - Git 工作流</strong></p>
+<ul>
+<li>Commit 格式: feat&#x2F;fix&#x2F;docs&#x2F;refactor</li>
+<li>每个 commit 只做一件事</li>
+<li>PR 前必须 rebase</li>
+</ul>
+<p><strong>5. agents.md - 何时委派</strong></p>
+<ul>
+<li>复杂功能 → 委派给 planner</li>
+<li>安全审查 → 委派给 security-reviewer</li>
+<li>大规模重构 → 委派给 refactor-cleaner</li>
+</ul>
+<hr>
+<h3 id="Hooks（钩子）"><a href="#Hooks（钩子）" class="headerlink" title="Hooks（钩子）"></a>Hooks（钩子）</h3><p><strong>Hooks &#x3D; 事件触发的自动化</strong></p>
+<p>在特定事件发生时自动执行操作。</p>
+<h4 id="常用-Hook-类型"><a href="#常用-Hook-类型" class="headerlink" title="常用 Hook 类型"></a>常用 Hook 类型</h4><p><strong>1. PreToolUse - 工具使用前</strong></p>
+<p>检查 console.log：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;matcher&quot;</span><span class="punctuation">:</span> <span class="string">&quot;tool == &#x27;Edit&#x27; &amp;&amp; file_path matches &#x27;\\.(ts|js)$&#x27;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hooks&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;command&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;command&quot;</span><span class="punctuation">:</span> <span class="string">&quot;grep -n &#x27;console\\.log&#x27; \&quot;$file_path\&quot; &amp;&amp; echo &#x27;[警告] 移除 console.log&#x27; &gt;&amp;2&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2. PostToolUse - 工具使用后</strong></p>
+<p>自动格式化：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;matcher&quot;</span><span class="punctuation">:</span> <span class="string">&quot;tool == &#x27;Edit&#x27; &amp;&amp; file_path matches &#x27;\\.(ts|tsx)$&#x27;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hooks&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;command&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;command&quot;</span><span class="punctuation">:</span> <span class="string">&quot;prettier --write \&quot;$file_path\&quot;&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3. PreSessionStart - 会话开始前</strong></p>
+<p>加载上次的上下文：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">会话开始 → 自动加载 .claude/session-state.json</span><br><span class="line">Claude: &quot;上次我们完成了用户认证，现在继续做授权&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>4. PostSessionEnd - 会话结束后</strong></p>
+<p>保存当前状态（当前任务、已完成步骤、待办事项、重要决策）</p>
+<p><strong>5. PreCompact - 压缩前</strong></p>
+<p>在 Claude 压缩上下文前保存重要信息，防止丢失关键内容。</p>
+<hr>
+<h3 id="MCP-配置策略"><a href="#MCP-配置策略" class="headerlink" title="MCP 配置策略"></a>MCP 配置策略</h3><p><strong>MCP &#x3D; Model Context Protocol</strong><br>让 Claude 连接外部服务（GitHub、Supabase、Vercel 等）</p>
+<h4 id="关键警告"><a href="#关键警告" class="headerlink" title="关键警告"></a>关键警告</h4><p><strong>不要一次启用所有 MCP！</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">启用太多 MCP:</span><br><span class="line">200k context → 缩减到 70k（不推荐）</span><br><span class="line"></span><br><span class="line">合理配置:</span><br><span class="line">200k context → 保持 180k+（推荐）</span><br></pre></td></tr></table></figure>
+
+<h4 id="推荐配置策略"><a href="#推荐配置策略" class="headerlink" title="推荐配置策略"></a>推荐配置策略</h4><p><strong>总体规则</strong>:</p>
+<ul>
+<li>配置 20-30 个 MCP（备用）</li>
+<li>每个项目启用 &lt; 10 个</li>
+<li>激活工具 &lt; 80 个</li>
+</ul>
+<p><strong>前端项目示例</strong>:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">启用:</span><br><span class="line">- GitHub (代码管理)</span><br><span class="line">- Vercel (部署)</span><br><span class="line">- Supabase (数据库)</span><br><span class="line">- Sentry (错误追踪)</span><br><span class="line"></span><br><span class="line">禁用:</span><br><span class="line">- Railway, AWS, Docker 等后端工具</span><br></pre></td></tr></table></figure>
+
+<p><strong>后端项目示例</strong>:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">启用:</span><br><span class="line">- GitHub</span><br><span class="line">- Railway/AWS (部署)</span><br><span class="line">- PostgreSQL</span><br><span class="line">- Redis</span><br><span class="line"></span><br><span class="line">禁用:</span><br><span class="line">- Vercel, Netlify 等前端工具</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Token-优化技巧"><a href="#Token-优化技巧" class="headerlink" title="Token 优化技巧"></a>Token 优化技巧</h3><h4 id="为什么要优化-Token？"><a href="#为什么要优化-Token？" class="headerlink" title="为什么要优化 Token？"></a>为什么要优化 Token？</h4><p><strong>问题</strong>:</p>
+<ul>
+<li>Token 用完 → 上下文被压缩 → 丢失信息</li>
+<li>Token 越多 → 成本越高</li>
+</ul>
+<h4 id="优化策略"><a href="#优化策略" class="headerlink" title="优化策略"></a>优化策略</h4><p><strong>1. 模型选择</strong></p>
+<p>按任务选模型：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">简单任务（修 typo、格式化）:</span><br><span class="line">→ Haiku (最便宜、最快)</span><br><span class="line"></span><br><span class="line">中等任务（写函数、重构）:</span><br><span class="line">→ Sonnet (平衡性价比)</span><br><span class="line"></span><br><span class="line">复杂任务（架构设计、安全审查）:</span><br><span class="line">→ Opus (最强但最贵)</span><br></pre></td></tr></table></figure>
+
+<p>实际节省：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">全用 Opus: $100/天</span><br><span class="line">混合使用: $30/天（省 70%）</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. System Prompt 瘦身</strong></p>
+<p>优化前：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">System prompt: 5000 tokens</span><br><span class="line">可用空间: 195k tokens</span><br></pre></td></tr></table></figure>
+
+<p>优化后：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">System prompt: 2000 tokens</span><br><span class="line">可用空间: 198k tokens</span><br></pre></td></tr></table></figure>
+
+<p>如何瘦身：</p>
+<ul>
+<li>移除冗余说明</li>
+<li>合并相似规则</li>
+<li>使用简洁语言</li>
+</ul>
+<p><strong>3. 后台进程</strong></p>
+<p>错误做法：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在主会话运行测试</span></span><br><span class="line">npm <span class="built_in">test</span>  <span class="comment"># 占用 5 分钟，浪费 token</span></span><br></pre></td></tr></table></figure>
+
+<p>正确做法：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 后台运行</span></span><br><span class="line">npm <span class="built_in">test</span> &gt; test-results.txt &amp;</span><br><span class="line"><span class="comment"># 继续其他工作，稍后查看结果</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="开发技巧"><a href="#开发技巧" class="headerlink" title="开发技巧"></a>开发技巧</h2><h3 id="TDD-工作流"><a href="#TDD-工作流" class="headerlink" title="TDD 工作流"></a>TDD 工作流</h3><h4 id="RED-GREEN-REFACTOR-循环"><a href="#RED-GREEN-REFACTOR-循环" class="headerlink" title="RED-GREEN-REFACTOR 循环"></a>RED-GREEN-REFACTOR 循环</h4><p><strong>1. RED 阶段 - 写失败的测试</strong></p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 正确做法：先写测试</span></span><br><span class="line"><span class="title function_">describe</span>(<span class="string">&#x27;login&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">it</span>(<span class="string">&#x27;should return token on valid credentials&#x27;</span>, <span class="title function_">async</span> () =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> result = <span class="keyword">await</span> <span class="title function_">login</span>(<span class="string">&#x27;user@example.com&#x27;</span>, <span class="string">&#x27;password123&#x27;</span>);</span><br><span class="line">    <span class="title function_">expect</span>(result.<span class="property">token</span>).<span class="title function_">toBeDefined</span>();</span><br><span class="line">    <span class="title function_">expect</span>(result.<span class="property">user</span>.<span class="property">email</span>).<span class="title function_">toBe</span>(<span class="string">&#x27;user@example.com&#x27;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">  </span><br><span class="line">  <span class="title function_">it</span>(<span class="string">&#x27;should throw error on invalid credentials&#x27;</span>, <span class="title function_">async</span> () =&gt; &#123;</span><br><span class="line">    <span class="keyword">await</span> <span class="title function_">expect</span>(<span class="title function_">login</span>(<span class="string">&#x27;user@example.com&#x27;</span>, <span class="string">&#x27;wrong&#x27;</span>))</span><br><span class="line">      .<span class="property">rejects</span>.<span class="title function_">toThrow</span>(<span class="string">&#x27;Invalid credentials&#x27;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 运行测试 → 失败（这是好事！）</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2. GREEN 阶段 - 最小实现</strong></p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 只写让测试通过的最少代码</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">login</span>(<span class="params"><span class="attr">email</span>: <span class="built_in">string</span>, <span class="attr">password</span>: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> user = <span class="keyword">await</span> db.<span class="property">users</span>.<span class="title function_">findOne</span>(&#123; email &#125;);</span><br><span class="line">  <span class="keyword">if</span> (!user || user.<span class="property">password</span> !== password) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;Invalid credentials&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> token = <span class="title function_">generateToken</span>(user.<span class="property">id</span>);</span><br><span class="line">  <span class="keyword">return</span> &#123; token, user &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 运行测试 → 通过</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3. REFACTOR 阶段 - 优化</strong></p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 现在可以安全重构</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">login</span>(<span class="params"><span class="attr">email</span>: <span class="built_in">string</span>, <span class="attr">password</span>: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> user = <span class="keyword">await</span> <span class="title function_">findUserByEmail</span>(email);</span><br><span class="line">  <span class="keyword">await</span> <span class="title function_">verifyPassword</span>(user, password);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    <span class="attr">token</span>: <span class="title function_">generateToken</span>(user.<span class="property">id</span>),</span><br><span class="line">    <span class="attr">user</span>: <span class="title function_">sanitizeUser</span>(user)</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试仍然通过</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="接口优先设计"><a href="#接口优先设计" class="headerlink" title="接口优先设计"></a>接口优先设计</h3><h4 id="为什么接口优先？"><a href="#为什么接口优先？" class="headerlink" title="为什么接口优先？"></a>为什么接口优先？</h4><p><strong>好处</strong>:</p>
+<ol>
+<li>明确契约 - 调用方和实现方都清楚</li>
+<li>并行开发 - 前后端可以同时开发</li>
+<li>易于测试 - Mock 接口即可</li>
+<li>防止过度设计 - 只实现需要的</li>
+</ol>
+<h4 id="实战示例"><a href="#实战示例" class="headerlink" title="实战示例"></a>实战示例</h4><p><strong>步骤 1：先定义接口</strong></p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// notifications/types.ts</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">NotificationService</span> &#123;</span><br><span class="line">  <span class="title function_">send</span>(<span class="attr">userId</span>: <span class="built_in">string</span>, <span class="attr">notification</span>: <span class="title class_">Notification</span>): <span class="title class_">Promise</span>&lt;<span class="built_in">void</span>&gt;;</span><br><span class="line">  <span class="title function_">markAsRead</span>(<span class="attr">notificationId</span>: <span class="built_in">string</span>): <span class="title class_">Promise</span>&lt;<span class="built_in">void</span>&gt;;</span><br><span class="line">  <span class="title function_">getUnread</span>(<span class="attr">userId</span>: <span class="built_in">string</span>): <span class="title class_">Promise</span>&lt;<span class="title class_">Notification</span>[]&gt;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Notification</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">userId</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">type</span>: <span class="string">&#x27;info&#x27;</span> | <span class="string">&#x27;warning&#x27;</span> | <span class="string">&#x27;error&#x27;</span>;</span><br><span class="line">  <span class="attr">title</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">message</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">createdAt</span>: <span class="title class_">Date</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>步骤 2：写测试（基于接口）</strong></p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="title function_">describe</span>(<span class="string">&#x27;NotificationService&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> <span class="attr">service</span>: <span class="title class_">NotificationService</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="title function_">it</span>(<span class="string">&#x27;should send notification&#x27;</span>, <span class="title function_">async</span> () =&gt; &#123;</span><br><span class="line">    <span class="keyword">await</span> service.<span class="title function_">send</span>(<span class="string">&#x27;user-1&#x27;</span>, &#123;</span><br><span class="line">      <span class="attr">type</span>: <span class="string">&#x27;info&#x27;</span>,</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;Welcome&#x27;</span>,</span><br><span class="line">      <span class="attr">message</span>: <span class="string">&#x27;Hello!&#x27;</span></span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">const</span> unread = <span class="keyword">await</span> service.<span class="title function_">getUnread</span>(<span class="string">&#x27;user-1&#x27;</span>);</span><br><span class="line">    <span class="title function_">expect</span>(unread).<span class="title function_">toHaveLength</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="文件组织"><a href="#文件组织" class="headerlink" title="文件组织"></a>文件组织</h3><h4 id="核心原则"><a href="#核心原则" class="headerlink" title="核心原则"></a>核心原则</h4><ul>
+<li>单文件不超过 <strong>300 行</strong></li>
+<li>单函数不超过 <strong>50 行</strong></li>
+<li>按功能分组，不按类型</li>
+</ul>
+<h4 id="按类型组织（不推荐）"><a href="#按类型组织（不推荐）" class="headerlink" title="按类型组织（不推荐）"></a>按类型组织（不推荐）</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">src/</span><br><span class="line">├── components/</span><br><span class="line">│   ├── Button.tsx</span><br><span class="line">│   ├── UserProfile.tsx</span><br><span class="line">│   └── NotificationBell.tsx</span><br><span class="line">├── services/</span><br><span class="line">│   ├── userService.ts</span><br><span class="line">│   └── notificationService.ts</span><br><span class="line">└── types/</span><br><span class="line">    ├── user.ts</span><br><span class="line">    └── notification.ts</span><br></pre></td></tr></table></figure>
+
+<p><strong>问题</strong>: 修改一个功能要跨多个目录</p>
+<h4 id="按功能组织（推荐）"><a href="#按功能组织（推荐）" class="headerlink" title="按功能组织（推荐）"></a>按功能组织（推荐）</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">src/</span><br><span class="line">├── auth/</span><br><span class="line">│   ├── types.ts</span><br><span class="line">│   ├── service.ts</span><br><span class="line">│   ├── components/</span><br><span class="line">│   │   ├── LoginForm.tsx</span><br><span class="line">│   │   └── SignupForm.tsx</span><br><span class="line">│   └── __tests__/</span><br><span class="line">├── notifications/</span><br><span class="line">│   ├── types.ts</span><br><span class="line">│   ├── service.ts</span><br><span class="line">│   ├── components/</span><br><span class="line">│   │   └── NotificationBell.tsx</span><br><span class="line">│   └── __tests__/</span><br><span class="line">└── users/</span><br><span class="line">    ├── types.ts</span><br><span class="line">    ├── service.ts</span><br><span class="line">    └── components/</span><br></pre></td></tr></table></figure>
+
+<p><strong>好处</strong>: 一个功能的所有代码在一起</p>
+<hr>
+<h3 id="代码拆分技巧"><a href="#代码拆分技巧" class="headerlink" title="代码拆分技巧"></a>代码拆分技巧</h3><h4 id="何时拆分文件？"><a href="#何时拆分文件？" class="headerlink" title="何时拆分文件？"></a>何时拆分文件？</h4><p><strong>触发条件</strong>:</p>
+<ol>
+<li>文件超过 <strong>300 行</strong></li>
+<li>函数超过 <strong>50 行</strong></li>
+<li>一个文件做了多件事</li>
+</ol>
+<h4 id="拆分示例"><a href="#拆分示例" class="headerlink" title="拆分示例"></a>拆分示例</h4><p><strong>拆分前：auth.ts (500 行) - 不推荐</strong></p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// auth.ts - 太大了！</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">login</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">signup</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">logout</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">refreshToken</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">resetPassword</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">generateToken</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">validateToken</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">hashPassword</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="comment">// ... 还有更多</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>拆分后：按职责分离 - 推荐</strong></p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// auth/service.ts - 核心业务逻辑</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">login</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">signup</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">logout</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// auth/tokens.ts - Token 相关</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">generateToken</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">validateToken</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">refreshToken</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// auth/password.ts - 密码相关</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">hashPassword</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">verifyPassword</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">resetPassword</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// auth/email.ts - 邮箱验证</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">verifyEmail</span>(<span class="params"></span>) &#123; ... &#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">sendVerificationEmail</span>(<span class="params"></span>) &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="实战案例"><a href="#实战案例" class="headerlink" title="实战案例"></a>实战案例</h2><h3 id="完整开发流程示例"><a href="#完整开发流程示例" class="headerlink" title="完整开发流程示例"></a>完整开发流程示例</h3><p><strong>场景</strong>: 添加用户认证功能</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 第 1 步：规划</span></span><br><span class="line">/plan 添加用户认证（注册、登录、JWT）</span><br><span class="line"></span><br><span class="line"><span class="comment"># Claude 输出规划，等待确认</span></span><br><span class="line"><span class="comment"># 您回复：yes</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 第 2 步：TDD 开发</span></span><br><span class="line">/tdd</span><br><span class="line"></span><br><span class="line"><span class="comment"># Claude 先写测试，再实现</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 第 3 步：遇到构建错误</span></span><br><span class="line">/build-fix</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第 4 步：代码审查</span></span><br><span class="line">/code-review</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第 5 步：安全审查</span></span><br><span class="line"><span class="comment"># 自动触发 security-reviewer agent</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 第 6 步：验证</span></span><br><span class="line">/verify</span><br><span class="line"></span><br><span class="line"><span class="comment"># 完成！</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="核心要点"><a href="#核心要点" class="headerlink" title="核心要点"></a>核心要点</h3><h4 id="工作流"><a href="#工作流" class="headerlink" title="工作流"></a>工作流</h4><ol>
+<li>先 <code>/plan</code> 规划</li>
+<li>用 <code>/tdd</code> 开发</li>
+<li>遇错用 <code>/build-fix</code></li>
+<li>完成用 <code>/code-review</code></li>
+</ol>
+<h4 id="高级特性-1"><a href="#高级特性-1" class="headerlink" title="高级特性"></a>高级特性</h4><ul>
+<li><strong>内存持久化</strong>: 跨会话保持上下文</li>
+<li><strong>持续学习</strong>: 自动学习您的模式</li>
+<li><strong>验证循环</strong>: 确保代码质量</li>
+</ul>
+<h4 id="并行化"><a href="#并行化" class="headerlink" title="并行化"></a>并行化</h4><ul>
+<li><strong>Git Worktrees</strong>: 多实例并行</li>
+<li><strong>Cascade</strong>: 流水线式开发</li>
+</ul>
+<h4 id="Subagent"><a href="#Subagent" class="headerlink" title="Subagent"></a>Subagent</h4><ul>
+<li>15+ 专门 agents</li>
+<li>迭代检索模式传递上下文</li>
+</ul>
+<h4 id="Rules-Hooks"><a href="#Rules-Hooks" class="headerlink" title="Rules &amp; Hooks"></a>Rules &amp; Hooks</h4><ul>
+<li><strong>Rules</strong>: 始终遵循的指南</li>
+<li><strong>Hooks</strong>: 事件触发的自动化</li>
+</ul>
+<h4 id="Token-优化"><a href="#Token-优化" class="headerlink" title="Token 优化"></a>Token 优化</h4><ul>
+<li>按任务选模型</li>
+<li>System prompt 瘦身</li>
+<li>后台进程</li>
+</ul>
+<h4 id="MCP-配置"><a href="#MCP-配置" class="headerlink" title="MCP 配置"></a>MCP 配置</h4><ul>
+<li>配置 20-30 个</li>
+<li>每项目启用 &lt; 10 个</li>
+<li>工具 &lt; 80 个</li>
+</ul>
+<hr>
+<h3 id="立即开始"><a href="#立即开始" class="headerlink" title="立即开始"></a>立即开始</h3><p><strong>第一步</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/plan <span class="string">&quot;您的第一个功能&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>第二步</strong>: 按照规划执行</p>
+<p><strong>第三步</strong>: 逐步探索其他命令和特性</p>
+<hr>
+<h2 id="参考资源"><a href="#参考资源" class="headerlink" title="参考资源"></a>参考资源</h2><h3 id="官方资源"><a href="#官方资源" class="headerlink" title="官方资源"></a>官方资源</h3><ul>
+<li><strong>项目地址</strong>: <a href="https://github.com/affaan-m/everything-claude-code">https://github.com/affaan-m/everything-claude-code</a></li>
+<li><strong>Shorthand Guide</strong>: <a href="https://x.com/affaanmustafa/status/2012378465664745795">The Shorthand Guide to Everything Claude Code</a></li>
+<li><strong>Longform Guide</strong>: <a href="https://x.com/affaanmustafa/status/2014040193557471352">The Longform Guide to Everything Claude Code</a></li>
+<li><strong>作者 Twitter</strong>: <a href="https://x.com/affaanmustafa">@affaanmustafa</a></li>
+<li><strong>作者项目</strong>: <a href="https://zenith.chat/">zenith.chat</a></li>
+</ul>
+<h3 id="安装方式"><a href="#安装方式" class="headerlink" title="安装方式"></a>安装方式</h3><h4 id="方式-1：作为插件安装（推荐）"><a href="#方式-1：作为插件安装（推荐）" class="headerlink" title="方式 1：作为插件安装（推荐）"></a>方式 1：作为插件安装（推荐）</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 添加 marketplace</span></span><br><span class="line">/plugin marketplace add affaan-m/everything-claude-code</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装插件</span></span><br><span class="line">/plugin install everything-claude-code@everything-claude-code</span><br><span class="line"></span><br><span class="line"><span class="comment"># 手动安装 rules（插件无法自动分发）</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/affaan-m/everything-claude-code.git</span><br><span class="line"><span class="built_in">cp</span> -r everything-claude-code/rules/* ~/.claude/rules/</span><br></pre></td></tr></table></figure>
+
+<h4 id="方式-2：手动安装"><a href="#方式-2：手动安装" class="headerlink" title="方式 2：手动安装"></a>方式 2：手动安装</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 克隆仓库</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/affaan-m/everything-claude-code.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制组件</span></span><br><span class="line"><span class="built_in">cp</span> everything-claude-code/agents/*.md ~/.claude/agents/</span><br><span class="line"><span class="built_in">cp</span> everything-claude-code/rules/*.md ~/.claude/rules/</span><br><span class="line"><span class="built_in">cp</span> everything-claude-code/commands/*.md ~/.claude/commands/</span><br><span class="line"><span class="built_in">cp</span> -r everything-claude-code/skills/* ~/.claude/skills/</span><br></pre></td></tr></table></figure>
+
+<h3 id="系统要求"><a href="#系统要求" class="headerlink" title="系统要求"></a>系统要求</h3><ul>
+<li><strong>Claude Code CLI</strong>: v2.1.0 或更高版本</li>
+<li><strong>Node.js</strong>: 用于跨平台脚本</li>
+<li><strong>Git</strong>: 用于 worktrees 功能</li>
+</ul>
+<hr>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p><strong>everything-claude-code</strong> 是一个经过实战验证的强大框架，它不仅提供了完整的工具集，更重要的是展示了一套成熟的开发方法论。</p>
+<p>通过合理使用这些工具和最佳实践，您可以：</p>
+<ul>
+<li>提高开发效率</li>
+<li>保证代码质量</li>
+<li>降低维护成本</li>
+<li>加速团队协作</li>
+</ul>
+<p>建议从核心工作流开始，逐步探索高级特性，根据自己的需求定制和优化。</p>
+<p>Happy Coding!</p>
+<hr>
+<p><em>本文基于 everything-claude-code 项目整理，感谢作者 affaan-m 的开源贡献。</em></p>
+]]></content>
+      <categories>
+        <category>技术教程</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+        <tag>Claude Code</tag>
+        <tag>开发工具</tag>
+        <tag>TDD</tag>
+        <tag>最佳实践</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>从零开始搭建 Hexo 博客并部署到 GitHub Pages</title>
+    <url>/2026/01/30/hexo-guide/</url>
+    <content><![CDATA[<p>在这个数字时代，拥有一个属于自己的博客是一件很酷的事情。既可以记录学习心得，又可以作为技术展示的窗口。本文将详细介绍如何使用 Hexo 框架搭建静态博客，并搭配美观的 Butterfly 主题，最后部署到 GitHub Pages 上免费托管。</p>
+<span id="more"></span>
+
+<h2 id="1-环境准备"><a href="#1-环境准备" class="headerlink" title="1. 环境准备"></a>1. 环境准备</h2><p>Hexo 基于 Node.js，所以我们需要先准备好运行环境。</p>
+<h3 id="安装-Node-js"><a href="#安装-Node-js" class="headerlink" title="安装 Node.js"></a>安装 Node.js</h3><p>推荐使用 <code>fnm</code> (Fast Node Manager) 来管理 Node.js 版本，避免权限问题。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装 fnm</span></span><br><span class="line">curl -fsSL https://fnm.vercel.app/install | bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 Node.js LTS 版本</span></span><br><span class="line">fnm install --lts</span><br><span class="line">fnm use lts</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装-Git"><a href="#安装-Git" class="headerlink" title="安装 Git"></a>安装 Git</h3><p>如果你是 Linux 用户：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install git</span><br></pre></td></tr></table></figure>
+
+<p>配置 Git 用户信息：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;Your Name&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;your_email@example.com&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-初始化-Hexo-博客"><a href="#2-初始化-Hexo-博客" class="headerlink" title="2. 初始化 Hexo 博客"></a>2. 初始化 Hexo 博客</h2><h3 id="安装-Hexo-CLI"><a href="#安装-Hexo-CLI" class="headerlink" title="安装 Hexo CLI"></a>安装 Hexo CLI</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建博客项目"><a href="#创建博客项目" class="headerlink" title="创建博客项目"></a>创建博客项目</h3><p>找一个合适的目录，执行初始化命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">hexo init my-blog</span><br><span class="line"><span class="built_in">cd</span> my-blog</span><br><span class="line">npm install</span><br></pre></td></tr></table></figure>
+
+<p>此时，你的博客已经搭建完成了！运行 <code>hexo s</code> 并在浏览器访问 <code>http://localhost:4000</code> 就能看到默认主题的效果。</p>
+<h2 id="3-安装-Butterfly-主题"><a href="#3-安装-Butterfly-主题" class="headerlink" title="3. 安装 Butterfly 主题"></a>3. 安装 Butterfly 主题</h2><p>Hexo 默认的主题比较朴素，我们换上功能强大的 <a href="https://butterfly.js.org/">Butterfly</a> 主题。</p>
+<h3 id="下载主题"><a href="#下载主题" class="headerlink" title="下载主题"></a>下载主题</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install hexo-theme-butterfly</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装必要的渲染插件"><a href="#安装必要的渲染插件" class="headerlink" title="安装必要的渲染插件"></a>安装必要的渲染插件</h3><p>Butterfly 主题使用 Pug 和 Stylus，需要安装对应的渲染器：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install hexo-renderer-pug hexo-renderer-stylus</span><br></pre></td></tr></table></figure>
+
+<h3 id="启用主题"><a href="#启用主题" class="headerlink" title="启用主题"></a>启用主题</h3><p>修改根目录下的 <code>_config.yml</code> 文件：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">theme:</span> <span class="string">butterfly</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-部署到-GitHub-Pages"><a href="#4-部署到-GitHub-Pages" class="headerlink" title="4. 部署到 GitHub Pages"></a>4. 部署到 GitHub Pages</h2><p>这是最关键的一步，我们将博客发布到互联网上。</p>
+<h3 id="创建-GitHub-仓库"><a href="#创建-GitHub-仓库" class="headerlink" title="创建 GitHub 仓库"></a>创建 GitHub 仓库</h3><ol>
+<li>登录 GitHub。</li>
+<li>创建一个新仓库，仓库名必须严格符合格式：<code>&lt;你的用户名&gt;.github.io</code>。<ul>
+<li>例如：如果你的用户名是 <code>john</code>, 仓库名必须是 <code>john.github.io</code>。</li>
+</ul>
+</li>
+<li>仓库设为 <strong>Public</strong>。</li>
+</ol>
+<h3 id="安装部署插件"><a href="#安装部署插件" class="headerlink" title="安装部署插件"></a>安装部署插件</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install hexo-deployer-git</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置部署信息"><a href="#配置部署信息" class="headerlink" title="配置部署信息"></a>配置部署信息</h3><p>修改根目录下的 <code>_config.yml</code>，找到底部的 <code>deploy</code> 部分：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">https://github.com/&lt;你的用户名&gt;/&lt;你的用户名&gt;.github.io.git</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span>  <span class="comment"># 注意：现在 GitHub 默认分支通常是 main</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="⚠️-安全提示：关于-Token"><a href="#⚠️-安全提示：关于-Token" class="headerlink" title="⚠️ 安全提示：关于 Token"></a>⚠️ 安全提示：关于 Token</h3><p>GitHub 不再支持密码验证，你需要使用 <strong>Personal Access Token</strong>。</p>
+<ol>
+<li>进入 GitHub Settings -&gt; Developer settings -&gt; Personal access tokens。</li>
+<li>生成一个新 Token (Classic)，勾选 <code>repo</code> 权限。</li>
+<li><strong>重要</strong>：部署时如果提示输入密码，请输入这个 Token，而不是你的 GitHub 登录密码。</li>
+</ol>
+<p>为了避免每次部署都输入 Token，你可以将 Token 嵌入到仓库 URL 中（<strong>注意不要把这个配置上传到公开仓库！</strong>）：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">repo:</span> <span class="string">https://&lt;你的Token&gt;@github.com/&lt;你的用户名&gt;/&lt;你的用户名&gt;.github.io.git</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="5-常用命令"><a href="#5-常用命令" class="headerlink" title="5. 常用命令"></a>5. 常用命令</h2><p>日常维护博客常用的几条命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 清理缓存（遇到样式不对时先执行这个）</span></span><br><span class="line">hexo clean</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成静态文件</span></span><br><span class="line">hexo g  <span class="comment"># 或者 hexo generate</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 本地预览</span></span><br><span class="line">hexo s  <span class="comment"># 或者 hexo server</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 一键部署到 GitHub</span></span><br><span class="line">hexo d  <span class="comment"># 或者 hexo deploy</span></span><br></pre></td></tr></table></figure>
+
+<p>通常我们会组合使用：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo d</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-进阶优化"><a href="#6-进阶优化" class="headerlink" title="6. 进阶优化"></a>6. 进阶优化</h2><ul>
+<li><strong>字数统计</strong>：安装 <code>hexo-wordcount</code>。</li>
+<li><strong>搜索功能</strong>：安装 <code>hexo-generator-search</code> 并配置本地搜索。</li>
+<li><strong>永久链接</strong>：安装 <code>hexo-abbrlink</code> 优化 URL 结构。</li>
+</ul>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>至此，你的个人博客已经上线了。接下来就是专注于内容创作，记录你的技术与生活。</p>
+<p>Happy Blogging! 🚀</p>
+]]></content>
+      <categories>
+        <category>技术教程</category>
+      </categories>
+      <tags>
+        <tag>教程</tag>
+        <tag>Hexo</tag>
+        <tag>GitHub Pages</tag>
+        <tag>Butterfly</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统</title>
+    <url>/2026/02/20/openclaw-agent-system-hardcore/</url>
+    <content><![CDATA[<p>随着大模型技术的普惠，构建一个 Agent 原型已经变得异常简单：几行代码调用 LLM，配合一个简单的 ReAct 循环就能跑起来。但在真实的工程实践中，如何让 Agent 在多渠道高并发输入下不乱套？如何处理 LLM 不稳定的上下文限制和 API 故障？如何保证高权限工具调用的安全性？</p>
+<p>OpenClaw（原 Clawdbot）作为一个面向多渠道的桌面 Agent 操作系统，其设计中蕴含了大量解决上述“生产级难题”的工程智慧。本文将深入拆解 OpenClaw 的架构设计、调度逻辑、容错机制以及记忆体系，探讨如何构建一套真正稳健、可落地的 Agent 系统。</p>
+<h3 id="状态分离：Agent-的“工作室”逻辑"><a href="#状态分离：Agent-的“工作室”逻辑" class="headerlink" title="状态分离：Agent 的“工作室”逻辑"></a>状态分离：Agent 的“工作室”逻辑</h3><p>在工程设计之初，首要解决的是数据存储的组织方式。OpenClaw 提出了一个非常清晰的拆分思路：将 Agent 的数据分为工作区（Workspace）和状态区（State）。</p>
+<ul>
+<li><strong>工作区（Workspace）</strong>：存放 Agent 的行为指令（AGENTS.md）和性格设定（SOUL.md）。这部分数据是“逻辑本体”，可以被分发、版本控制，甚至方便地迁移到其他机器。</li>
+<li><strong>状态区（State）</strong>：包括敏感的运行配置（API Key、模型参数）和会话历史（Sessions）。这部分数据属于“系统私产”，必须保持私密且与逻辑本体物理隔离。</li>
+</ul>
+<p>这种“工作室”式的设计，本质上是把 Agent 的“大脑说明书”和“运行记忆&#x2F;钱包”拆开。在企业级场景下，这意味着你可以统一分发一套标准的 Agent 模板，而每个运行实例又能保持各自的上下文和权限隔离。</p>
+<h3 id="架构解耦：Gateway-与-Agent-的分工"><a href="#架构解耦：Gateway-与-Agent-的分工" class="headerlink" title="架构解耦：Gateway 与 Agent 的分工"></a>架构解耦：Gateway 与 Agent 的分工</h3><p>OpenClaw 并没有让客户端直接驱动 Agent 任务，而是在中间引入了 <strong>Gateway（网关）</strong>。</p>
+<p>其整体流程为：<strong>Channels → Gateway → Agent → LLM</strong>。</p>
+<ul>
+<li><strong>Channels</strong> 负责多平台（如 WhatsApp、Telegram）的接入与消息适配。</li>
+<li><strong>Gateway</strong> 扮演了指挥中枢的角色。它不仅负责路由消息，更核心的作用是注入 Skill（技能）索引、计算可用工具（Tools）的白名单，并对高风险操作进行物理拦截。</li>
+<li><strong>Agent</strong> 则在 Gateway 准备好的安全环境下，专注于驱动“思考 -&gt; 工具 -&gt; 结果”的推理循环。</li>
+</ul>
+<p>通过 Gateway 层，系统实现了“接入管控”与“业务执行”的解耦。这种分层架构带来的最大收益是统一的安全审计和资源限流，即便 Agent 被提示词注入（Prompt Injection）诱导去执行高危命令，Gateway 也会因为工具不在白名单内而将其拦截。</p>
+<h3 id="调度策略：Lane-车道与高频消息处理"><a href="#调度策略：Lane-车道与高频消息处理" class="headerlink" title="调度策略：Lane 车道与高频消息处理"></a>调度策略：Lane 车道与高频消息处理</h3><p>在对话式 Agent 中，状态一致性是一个巨大的挑战。如果用户连续发送多条消息，并发启动多个 Agent 处理同一个会话，极易导致上下文错乱。</p>
+<p>OpenClaw 的解决思路是引入 <strong>Lane（车道）</strong> 概念：为每个 Session 分配一个唯一的串行队列。同一时间，一个车道内只有一个任务在运行。</p>
+<p>为了应对用户在 IM 端的碎碎念，系统在进入“车道”前设计了四种策略：</p>
+<ol>
+<li><strong>Steer（转向）</strong>：新消息直接注入正在运行的推理循环间隙。</li>
+<li><strong>Collect（搜集）</strong>：在时间窗内等待消息聚拢，合并成一个任务后再交给 Agent。</li>
+<li><strong>Followup（跟进）</strong>：按 FIFO 顺序逐条排队执行。</li>
+<li><strong>Interrupt（打断）</strong>：立即中止当前任务，清空队列并从新消息开始。</li>
+</ol>
+<p>这种“缓冲+聚合”的机制，在提升用户体验的同时，极大减少了不必要的 Token 消耗。</p>
+<h3 id="健壮性：上下文守卫与-LLM-容错"><a href="#健壮性：上下文守卫与-LLM-容错" class="headerlink" title="健壮性：上下文守卫与 LLM 容错"></a>健壮性：上下文守卫与 LLM 容错</h3><p>LLM 是一个不可靠的外部依赖。生产级系统必须假设 API 会报错、上下文会溢出。</p>
+<p><strong>Context Guard（上下文守卫）</strong> 是 OpenClaw 的一道防线。系统在调用 LLM 前会进行 Token 预检。一旦接近阈值，会自动触发压缩机制：保留最近的原始消息，将早期内容利用 LLM 进行结构化摘要。这种“事前检查 + 事后补救”的策略，确保了系统不会因为一次 <code>Length Limit Exceeded</code> 而彻底停摆。</p>
+<p>针对 API 故障，OpenClaw 实现了两级容错：</p>
+<ul>
+<li><strong>内层认证轮转</strong>：在同一个服务商内，通过多个 API Key 的指数退避轮转来规避限流。</li>
+<li><strong>外层模型降级</strong>：当主模型（如 Claude 3.5 Sonnet）彻底不可用时，系统会自动降级到备选模型（如 GPT-4o-mini），保证核心逻辑依然能够运转。</li>
+</ul>
+<h3 id="安全管控：Tool-policy-零信任策略"><a href="#安全管控：Tool-policy-零信任策略" class="headerlink" title="安全管控：Tool-policy 零信任策略"></a>安全管控：Tool-policy 零信任策略</h3><p>对于拥有文件读写、代码执行权限的 Agent，安全是其生命线。OpenClaw 的 <strong>Tool-policy</strong> 机制坚持“最小权限原则”：</p>
+<p>权限计算不是在调用时，而是在 Agent 构建之初。Gateway 会根据当前 Channel、用户、群组的配置，动态生成一份工具白名单注入 Agent。如果配置中禁止了 Shell 工具，那么在 Agent 的 System Prompt 和运行环境中，该工具将彻底消失。</p>
+<p>此外，对于 <strong>Subagent（子 Agent）</strong>，系统默认采取“权力收回”策略。子 Agent 通常被禁止调用 <code>sessions_spawn</code> 或 <code>gateway</code> 等管理级工具，防止出现递归调用“炸弹”或权限穿透。</p>
+<h3 id="记忆系统：可读性与检索的平衡"><a href="#记忆系统：可读性与检索的平衡" class="headerlink" title="记忆系统：可读性与检索的平衡"></a>记忆系统：可读性与检索的平衡</h3><p>OpenClaw 的记忆系统并没有一味追求高大上的向量数据库，而是采用了一种更具工程透明度的方案：<strong>Markdown 文件 + SQLite 向量索引</strong>。</p>
+<p>记忆被分为两层：</p>
+<ol>
+<li><strong>每日工作记忆（YYYY-MM-DD.md）</strong>：原始的、带时间线的流水账，用于实时回顾。</li>
+<li><strong>核心长期记忆（MEMORY.md）</strong>：经过提炼去重后的精华信息。</li>
+</ol>
+<p>这种设计最大的好处是“可解释性”：人类可以随时打开 Markdown 文件查看 Agent 记住了什么，甚至手动纠正错误的记忆。同时，系统在上下文压缩（Flush）前会强制 Agent 进行一次记忆写入，确保关键事实在会话重置后依然存续。</p>
+<h3 id="成本与效能：思考等级的权衡"><a href="#成本与效能：思考等级的权衡" class="headerlink" title="成本与效能：思考等级的权衡"></a>成本与效能：思考等级的权衡</h3><p>高性能模型往往伴随着高昂的成本。OpenClaw 引入了 <strong>Reasoning Level（思考等级）</strong> 的概念。</p>
+<p>简单任务（如“查个天气”）使用低等级思考甚至关闭推理，而复杂任务（如“重构代码”）则启用深度推理。系统支持根据任务复杂度自动映射模型参数，并在模型不支持当前等级时自动降档重试。这种弹性的思考级别设计，本质上是在寻找成本、速度与质量的最优解。</p>
+<h3 id="异步协作：子-Agent-的生产力释放"><a href="#异步协作：子-Agent-的生产力释放" class="headerlink" title="异步协作：子 Agent 的生产力释放"></a>异步协作：子 Agent 的生产力释放</h3><p>对于耗时巨大的长任务，主 Agent 的同步等待会阻塞用户交互。OpenClaw 通过 <code>sessions_spawn</code> 机制实现异步协作：</p>
+<p>主 Agent 拆解任务并指派给 Subagent，随后告知用户“任务已启动”并结束当前会话。Subagent 在后台独立运行，完成后通过回调通知主 Agent 汇总结果并推送。这种“后台任务模式”不仅提升了系统的吞吐量，也实现了任务间的上下文隔离。</p>
+<h3 id="总结：从-Demo-到系统的跨越"><a href="#总结：从-Demo-到系统的跨越" class="headerlink" title="总结：从 Demo 到系统的跨越"></a>总结：从 Demo 到系统的跨越</h3><p>拆解 OpenClaw 我们可以看到，一套生产级的 Agent 系统，其价值往往不在于那个最核心的 ReAct 提示词，而在于包裹在推理循环之外的那些“脏活累活”：</p>
+<p>如何有序调度任务、如何优雅地压缩上下文、如何像管理微服务一样管理 API 故障、如何用权限策略锁住风险。</p>
+<p>从“能跑通”到“能落地”，中间隔着的正是这些严谨的工程权衡与防护。OpenClaw 的实践告诉我们：Agent 的智能源自模型，但其可靠性必须由系统工程来守护。</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+        <category>Agent</category>
+      </categories>
+      <tags>
+        <tag>OpenClaw</tag>
+        <tag>Agent 系统</tag>
+        <tag>工程实践</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>OpenClaw 架构原理深度解析</title>
+    <url>/2026/02/02/openclaw-architecture-analysis/</url>
+    <content><![CDATA[<blockquote>
+<p>深入剖析 OpenClaw 个人 AI 助手平台的架构设计，探索本地优先、多渠道、跨平台的技术实现原理。</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="#%E5%BC%95%E8%A8%80">引言</a></li>
+<li><a href="#%E6%9E%B6%E6%9E%84%E6%80%BB%E8%A7%88">架构总览</a></li>
+<li><a href="#Gateway-%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E8%AF%A6%E8%A7%A3">Gateway 控制平面详解</a></li>
+<li><a href="#Pi-Agent-%E4%B8%8E%E5%A4%9A%E6%B8%A0%E9%81%93%E6%8E%A5%E5%85%A5">Pi Agent 与多渠道接入</a></li>
+<li><a href="#%E4%BC%9A%E8%AF%9D%E6%A8%A1%E5%9E%8B%E4%B8%8E%E5%B7%A5%E5%85%B7%E7%B3%BB%E7%BB%9F">会话模型与工具系统</a></li>
+<li><a href="#%E5%AE%89%E5%85%A8%E6%A8%A1%E5%9E%8B%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%AE%BF%E9%97%AE">安全模型与远程访问</a></li>
+<li><a href="#Skills-%E7%B3%BB%E7%BB%9F">Skills 系统</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+<hr>
+<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>在人工智能飞速发展的今天，个人AI助手已成为提升效率、简化生活的重要工具。OpenClaw 正是这样一个旨在赋能用户，构建属于自己的、高度可定制化个人AI助手的平台。它不仅仅是一个简单的AI聊天机器人，更是一个本地优先、多渠道、跨平台的智能生态系统。</p>
+<p>OpenClaw 的核心理念在于将AI能力下放至用户边缘设备，强调数据隐私与个性化体验。与依赖云服务的传统AI助手不同，OpenClaw 致力于在确保性能和功能的前提下，最大化地利用本地计算资源。这不仅提供了更低的延迟和更高的安全性，也为用户带来了前所未有的控制权。</p>
+<p><strong>OpenClaw 的核心特点包括：</strong></p>
+<ul>
+<li><strong>本地优先（Local-First）</strong>：尽可能在用户的设备上运行AI模型和处理数据，减少对外部云服务的依赖，增强隐私保护。</li>
+<li><strong>多渠道（Multi-Channel）</strong>：支持通过多种通讯渠道（如Telegram、Discord、Web界面等）与AI助手进行交互，实现无缝体验。</li>
+<li><strong>跨平台（Cross-Platform）</strong>：兼容多种操作系统和硬件环境，从桌面PC到边缘计算设备，确保广泛的部署能力。</li>
+</ul>
+<p>对于技术开发者而言，深入理解 OpenClaw 的架构至关重要。它不仅展示了如何在复杂环境中集成多种AI能力，更提供了一个构建去中心化、隐私友好型AI应用的范例。研究其架构，能帮助我们掌握如何在边缘设备上高效部署和管理AI服务，以及如何设计一套弹性、可扩展的AI助手平台。</p>
+<hr>
+<h2 id="架构总览"><a href="#架构总览" class="headerlink" title="架构总览"></a>架构总览</h2><p>OpenClaw 的架构设计旨在实现高度的模块化和可扩展性，同时兼顾性能与安全性。其核心组件协同工作，构建了一个强大的个人AI助手生态。</p>
+<p>以下是 OpenClaw 核心组件的文本图示：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">+-------------------+      +-------------------+</span><br><span class="line">|                   |      |                   |</span><br><span class="line">| Gateway 控制平面  |&lt;----&gt;|   多渠道接入      |</span><br><span class="line">|  (Core Services)  |      | (Telegram, Web,...) |</span><br><span class="line">|                   |      |                   |</span><br><span class="line">+---------+---------+      +---------+---------+</span><br><span class="line">          |                            |</span><br><span class="line">          | RPC (gRPC/HTTP)            |</span><br><span class="line">          |                            |</span><br><span class="line">+---------V---------+      +---------V---------+</span><br><span class="line">|                   |      |                   |</span><br><span class="line">|   Pi Agent (RPC)  |&lt;----&gt;|   工具系统        |</span><br><span class="line">|  (Local Runtime)  |      | (Plugins, Actions) |</span><br><span class="line">|                   |      |                   |</span><br><span class="line">+-------------------+      +-------------------+</span><br><span class="line">          |</span><br><span class="line">          | 安全模型</span><br><span class="line">          | (Auth, RBAC, Data Privacy)</span><br><span class="line">          |</span><br><span class="line">+---------V---------+</span><br><span class="line">|                   |</span><br><span class="line">|  本地AI模型/数据  |</span><br><span class="line">|                   |</span><br><span class="line">+-------------------+</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们将详细解析每个核心组件。</p>
+<h3 id="Gateway-控制平面"><a href="#Gateway-控制平面" class="headerlink" title="Gateway 控制平面"></a>Gateway 控制平面</h3><p>Gateway 控制平面是 OpenClaw 架构的大脑和核心枢纽，负责管理整个系统的运行和协调。它提供了一系列核心服务，包括：</p>
+<ul>
+<li><strong>会话管理</strong>：处理用户与AI助手的交互会话，维护会话状态和上下文。</li>
+<li><strong>路由与调度</strong>：根据请求类型、用户配置和系统负载，将任务路由到合适的 Pi Agent 或工具系统。</li>
+<li><strong>配置管理</strong>：存储和管理用户偏好、AI模型配置、工具集成信息等。</li>
+<li><strong>插件编排</strong>：负责加载、卸载和管理工具系统的各种插件和能力。</li>
+<li><strong>认证与授权</strong>：与安全模型协同，确保只有授权用户才能访问特定资源和功能。</li>
+</ul>
+<p>Gateway 控制平面通常运行在中央服务器或可靠的边缘设备上，作为用户与后端AI能力之间的桥梁。</p>
+<h3 id="Pi-Agent-RPC"><a href="#Pi-Agent-RPC" class="headerlink" title="Pi Agent (RPC)"></a>Pi Agent (RPC)</h3><p>Pi Agent 是 OpenClaw 的本地运行时核心，通常部署在用户的边缘设备上（如树莓派、本地PC、NAS等）。它是实际执行AI推理、处理本地数据和管理设备资源的实体。</p>
+<p><strong>主要职责：</strong></p>
+<ul>
+<li><strong>AI模型本地运行</strong>：承载并运行各种本地AI模型（如LLM、TTS、STT等），执行推理任务。</li>
+<li><strong>RPC 服务</strong>：通过 gRPC 或 HTTP 等远程过程调用（RPC）机制，与 Gateway 控制平面进行通信，接收任务指令并返回执行结果。</li>
+<li><strong>本地资源管理</strong>：管理本地的计算资源（CPU&#x2F;GPU）、存储和外设。</li>
+<li><strong>数据预处理与后处理</strong>：在本地进行数据清洗、格式转换，保护用户隐私。</li>
+<li><strong>与工具系统集成</strong>：作为工具系统的执行环境，调用本地安装的工具插件。</li>
+</ul>
+<p>Pi Agent 的设计强调轻量级和高效性，以适应不同性能的边缘设备。</p>
+<h3 id="多渠道接入"><a href="#多渠道接入" class="headerlink" title="多渠道接入"></a>多渠道接入</h3><p>OpenClaw 旨在提供无缝的用户体验，无论用户身处何种通讯环境。多渠道接入层负责处理来自不同平台的交互请求。</p>
+<p><strong>支持的渠道包括但不限于：</strong></p>
+<ul>
+<li><strong>即时通讯应用集成</strong>：如 Telegram Bot、Discord Bot，用户可以直接在聊天应用中与AI助手对话。</li>
+<li><strong>Web 界面</strong>：提供一个直观的浏览器端用户界面，便于管理助手、查看历史记录和进行高级配置。</li>
+<li><strong>API 接口</strong>：为第三方应用或开发者提供标准API，以便更灵活地集成 OpenClaw 能力。</li>
+<li><strong>语音交互</strong>：通过麦克风输入和扬声器输出，实现自然的语音对话体验。</li>
+</ul>
+<p>每个渠道都通过标准化接口与 Gateway 控制平面交互，确保核心逻辑的统一。</p>
+<h3 id="工具系统"><a href="#工具系统" class="headerlink" title="工具系统"></a>工具系统</h3><p>工具系统是 OpenClaw 赋能AI助手执行复杂任务的关键。它提供了一个可扩展的框架，允许AI助手调用外部工具、API 或自定义功能来完成特定指令。</p>
+<p><strong>核心要素：</strong></p>
+<ul>
+<li><strong>插件化设计</strong>：各种工具以插件的形式存在，易于开发、部署和管理。</li>
+<li><strong>工具注册与发现</strong>：Gateway 维护一个可用的工具列表，AI模型可以根据用户意图选择合适的工具。</li>
+<li><strong>能力抽象</strong>：将复杂的操作抽象为简单的工具函数，供AI模型调用。</li>
+<li><strong>执行环境</strong>：工具可以在 Pi Agent 上本地执行，也可以通过 Gateway 调用云端服务。</li>
+</ul>
+<p><strong>示例工具：</strong></p>
+<ul>
+<li>天气查询</li>
+<li>日历管理</li>
+<li>代码执行</li>
+<li>智能家居控制</li>
+<li>信息检索</li>
+</ul>
+<h3 id="安全模型"><a href="#安全模型" class="headerlink" title="安全模型"></a>安全模型</h3><p>安全性在个人AI助手平台中至关重要，尤其是在本地优先和数据隐私的背景下。OpenClaw 的安全模型贯穿于整个架构。</p>
+<p><strong>关键组成部分：</strong></p>
+<ul>
+<li><strong>认证 (Authentication)</strong>：验证用户身份，确保只有合法用户才能访问系统。可能采用 OAuth2、API Key 或其他身份验证机制。</li>
+<li><strong>授权 (Authorization)</strong>：定义用户对特定资源和操作的访问权限（如基于角色的访问控制 RBAC）。例如，只有管理员才能修改系统配置。</li>
+<li><strong>数据隐私 (Data Privacy)</strong>：<ul>
+<li><strong>本地化存储与处理</strong>：最小化敏感数据传输到云端，尽可能在本地设备处理。</li>
+<li><strong>加密</strong>：对存储在本地和传输中的数据进行加密，防止未授权访问。</li>
+<li><strong>访问控制</strong>：严格控制哪些组件和用户可以访问哪些数据。</li>
+</ul>
+</li>
+<li><strong>安全通信</strong>：所有组件之间的通信（如 Gateway 与 Pi Agent 之间）通过 TLS&#x2F;SSL 进行加密，防止中间人攻击。</li>
+<li><strong>沙箱机制</strong>：对于某些工具或插件，可能在沙箱环境中运行，限制其对系统资源的访问，以降低安全风险。</li>
+</ul>
+<p>OpenClaw 的安全模型旨在构建一个值得信赖的个人AI助手环境，让用户能够放心地管理和使用自己的AI能力。</p>
+<hr>
+<h2 id="Gateway-控制平面详解"><a href="#Gateway-控制平面详解" class="headerlink" title="Gateway 控制平面详解"></a>Gateway 控制平面详解</h2><p>OpenClaw 的 Gateway 控制平面是整个分布式协作系统的核心枢纽，负责管理代理、工具、会话和节点之间的所有通信与协调。其设计旨在提供一个高效、可靠且可扩展的基础架构，以支持复杂的多代理协作场景。</p>
+<h3 id="WebSocket-网络架构"><a href="#WebSocket-网络架构" class="headerlink" title="WebSocket 网络架构"></a>WebSocket 网络架构</h3><p>Gateway 控制平面基于 WebSocket 协议构建，提供了实时、双向的通信能力，这是实现其核心功能的关键。</p>
+<ul>
+<li><strong>默认绑定</strong>：Gateway 的 WebSocket 服务默认绑定在 <code>ws://127.0.0.1:18789</code>，这为本地开发和部署提供了便利的接入点。</li>
+<li><strong>单一控制平面设计</strong>：OpenClaw 采用单一控制平面的设计理念，这意味着所有代理、工具和节点都通过这一个统一的 Gateway 进行连接和管理。这种设计简化了系统架构，降低了管理复杂性，并确保了所有组件之间的一致性通信策略。</li>
+<li><strong>为什么选择 WebSocket</strong>：选择 WebSocket 作为底层通信协议是基于其以下优势：<ul>
+<li><strong>双向通信</strong>：WebSocket 允许客户端和服务器之间建立持久的双向连接，这对于实时消息传递、事件通知和命令执行至关重要。传统的 HTTP 请求-响应模型在高频交互场景下效率低下。</li>
+<li><strong>低延迟</strong>：一旦建立连接，WebSocket 协议通过减少握手次数和头部开销来降低通信延迟，提高了数据传输效率。</li>
+<li><strong>全双工</strong>：客户端和服务器可以同时发送和接收数据，无需等待对方响应，非常适合代理之间的并发协作。</li>
+<li><strong>协议升级</strong>：WebSocket 通过 HTTP 协议的升级机制实现，兼容现有网络基础设施。</li>
+</ul>
+</li>
+<li><strong>网络拓扑</strong>：在典型的 OpenClaw 部署中，Gateway 位于中心位置。所有连接到 OpenClaw 生态系统的组件，包括代理实例、外部工具适配器、前端 Control UI 以及运行在节点上的服务，都将通过 WebSocket 连接到 Gateway。Gateway 负责维护这些连接，并根据内部逻辑转发消息、协调操作。这种星形拓扑结构确保了所有通信都经过 Gateway，便于统一管理和安全控制。</li>
+</ul>
+<h3 id="核心服务"><a href="#核心服务" class="headerlink" title="核心服务"></a>核心服务</h3><p>Gateway 控制平面封装了一系列核心服务，这些服务共同支撑了 OpenClaw 的高级功能。</p>
+<ul>
+<li><strong>会话管理（Main&#x2F;Group&#x2F;Channel sessions）</strong>：Gateway 负责创建、维护和终止不同类型的会话。<ul>
+<li><strong>Main Session</strong>：代表一个顶层的、独立的代理执行上下文，通常由用户直接启动。</li>
+<li><strong>Group Session</strong>：允许一组代理在共享环境中协作，它们可以相互发送消息、共享信息和协调任务。</li>
+<li><strong>Channel Session</strong>：更细粒度的通信通道，用于特定目的的消息交换，例如代理与工具之间、代理与特定节点之间的通信。<br>会话管理系统确保了资源的隔离和有序调度，避免了不同任务之间的干扰。</li>
+</ul>
+</li>
+<li><strong>路由与调度机制</strong>：Gateway 内置了强大的消息路由和任务调度引擎。它能够智能地将传入的消息或任务请求路由到目标代理、工具或节点。调度机制考虑到代理的可用性、负载、优先级和特定任务需求，确保任务能够被高效且适当地处理。例如，当一个代理需要执行一个 <code>exec</code> 命令时，Gateway 会根据命令的 <code>host</code> 参数将其路由到相应的执行环境（如沙箱或特定节点）。</li>
+<li><strong>配置管理系统</strong>：提供了一个集中式的配置存储和分发机制。代理、工具和节点可以通过 Gateway 动态地获取和更新其配置。这使得系统能够灵活地适应变化，无需频繁重启或手动干预。例如，代理可以从配置管理系统获取其行为规则、可访问的工具列表或外部 API 凭证。</li>
+<li><strong>插件编排引擎</strong>：OpenClaw 的强大之处在于其插件化架构。Gateway 的插件编排引擎负责加载、管理和协调各类插件（包括代理插件、工具插件等）。它提供了插件生命周期管理、依赖解析、事件订阅和跨插件通信的机制。通过这个引擎，开发者可以轻松地扩展 OpenClaw 的功能，集成新的 AI 模型、工具或数据源，而无需修改 Gateway 核心代码。</li>
+</ul>
+<h3 id="Canvas-Host"><a href="#Canvas-Host" class="headerlink" title="Canvas Host"></a>Canvas Host</h3><p>Canvas Host 是 Gateway 控制平面的一个重要组成部分，它作为一个轻量级的 HTTP 文件服务器存在，主要目的是为了与前端 Control UI 和 WebView 组件进行集成。</p>
+<ul>
+<li><strong>HTTP 文件服务器（端口 18793）</strong>：Canvas Host 默认监听在 <code>18793</code> 端口，提供标准的 HTTP 文件服务。这意味着它能够向客户端浏览器或 WebView 提供静态文件，例如 HTML、CSS、JavaScript 和其他媒体资源。</li>
+<li><strong>服务路径：<code>/__openclaw__/canvas/</code></strong>：Canvas Host 的静态文件服务根路径被定义为 <code>/__openclaw__/canvas/</code>。所有与 Canvas 相关的资源都将通过这个路径进行访问。这种约定性的路径设计有助于组织和管理 Canvas UI 的资产。</li>
+<li><strong>与 WebView 的集成</strong>：Canvas Host 的核心作用是支持 WebView 的集成。在 OpenClaw 中，代理有时需要渲染复杂的、交互式的用户界面（如数据可视化、图表或自定义表单）。通过 Canvas Host，代理可以将这些 UI 定义为网页文件，并在嵌入式 WebView 中加载显示。代理可以通过 WebSocket 与 WebView 进行通信，发送数据更新或接收用户输入，从而实现丰富的交互体验。</li>
+</ul>
+<h3 id="Control-UI"><a href="#Control-UI" class="headerlink" title="Control UI"></a>Control UI</h3><p>Control UI 是 OpenClaw Gateway 的浏览器端控制界面，为用户提供了直观且功能强大的系统管理和监控工具。</p>
+<ul>
+<li><strong>浏览器端控制界面</strong>：Control UI 是一个完全基于 Web 的应用，可以通过任何现代浏览器访问。它通过 WebSocket 连接到 Gateway，以实现实时的数据同步和命令控制。</li>
+<li><strong>功能</strong>：Control UI 提供了一系列关键功能，使用户能够全面管理 OpenClaw 环境：<ul>
+<li><strong>聊天</strong>：提供一个与代理进行交互的聊天界面，用户可以直接发送指令、提问或提供反馈。</li>
+<li><strong>配置</strong>：允许用户查看和修改系统配置、代理参数、工具设置等。</li>
+<li><strong>节点管理</strong>：显示连接到 Gateway 的所有节点的状态，包括其资源使用、运行任务和连接状态。用户可以管理节点的生命周期。</li>
+<li><strong>会话监控</strong>：实时监控所有活跃的会话，包括 Main、Group 和 Channel sessions。用户可以查看会话的进展、日志输出和代理之间的消息流。</li>
+</ul>
+</li>
+<li><strong>本地访问 vs 远程访问</strong>：<ul>
+<li><strong>本地访问</strong>：在默认配置下，Control UI 可以通过浏览器直接访问 Gateway 所在机器的 <code>http://127.0.0.1:18793/__openclaw__/canvas/</code>（通过 Canvas Host 提供静态资源）或通过配置的 Gateway Web 服务端口进行访问。这适用于本地开发和单机部署。</li>
+<li><strong>远程访问</strong>：对于分布式部署或远程管理场景，Gateway 可以配置为允许来自外部网络的访问。这通常涉及网络配置（如端口转发、防火墙规则）和安全措施（如 SSL&#x2F;TLS 加密、身份验证），以确保远程访问的安全性。远程访问使得用户能够从任何地方监控和管理其 OpenClaw 代理网络。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="Pi-Agent-与多渠道接入"><a href="#Pi-Agent-与多渠道接入" class="headerlink" title="Pi Agent 与多渠道接入"></a>Pi Agent 与多渠道接入</h2><h3 id="Pi-Agent-详解"><a href="#Pi-Agent-详解" class="headerlink" title="Pi Agent 详解"></a>Pi Agent 详解</h3><p>OpenClaw 架构中的 Pi Agent 是部署在边缘设备（如树莓派或其他低功耗硬件）上的核心组件，负责在本地执行任务并与中心 Gateway 通信。其工作原理基于高效的远程过程调用（RPC）模式。当 Gateway 需要 Pi Agent 执行某项任务时，它会通过一个轻量级的 RPC 协议发送指令，例如调用某个本地函数或启动一个服务。Pi Agent 接收到指令后，在本地执行相应的逻辑，并将结果通过同一 RPC 机制返回给 Gateway。这种模式确保了低延迟和高效率的设备间通信，同时减少了网络带宽的占用。</p>
+<p>Pi Agent 与 Gateway 之间的通信机制设计考虑了边缘设备的网络不稳定性。通常采用基于 MQTT 或 WebSocket 的持久连接，并辅以心跳机制和重连策略。所有通信都经过加密，确保数据传输的安全性。这种机制允许 Gateway 实时监控 Pi Agent 的状态，并下发控制指令。</p>
+<p>Pi Agent 具备在本地运行小型 AI 模型的能力，这对于需要实时响应或数据隐私的场景至关重要。例如，图像识别、语音指令处理或异常检测可以在边缘设备上直接完成，无需将所有数据上传到云端。这得益于优化的模型推理引擎，能够充分利用边缘设备的计算资源。</p>
+<p>资源管理是 Pi Agent 的关键功能之一。它监控 CPU、内存、存储和网络使用情况，确保任务执行不会导致设备过载。通过动态调整任务优先级和资源分配，Pi Agent 能够在有限的硬件条件下最大化性能和稳定性。</p>
+<h3 id="多渠道架构"><a href="#多渠道架构" class="headerlink" title="多渠道架构"></a>多渠道架构</h3><p>OpenClaw 的多渠道架构旨在提供无缝的用户交互体验，支持用户通过多种主流通信平台与 AI Agent 进行互动。目前，OpenClaw 支持集成 WhatsApp、Telegram、Discord、Signal 等多种渠道，未来还将不断扩展以覆盖更多平台。这种广泛的渠道支持确保了无论用户偏好何种通信应用，都能轻松接入 OpenClaw 生态。</p>
+<p>核心在于其精巧的渠道适配器设计。每个渠道适配器负责处理特定平台的 API 协议、消息格式转换和认证流程。这意味着，当一个消息从 Telegram 传入时，Telegram 适配器会将其转换为 OpenClaw 内部统一的消息格式；反之，当一个响应需要发送到 WhatsApp 时，WhatsApp 适配器会将其转换为 WhatsApp 兼容的格式。这种模块化的设计使得新渠道的添加变得简单且不影响现有系统。</p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 简化渠道适配器接口示例</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">ChannelAdapter</span> &#123;</span><br><span class="line">  <span class="attr">platform</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="title function_">receiveMessage</span>(<span class="attr">rawMessage</span>: <span class="built_in">any</span>): <span class="title class_">InternalMessage</span>;</span><br><span class="line">  <span class="title function_">sendMessage</span>(<span class="attr">internalMessage</span>: <span class="title class_">InternalMessage</span>, <span class="attr">recipientId</span>: <span class="built_in">string</span>): <span class="title class_">Promise</span>&lt;<span class="built_in">void</span>&gt;;</span><br><span class="line">  <span class="comment">// ... 其他平台特定方法</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 内部消息格式示例</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">InternalMessage</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">sender</span>: &#123; <span class="attr">id</span>: <span class="built_in">string</span>; <span class="attr">name</span>: <span class="built_in">string</span>; <span class="attr">channel</span>: <span class="built_in">string</span> &#125;;</span><br><span class="line">  <span class="attr">text</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="attr">timestamp</span>: <span class="title class_">Date</span>;</span><br><span class="line">  <span class="comment">// ... 其他消息字段</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>消息路由机制是多渠道架构的另一核心。所有传入的消息首先由统一的入口点接收，然后根据消息来源的渠道类型，被路由到相应的渠道适配器进行预处理。处理后的内部消息随后进入 OpenClaw 的核心逻辑层（通常由 Gateway 协调），再由 AI Agent 进行处理。处理结果会通过反向路由，再次经过目标渠道的适配器，最终发送给用户。</p>
+<p>为实现这种灵活性和可扩展性，OpenClaw 定义了一套统一接口抽象。这意味着无论消息来自哪个渠道，核心 AI 逻辑和业务处理模块都只与这一套抽象接口打交道，无需关心底层渠道的具体实现细节。这大大简化了 AI Agent 的开发复杂性，并提升了系统的可维护性和未来扩展性。</p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 统一接口抽象示例</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">AgentService</span> &#123;</span><br><span class="line">  <span class="title function_">processMessage</span>(<span class="attr">message</span>: <span class="title class_">InternalMessage</span>): <span class="title class_">Promise</span>&lt;<span class="title class_">AgentResponse</span>&gt;;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">AgentResponse</span> &#123;</span><br><span class="line">  <span class="attr">type</span>: <span class="string">&quot;text&quot;</span> | <span class="string">&quot;image&quot;</span> | <span class="string">&quot;action&quot;</span>;</span><br><span class="line">  <span class="attr">content</span>: <span class="built_in">string</span>;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="会话模型与安全模型"><a href="#会话模型与安全模型" class="headerlink" title="会话模型与安全模型"></a>会话模型与安全模型</h2><h3 id="会话模型"><a href="#会话模型" class="headerlink" title="会话模型"></a>会话模型</h3><h4 id="Main-Session（主会话）"><a href="#Main-Session（主会话）" class="headerlink" title="Main Session（主会话）"></a>Main Session（主会话）</h4><p>主会话是 OpenClaw 中每个用户与系统进行个性化交互的核心。它维护着用户独有的对话历史、偏好设置和上下文信息，确保用户在任何时候都能获得连贯且个性化的体验。所有直接发给 OpenClaw 的命令和个人查询都在主会话中处理。主会话的设计旨在提供一个私密、高效且智能的个人助手环境，它的资源分配会根据用户活跃度和任务复杂性进行动态调整，以保证响应速度和系统稳定性。</p>
+<h4 id="Group-Session（群组会话）"><a href="#Group-Session（群组会话）" class="headerlink" title="Group Session（群组会话）"></a>Group Session（群组会话）</h4><p>群组会话专为多用户协作场景设计，允许多个成员在共享的上下文中与 OpenClaw 进行交互。这种会话模式支持团队共同完成任务、共享信息检索以及进行集体决策。OpenClaw 会维护一个对所有参与者可见的统一会话状态，从而实现无缝的团队协作和共同理解。在群组会话中，资源管理侧重于平衡不同参与者的需求，同时确保系统在高并发请求下的响应能力，促进团队生产力。</p>
+<h4 id="Channel-Session（渠道会话）"><a href="#Channel-Session（渠道会话）" class="headerlink" title="Channel Session（渠道会话）"></a>Channel Session（渠道会话）</h4><p>渠道会话负责将 OpenClaw 的功能适配到各种外部通信平台，例如 Telegram、Discord 或 Slack。它作为 OpenClaw 内部逻辑与外部渠道之间的桥梁，将平台特定的消息格式和指令转换为 OpenClaw 可理解的内部表示，并将 OpenClaw 的响应格式化为渠道原生消息。通过渠道会话，OpenClaw 能够无缝集成到用户已有的工作流中，无论用户通过何种平台接入，都能获得一致且高效的交互体验。</p>
+<h4 id="会话隔离与资源管理"><a href="#会话隔离与资源管理" class="headerlink" title="会话隔离与资源管理"></a>会话隔离与资源管理</h4><p>OpenClaw 实施了严格的会话隔离机制，以确保不同会话之间的数据和上下文相互独立，防止信息泄露或混乱。每个会话都在逻辑上独立的运行环境中操作，互不干扰。在资源管理方面，OpenClaw 采用动态分配策略，根据每个会话的当前活动和优先级，智能地分配 CPU、内存和网络 I&#x2F;O 等计算资源。闲置会话的资源会被适度缩减，而活跃会话则会获得必要的计算能力，从而优化整体资源利用率并维护系统的高性能和稳定性。</p>
+<h3 id="安全模型-1"><a href="#安全模型-1" class="headerlink" title="安全模型"></a>安全模型</h3><h4 id="DM-配对模式"><a href="#DM-配对模式" class="headerlink" title="DM 配对模式"></a>DM 配对模式</h4><p>DM（Direct Message）配对模式是 OpenClaw 确保用户身份验证和会话安全的独有机制。它通过一个安全、一次性的过程，将用户的私聊消息通道与特定的 OpenClaw 实例安全绑定。此过程通常涉及生成一个唯一的配对码或链接，用户通过其私聊机器人完成验证。一旦配对成功，所有来自该 DM 渠道的指令都被视为经过身份验证的用户操作，有效防止了未经授权的访问和指令伪造，从而保障了个人数据和操作的隐私与安全。</p>
+<h4 id="Docker-沙箱隔离"><a href="#Docker-沙箱隔离" class="headerlink" title="Docker 沙箱隔离"></a>Docker 沙箱隔离</h4><p>OpenClaw 采用 Docker 容器技术为每个代理或外部工具的执行提供强大的沙箱隔离。这意味着无论是执行第三方工具还是自定义代码，它们都运行在一个独立、受限的 Docker 容器内，与主机系统和其他 OpenClaw 组件完全隔离。这种沙箱机制能够有效遏制潜在的恶意代码或有缺陷的工具对系统造成损害，并严格限制其对网络、文件系统和计算资源的访问权限。即使某个工具存在安全漏洞，其影响也将被严格限制在单个容器内部，极大提升了系统的整体安全性。</p>
+<h4 id="工具白名单-黑名单"><a href="#工具白名单-黑名单" class="headerlink" title="工具白名单&#x2F;黑名单"></a>工具白名单&#x2F;黑名单</h4><p>为了对 OpenClaw 代理可以调用和执行的外部工具进行细粒度控制，系统实现了严格的工具白名单和黑名单机制。白名单模式只允许执行经过预先审批和安全审计的工具，从根本上杜绝了未经授权的第三方代码执行风险。而黑名单模式则用于明确禁止运行已知存在安全隐患或不符合组织策略的特定工具。管理员可以根据实际的安全需求和信任边界，灵活配置这些列表，确保只有受信任且安全的工具才能在 OpenClaw 环境中运行，从而有效降低潜在的安全威胁。</p>
+<h4 id="数据加密与传输安全"><a href="#数据加密与传输安全" class="headerlink" title="数据加密与传输安全"></a>数据加密与传输安全</h4><p>OpenClaw 致力于在整个数据生命周期中通过加密技术保护敏感信息。无论是用户与 OpenClaw 实例之间，还是 OpenClaw 内部服务与外部工具之间的所有数据传输，都强制采用行业标准的 TLS&#x2F;SSL 加密协议，以防止数据在传输过程中被窃听、篡改或拦截。对于存储在数据库或其他持久化存储中的敏感数据，OpenClaw 同样应用静态加密技术。这确保了即使存储介质遭遇未经授权的访问，数据本身也无法被直接解读，从而提供端到端的数据保护，维护数据的机密性。</p>
+<hr>
+<h2 id="Skills-系统"><a href="#Skills-系统" class="headerlink" title="Skills 系统"></a>Skills 系统</h2><p>OpenClaw 的核心能力之一在于其强大的 Skills 系统，它为 Agent 提供了与外部世界交互的接口，并实现了高度的模块化和可扩展性。</p>
+<h3 id="Skills-架构"><a href="#Skills-架构" class="headerlink" title="Skills 架构"></a>Skills 架构</h3><p>OpenClaw 将技能划分为三种主要类型，以适应不同的管理和使用场景：</p>
+<ul>
+<li><strong>Bundled Skills（内置技能）</strong>：这些是 OpenClaw 平台自带的核心技能，通常包括文件操作、系统命令执行、网络请求等基础能力。它们是 Agent 运行的基石，无需额外安装即可使用。</li>
+<li><strong>Managed Skills（托管技能）</strong>：通过 ClawHub 技能注册中心进行管理和分发的技能。用户可以按需安装，这些技能通常由社区或官方开发维护，并能获得定期的更新和支持。它们的生命周期由 ClawHub 控制，确保技能的可用性和安全性。</li>
+<li><strong>Workspace Skills（工作区技能）</strong>：这些是用户在特定工作区内定义和使用的技能。它们通常通过工作区内的 <code>TOOLS.md</code> 文件配置，用于满足特定项目或任务的定制化需求。Workspace Skills 提供了极大的灵活性，允许 Agent 根据当前上下文拥有独特的工具集。</li>
+</ul>
+<h3 id="ClawHub-技能注册中心"><a href="#ClawHub-技能注册中心" class="headerlink" title="ClawHub 技能注册中心"></a>ClawHub 技能注册中心</h3><p>ClawHub 是 OpenClaw 的官方技能注册中心，旨在促进技能的发现、分发和社区协作。</p>
+<ul>
+<li><strong>技能发现与安装</strong>：用户可以通过 ClawHub 浏览、搜索并一键安装所需的技能。ClawHub 提供了一个集中化的平台，简化了技能的管理和部署过程。</li>
+<li><strong>社区贡献机制</strong>：ClawHub 鼓励开发者和社区成员贡献自己的技能。通过标准化的开发和提交流程，高质量的技能可以被集成到 ClawHub 中，丰富整个生态系统，并让所有 OpenClaw 用户受益。</li>
+</ul>
+<h3 id="Workspace-结构"><a href="#Workspace-结构" class="headerlink" title="Workspace 结构"></a>Workspace 结构</h3><p>OpenClaw 的 Workspace 结构是 Agent 运行环境的关键组成部分，它通过一套特定的文件来定义 Agent 的行为和可用工具。</p>
+<ul>
+<li><strong>AGENTS.md, SOUL.md, TOOLS.md 等文件</strong>：<ul>
+<li><code>AGENTS.md</code>：定义了工作区中 Agent 的基本信息、角色和职责。</li>
+<li><code>SOUL.md</code>：包含了 Agent 的核心”灵魂”——即其行为逻辑、目标和个性化指令。</li>
+<li><code>TOOLS.md</code>：详细列出了 Agent 在当前工作区中可以使用的技能和工具。这些工具可以是系统内置的、ClawHub 托管的，或是用户自定义的 Workspace Skills。</li>
+</ul>
+</li>
+<li><strong>注入机制</strong>：当一个 Agent 在特定工作区中启动时，OpenClaw 会将这些 <code>.md</code> 文件中定义的内容动态地注入到 Agent 的运行时环境中。这使得 Agent 能够根据工作区的配置，即时拥有所需的知识、行为模式和操作工具，实现高度上下文感知的自动化。</li>
+</ul>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>OpenClaw 作为一个开源的 Agent 平台，通过其精巧的架构设计和前瞻性的技术选型，为用户提供了一个强大、灵活且安全的自动化解决方案。</p>
+<h3 id="架构优势"><a href="#架构优势" class="headerlink" title="架构优势"></a>架构优势</h3><ul>
+<li><strong>本地优先的隐私保护</strong>：OpenClaw 倡导”本地优先”原则，尽可能在用户本地设备上运行 Agent 和处理数据。这意味着敏感信息在多数情况下不会离开用户控制的环境，从而最大程度地保障了数据隐私和安全。</li>
+<li><strong>模块化与可扩展性</strong>：平台的核心设计理念是模块化。无论是 Agent 的功能、技能集还是与外部服务的集成，都采用高度解耦的模块化方式。这使得系统易于维护、升级和扩展，开发者可以轻松添加新的功能或工具，而不会影响现有系统。</li>
+<li><strong>多渠道统一体验</strong>：OpenClaw 旨在提供跨越多种通信渠道（如 Telegram、Slack、Discord 等）的统一 Agent 体验。通过抽象化的设计，Agent 可以在不同平台上以一致的方式响应和执行任务，为用户带来无缝的交互体验。</li>
+</ul>
+<h3 id="技术亮点"><a href="#技术亮点" class="headerlink" title="技术亮点"></a>技术亮点</h3><ul>
+<li><strong>WebSocket 控制平面</strong>：利用 WebSocket 协议构建了高效、实时的控制平面。这确保了 Agent 与外部系统（如用户界面、其他服务）之间能够进行低延迟、双向的通信，是实现响应式和交互式 Agent 的关键。</li>
+<li><strong>Pi Agent RPC 模式</strong>：引入了 Pi Agent RPC (Remote Procedure Call) 模式，用于 Agent 之间或 Agent 与节点之间的通信。这种模式使得远程功能的调用如同本地调用一般简洁高效，是构建分布式 Agent 系统和服务网格的基石。</li>
+<li><strong>Docker 沙箱隔离</strong>：为了增强安全性和环境一致性，OpenClaw 广泛采用 Docker 沙箱隔离技术。每个 Agent 可以在独立的容器环境中运行，与其他 Agent 或宿主系统隔离。这不仅避免了依赖冲突，还为执行高风险操作提供了安全保障。</li>
+</ul>
+<h3 id="未来展望"><a href="#未来展望" class="headerlink" title="未来展望"></a>未来展望</h3><p>OpenClaw 的发展愿景是构建一个更加开放、智能和普惠的 Agent 生态系统：</p>
+<ul>
+<li><strong>更多渠道支持</strong>：我们将持续扩展对各类通信平台和智能设备的集成，使 OpenClaw Agent 能够触达更广泛的用户群体和应用场景。</li>
+<li><strong>更强的边缘计算能力</strong>：随着物联网和边缘计算的兴起，OpenClaw 将致力于提升 Agent 在边缘设备上运行的效率和能力，实现更低延迟、更数据本地化的智能自动化。</li>
+<li><strong>社区生态发展</strong>：一个强大而活跃的社区是开源项目成功的关键。OpenClaw 将继续投入资源，鼓励开发者贡献技能、分享经验，共同构建一个繁荣的 Agent 生态系统，推动人工智能与自动化技术的普及。</li>
+</ul>
+<hr>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://docs.openclaw.ai/">OpenClaw 官方文档</a></li>
+<li><a href="https://github.com/openclaw/openclaw">OpenClaw GitHub 仓库</a></li>
+<li><a href="https://clawhub.com/">ClawHub 技能注册中心</a></li>
+</ul>
+<hr>
+<p><strong>本文完整分析了 OpenClaw 的架构设计，从 Gateway 控制平面到 Pi Agent RPC 模式，从多渠道接入到安全模型，全面展示了这个本地优先的个人 AI 助手平台的技术实现。希望本文能为开发者提供有价值的参考。</strong></p>
+]]></content>
+      <categories>
+        <category>技术深度</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+        <tag>OpenClaw</tag>
+        <tag>架构</tag>
+        <tag>个人助手</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</title>
+    <url>/2026/02/20/openclaw-qwen-agent-team/</url>
+    <content><![CDATA[<p>很多人装完 OpenClaw（俗称小龙虾）的第一反应是：这玩意儿怎么用？</p>
+<p>你可能看着那个黑乎乎的终端窗口，或者 Telegram 里那个半天不蹦出一个词的机器人，心里犯嘀咕：这和 ChatGPT 有什么区别？为什么我还要费劲巴拉地折腾服务器？</p>
+<p>我花了半个月时间，烧了 500 美金，把 OpenClaw 从“装上就吃灰”折腾成了真能干活的 AI 员工。今天这篇长文，不聊虚的跑分，只聊工程实战：如何给它搭工位、注灵魂，最后把它升级成一支 7×24 小时全自动运行的 AI 工程师团队。</p>
+<h3 id="核心心态：它不是聊天框，是你的远程同事"><a href="#核心心态：它不是聊天框，是你的远程同事" class="headerlink" title="核心心态：它不是聊天框，是你的远程同事"></a>核心心态：它不是聊天框，是你的远程同事</h3><p>在动手之前，我们先切换一下心态：不要把 OpenClaw 当成一个 AI 助手，把它想象成你刚招的一个远程员工。</p>
+<p>人入职了，但工位还没搭好，它现在什么都干不了。你得给它准备电脑（服务器）、选好大脑（模型）、配好网络和工具，最重要的是，你得交代清楚你是谁、你的工作流是什么。</p>
+<h3 id="第一部分：给-AI-员工搭个像样的工位"><a href="#第一部分：给-AI-员工搭个像样的工位" class="headerlink" title="第一部分：给 AI 员工搭个像样的工位"></a>第一部分：给 AI 员工搭个像样的工位</h3><h4 id="1-硬件与大脑的选择"><a href="#1-硬件与大脑的选择" class="headerlink" title="1. 硬件与大脑的选择"></a>1. 硬件与大脑的选择</h4><p>首先，服务器建议直接买海外的（香港、新加坡等），内存 8G 起步。别省这几百块，跑浏览器和自动化脚本极其吃内存，2G 的机器基本上一跑就卡死。</p>
+<p>关于“大脑”，如果你预算无限，Claude Opus 4.6 当然是最强的。但我最近的实战发现，<strong>Qwen3.5-Plus</strong> 才是真正的性价比之神。它采用了极致稀疏的 MoE 架构，智商在线且速度极快。最重要的是，它是开源的，API 价格极低，适合我们这种需要 24 小时高频调用的自治系统。</p>
+<h4 id="2-网络管线：让-AI-真正看懂世界"><a href="#2-网络管线：让-AI-真正看懂世界" class="headerlink" title="2. 网络管线：让 AI 真正看懂世界"></a>2. 网络管线：让 AI 真正看懂世界</h4><p>一个只会“搜索”的 AI 是没法干活的。我为它配置了四层网络能力：</p>
+<ul>
+<li><strong>Brave Search</strong>：基础搜索。</li>
+<li><strong>jina.ai Reader</strong>：它能把复杂的网页转换成 AI 读起来最舒服的 Markdown 格式，甚至能绕过一些付费墙。</li>
+<li><strong>浏览器层级（L0-L3）</strong>：从无头浏览器到截图视觉识别。当遇到需要登录或者滑块验证码时，我配置了 <strong>KasmVNC</strong>。这让你可以随时接管 AI 的屏幕，帮它手动过个验证，然后挥挥手让它继续干活。</li>
+</ul>
+<h4 id="3-文件流转：让成果走进你的文件夹"><a href="#3-文件流转：让成果走进你的文件夹" class="headerlink" title="3. 文件流转：让成果走进你的文件夹"></a>3. 文件流转：让成果走进你的文件夹</h4><p>AI 写完的代码或素材，躺在远程服务器里没用。我推荐用 <strong>rclone</strong> 把服务器文件夹直接挂载到本地 Mac&#x2F;PC 的 Finder 里。配合 <strong>File Browser</strong>，你甚至可以在手机浏览器里随时查看它昨晚通宵写的代码。这种“所见即所得”的体验，是把 AI 嵌入工作流的关键。</p>
+<h3 id="第二部分：注入灵魂——SOUL-md-与入职培训"><a href="#第二部分：注入灵魂——SOUL-md-与入职培训" class="headerlink" title="第二部分：注入灵魂——SOUL.md 与入职培训"></a>第二部分：注入灵魂——SOUL.md 与入职培训</h3><p>很多人的 AI 说话像复读机，是因为你没给它“灵魂”。</p>
+<p>在 OpenClaw 里，有一个核心文件叫 <code>SOUL.md</code>。我在这里面写明了：它是我的同事，不是讨好者。它可以有自己的立场，甚至可以“拦着我”——如果我提的需求明显有坑，它必须直接指出来。</p>
+<p>更进阶的操作是<strong>入职培训</strong>。我把我积累了几年的 Obsidian 知识库整个同步给它，让它读一遍。它读完后，竟然推测出了我完整的人际关系和性格特点。这种“被 AI 深度理解”的感觉非常奇妙，从此之后，我提一个模糊的需求，它都能根据我的历史习惯精准接单。</p>
+<h3 id="第三部分：从“聊天”到“自治”——Qwen3-5-Plus-2-0-系统"><a href="#第三部分：从“聊天”到“自治”——Qwen3-5-Plus-2-0-系统" class="headerlink" title="第三部分：从“聊天”到“自治”——Qwen3.5-Plus 2.0 系统"></a>第三部分：从“聊天”到“自治”——Qwen3.5-Plus 2.0 系统</h3><p>传统的 AI 编程太“粘人”：你得盯着它，它改错一行你就得纠正。</p>
+<p>为了解决这个问题，我跑通了一套“自治开发系统”。它的核心逻辑是：<strong>不要让 AI 记在脑子里，要让它记在文件里。</strong></p>
+<p>我把开发过程变成了“轮班工人”状态机，依赖四个支点：</p>
+<ol>
+<li><strong>feature_list.json</strong>：这是工单，记录了所有待办任务。</li>
+<li><strong>progress.txt</strong>：交接日志。</li>
+<li><strong>CLAUDE.md</strong>：行为准则。</li>
+<li><strong>init.sh</strong>：环境自检脚本。</li>
+</ol>
+<p>配合一个 <code>run_autonomy.py</code> 脚本，AI 会进入无限循环：读取任务 -&gt; 执行（调用 Qwen3.5-Plus）-&gt; 自动跑测试 -&gt; 成功则更新工单，失败则回滚 Git 并记录日志。</p>
+<p>有了这套系统，你洗澡前扔个大需求给它，第二天起来，它可能已经自发进行了 50 轮迭代，文件夹里已经躺好了跑通的代码。</p>
+<h3 id="第四部分：Agent-Team-3-0——从一个人到一支团队"><a href="#第四部分：Agent-Team-3-0——从一个人到一支团队" class="headerlink" title="第四部分：Agent Team 3.0——从一个人到一支团队"></a>第四部分：Agent Team 3.0——从一个人到一支团队</h3><p>当项目复杂度提升（比如要同时写前端 UI、后端接口和自动化测试）时，单线程的 AI 会顾此失失彼。这时就需要开启 <strong>Agent Team</strong> 模式。</p>
+<p>在 3.0 架构中，我构建了一个微型软件公司：</p>
+<ul>
+<li><strong>Lead Agent (CTO)</strong>：负责读文档、拆任务、分派工作。它不写代码，只看架构和 Review。</li>
+<li><strong>@backend-integrator</strong>：只管 Python 和数据库，上下文极其干净。</li>
+<li><strong>@frontend-polisher</strong>：专注 UI 和交互。</li>
+<li><strong>@qa-engineer</strong>：它就像个“找茬的”，负责跑测试。如果测试挂了，它不会自己乱修，而是把报错甩给后端：“你接口 500 了，去查配置。”</li>
+</ul>
+<p>这种角色分工让协作变得极其丝滑。后端在写接口的同时，前端正在优化加载动画，QA 坐在旁边实时反馈。这已经不是在用工具，而是在管理一个团队。</p>
+<h3 id="第五部分：安全与踩坑——别让-AI-把自己改死"><a href="#第五部分：安全与踩坑——别让-AI-把自己改死" class="headerlink" title="第五部分：安全与踩坑——别让 AI 把自己改死"></a>第五部分：安全与踩坑——别让 AI 把自己改死</h3><p>实战中最大的坑是：<strong>AI 会把自己改死。</strong></p>
+<p>AI 有时候会产生幻觉，去修改 OpenClaw 的配置文件，结果改错一个参数，程序重启后就挂了。</p>
+<ul>
+<li><strong>建议 1</strong>：配置完成后，关掉自动重启。</li>
+<li><strong>建议 2</strong>：修改底层配置这种重活，交给专职的命令行工具（如 Claude Code），而不是让 Agent 在聊天框里自我修改。</li>
+<li><strong>建议 3</strong>：善用 <code>steer</code> 模式。这能让你在 AI 执行长任务（比如搜 10 个网页）中途实时喊停或调整方向，而不用干等。</li>
+</ul>
+<h3 id="结语：先有工作流，再有-AI-同事"><a href="#结语：先有工作流，再有-AI-同事" class="headerlink" title="结语：先有工作流，再有 AI 同事"></a>结语：先有工作流，再有 AI 同事</h3><p>很多人装完 OpenClaw 觉得没用，本质上是因为自己没有明确的工作流。</p>
+<p>OpenClaw 就像一个能力极强的实习生，如果你不给它布置活，它只能在工位上发呆。先搞清楚你手头哪些活是可以标准化的（比如写爬虫、整理素材、跑单元测试），再用这套系统去放大。</p>
+<p>这套 OpenClaw + Qwen3.5-Plus 的组合，让我第一次感觉到：全自动 AI 开发不再是实验室里的 Demo，而是真正能帮我 24 小时守着工位、不断产出的生产力系统。</p>
+<p>如果你也想拥有一支不拿工资、不喝咖啡、只吃 Token 的全栈工程师团队，现在就是最好的入场时机。</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+        <category>Agent</category>
+      </categories>
+      <tags>
+        <tag>OpenClaw</tag>
+        <tag>工程实践</tag>
+        <tag>Qwen3.5-Plus</tag>
+        <tag>Agent Team</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>OpenClaw 实战：如何在 Telegram 实现多任务并发处理</title>
+    <url>/2026/02/17/openclaw-telegram-topics-concurrency/</url>
+    <content><![CDATA[<p>不少同学在使用 OpenClaw 时都会遇到一个痛点：机器人处理任务时只能“排队”，如果一个任务卡住了，后面的对话就全得等着。其实，OpenClaw 本身就是一个强大的“并发任务引擎”，关键在于你如何利用 <strong>Sessions</strong>。</p>
+<p>在 Telegram 环境下，最简单且优雅的实现方式就是利用 <strong>Topics (话题)</strong> 功能。</p>
+<h2 id="核心思路：一个-Topic-一个独立-Session"><a href="#核心思路：一个-Topic-一个独立-Session" class="headerlink" title="核心思路：一个 Topic &#x3D; 一个独立 Session"></a>核心思路：一个 Topic &#x3D; 一个独立 Session</h2><p>OpenClaw 的并发能力建立在 Session 之上：</p>
+<ul>
+<li><strong>一条 Session</strong> &#x3D; 一条独立任务流（拥有独立的上下文）。</li>
+<li><strong>多个 Session</strong> &#x3D; OpenClaw 能够同时处理多条互不干扰的任务。</li>
+</ul>
+<p>通过在 Telegram 群组中开启 Topics 模式，每一个 Topic 都会被 OpenClaw 识别为独立的 Session。这意味着你可以在同一个群里开辟多条并行车道。</p>
+<h2 id="场景规划建议"><a href="#场景规划建议" class="headerlink" title="场景规划建议"></a>场景规划建议</h2><p>为了让工作流更清晰，建议在群组中至少创建以下三个 Topic：</p>
+<ol>
+<li><strong>#Chat</strong>：日常闲聊，上下文可以自由发散，不影响正式工作。</li>
+<li><strong>#Work</strong>：专门办正事，只讨论具体任务和指令。</li>
+<li><strong>#Feed</strong>：用于资讯推送、系统巡逻或监控报警，保持低打扰。</li>
+</ol>
+<h2 id="配置指南"><a href="#配置指南" class="headerlink" title="配置指南"></a>配置指南</h2><h3 id="1-基础权限设置"><a href="#1-基础权限设置" class="headerlink" title="1. 基础权限设置"></a>1. 基础权限设置</h3><p>首先确保 Bot 拥有读取消息的权限：</p>
+<ul>
+<li>在 <strong>BotFather</strong> 中通过 <code>/setprivacy</code> 将其设为 <code>Disable</code>。</li>
+<li>将 Bot 拉进群组并设为 <strong>管理员 (Admin)</strong>。</li>
+</ul>
+<h3 id="2-开启-Topics-模式"><a href="#2-开启-Topics-模式" class="headerlink" title="2. 开启 Topics 模式"></a>2. 开启 Topics 模式</h3><p>在群组设置中，找到并打开 <strong>Topics &#x2F; Forum (话题&#x2F;论坛模式)</strong>。</p>
+<h3 id="3-OpenClaw-行为配置"><a href="#3-OpenClaw-行为配置" class="headerlink" title="3. OpenClaw 行为配置"></a>3. OpenClaw 行为配置</h3><p>你可以根据不同的 Topic 设置不同的触发规则。例如，在 <code>#Work</code> 频道我们希望它随叫随到（不需要 @），而在 <code>#Chat</code> 频道则需要 @ 才会响应。</p>
+<p>在你的 <code>openclaw.json</code> 中进行如下配置：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;channels&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;telegram&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;groups&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;-100XXXXXXXXXX&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;requireMention&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;topics&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;WorkTopicId&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;requireMention&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;FeedTopicId&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;requireMention&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span> <span class="punctuation">&#125;</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="验收测试"><a href="#验收测试" class="headerlink" title="验收测试"></a>验收测试</h2><p>配置完成后，你可以尝试以下操作：</p>
+<ol>
+<li>在 <code>#Chat</code> Topic 发起一段闲谈。</li>
+<li>立即切换到 <code>#Work</code> Topic 发送一个复杂的指令（如抓取网页）。</li>
+<li>检查 OpenClaw 是否能同时在两个频道独立回复，且上下文互不干扰。</li>
+</ol>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>想要 OpenClaw 真正变成“多面手”，学会利用 Topics 拆分 Session 是必经之路。这种方式不仅解决了串台问题，更极大地提升了团队协作的效率。</p>
+<hr>
+<p><em>本文基于 Tz 在 X 上的分享整理。</em></p>
+]]></content>
+      <categories>
+        <category>技术教程</category>
+      </categories>
+      <tags>
+        <tag>OpenClaw</tag>
+        <tag>Telegram</tag>
+        <tag>效率</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux 终端代理神器：ProxyChains4 配置与使用指南</title>
+    <url>/2026/01/30/proxychains-guide/</url>
+    <content><![CDATA[<p>在 Linux 终端操作时，我们经常遇到 <code>git clone</code> 速度慢、<code>curl</code> 连接超时或者 <code>apt</code> 更新卡住的情况。虽然可以设置环境变量 <code>http_proxy</code>，但并不是所有程序都认这个变量（比如部分 Java 或 Python 程序）。</p>
+<p>这时候，你需要 <strong>ProxyChains4</strong>。它能勾住动态链接库，强制让指定程序通过你配置的代理服务器联网。</p>
+<span id="more"></span>
+
+<h2 id="1-安装"><a href="#1-安装" class="headerlink" title="1. 安装"></a>1. 安装</h2><p>在 Debian&#x2F;Ubuntu&#x2F;Armbian 系统上安装非常简单：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install proxychains4 -y</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-核心配置"><a href="#2-核心配置" class="headerlink" title="2. 核心配置"></a>2. 核心配置</h2><p>配置文件位于 <code>/etc/proxychains4.conf</code>。我们需要编辑它：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> vim /etc/proxychains4.conf</span><br></pre></td></tr></table></figure>
+
+<h3 id="关键模式选择"><a href="#关键模式选择" class="headerlink" title="关键模式选择"></a>关键模式选择</h3><p>在配置文件开头，你会看到几种模式，<strong>取消注释</strong>其中一种即可启用：</p>
+<ul>
+<li><p><strong>dynamic_chain (推荐)</strong><br>按照列表中出现的顺序尝试代理。如果第一个挂了，自动尝试第二个。智能且容错率高。</p>
+</li>
+<li><p><strong>strict_chain</strong><br>严格模式。必须按照列表顺序穿过所有代理。如果中间断了一个，连接就失败。适合需要特定多重跳板的场景。</p>
+</li>
+<li><p><strong>random_chain</strong><br>从列表中随机选择一个代理使用。适合有多个代理池想要负载均衡的场景。</p>
+</li>
+</ul>
+<h3 id="配置代理列表"><a href="#配置代理列表" class="headerlink" title="配置代理列表"></a>配置代理列表</h3><p>滑到文件最底部 <code>[ProxyList]</code> 区域，添加你的代理。</p>
+<p><strong>假设你有两个本地代理端口：</strong></p>
+<ul>
+<li><code>7890</code> (主力)</li>
+<li><code>2020</code> (备用)</li>
+</ul>
+<h4 id="场景-A：自动容灾-推荐"><a href="#场景-A：自动容灾-推荐" class="headerlink" title="场景 A：自动容灾 (推荐)"></a>场景 A：自动容灾 (推荐)</h4><p><em>启用 <code>dynamic_chain</code>，配置如下：</em></p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[ProxyList]</span></span><br><span class="line">socks5  127.0.0.1 7890</span><br><span class="line">socks5  127.0.0.1 2020</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>效果</strong>：优先走 7890，如果 7890 没开或挂了，自动切换到 2020。</p>
+</blockquote>
+<h4 id="场景-B：洋葱链路-高匿名"><a href="#场景-B：洋葱链路-高匿名" class="headerlink" title="场景 B：洋葱链路 (高匿名)"></a>场景 B：洋葱链路 (高匿名)</h4><p><em>启用 <code>strict_chain</code>，配置如下：</em></p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[ProxyList]</span></span><br><span class="line">socks5  127.0.0.1 7890</span><br><span class="line">socks5  127.0.0.1 2020</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>效果</strong>：流量先经过 7890，再经过 2020，最后才访问目标网站。链路更长，速度变慢，但追踪难度变大。</p>
+</blockquote>
+<h2 id="3-使用方法"><a href="#3-使用方法" class="headerlink" title="3. 使用方法"></a>3. 使用方法</h2><p>用法极其简单，就在原命令前加上 <code>proxychains4</code> 即可。</p>
+<h3 id="基础示例"><a href="#基础示例" class="headerlink" title="基础示例"></a>基础示例</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 测试 IP，看看是不是变了</span></span><br><span class="line">proxychains4 curl ip.sb</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加速 git 克隆</span></span><br><span class="line">proxychains4 git <span class="built_in">clone</span> https://github.com/torvalds/linux.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加速系统更新</span></span><br><span class="line"><span class="built_in">sudo</span> proxychains4 apt update</span><br></pre></td></tr></table></figure>
+
+<h3 id="进阶技巧"><a href="#进阶技巧" class="headerlink" title="进阶技巧"></a>进阶技巧</h3><p><strong>1. 全局代理 Shell</strong><br>如果你懒得每次都输前缀，可以开启一个新 Shell，里面所有命令自动走代理：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">proxychains4 bash</span><br><span class="line"><span class="comment"># 现在你在这个 shell 里执行的 curl, git 等都会走代理</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 设置别名</strong><br>在 <code>~/.bashrc</code> 或 <code>~/.zshrc</code> 中添加别名，少打几个字：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">alias</span> pc=<span class="string">&#x27;proxychains4&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>以后就能用 <code>pc curl google.com</code> 了。</p>
+<h2 id="4-常见问题与坑"><a href="#4-常见问题与坑" class="headerlink" title="4. 常见问题与坑"></a>4. 常见问题与坑</h2><ol>
+<li><p><strong>Ping 命令无效</strong><br><code>proxychains4</code> 只支持 TCP&#x2F;UDP 流量，而 <code>ping</code> 使用的是 ICMP 协议，所以 <code>proxychains4 ping google.com</code> 是不会走代理的。</p>
+</li>
+<li><p><strong>静态编译程序不支持</strong><br>它是通过 hook 动态链接库 (<code>LD_PRELOAD</code>) 实现的。如果是 Go 语言写的静态编译程序（没有用 cgo），或者不依赖 libc 的程序，ProxyChains 无法劫持它们的网络请求。</p>
+</li>
+<li><p><strong>sudo 的问题</strong><br>有些系统配置下，<code>sudo proxychains4</code> 可能会提示找不到命令或预加载失败。如果遇到这种情况，尝试切换到 root 用户再运行，或者使用 <code>sudo -E proxychains4</code>。</p>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>ProxyChains4 是 Linux 玩家的必备瑞士军刀。配置成 <code>dynamic_chain</code> 模式，填入你的所有代理端口，从此告别终端网络连接超时的烦恼。</p>
+]]></content>
+      <categories>
+        <category>技术教程</category>
+      </categories>
+      <tags>
+        <tag>教程</tag>
+        <tag>Linux</tag>
+        <tag>代理</tag>
+        <tag>工具</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Tmux 完整使用指南</title>
+    <url>/2026/01/30/tmux-guide/</url>
+    <content><![CDATA[<blockquote>
+<p>本文介绍 tmux 终端复用工具的安装、配置和使用，包括 Oh My Tmux 美化配置和常用操作。</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="#%E4%BB%80%E4%B9%88%E6%98%AF-Tmux">什么是 Tmux</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85-Tmux">安装 Tmux</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5">基础概念</a></li>
+<li><a href="#%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C">常用操作</a></li>
+<li><a href="#Oh-My-Tmux-%E7%BE%8E%E5%8C%96">Oh My Tmux 美化</a></li>
+<li><a href="#%E5%AE%9E%E7%94%A8%E6%8A%80%E5%B7%A7">实用技巧</a></li>
+<li><a href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98">常见问题</a></li>
+</ul>
+<hr>
+<h2 id="什么是-Tmux"><a href="#什么是-Tmux" class="headerlink" title="什么是 Tmux"></a>什么是 Tmux</h2><p>Tmux (Terminal Multiplexer) 是一个终端复用工具，主要功能：</p>
+<p><strong>核心优势：</strong></p>
+<ul>
+<li>会话持久化 - SSH 断开后程序继续运行</li>
+<li>多窗口管理 - 一个终端管理多个会话</li>
+<li>分屏操作 - 同时查看多个任务</li>
+<li>团队协作 - 多人共享同一会话</li>
+</ul>
+<p><strong>适用场景：</strong></p>
+<ul>
+<li>远程服务器管理</li>
+<li>长时间运行任务</li>
+<li>多任务并行操作</li>
+<li>结对编程</li>
+</ul>
+<hr>
+<h2 id="安装-Tmux"><a href="#安装-Tmux" class="headerlink" title="安装 Tmux"></a>安装 Tmux</h2><h3 id="Debian-Ubuntu"><a href="#Debian-Ubuntu" class="headerlink" title="Debian&#x2F;Ubuntu"></a>Debian&#x2F;Ubuntu</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install tmux</span><br></pre></td></tr></table></figure>
+
+<h3 id="CentOS-RHEL"><a href="#CentOS-RHEL" class="headerlink" title="CentOS&#x2F;RHEL"></a>CentOS&#x2F;RHEL</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum install tmux</span><br></pre></td></tr></table></figure>
+
+<h3 id="macOS"><a href="#macOS" class="headerlink" title="macOS"></a>macOS</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">brew install tmux</span><br></pre></td></tr></table></figure>
+
+<h3 id="验证安装"><a href="#验证安装" class="headerlink" title="验证安装"></a>验证安装</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tmux -V</span><br><span class="line"><span class="comment"># 输出示例: tmux 3.3a</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h2><p>Tmux 采用三层结构：</p>
+<p><strong>Session（会话）</strong></p>
+<ul>
+<li>最外层容器</li>
+<li>一个 Session 包含多个 Window</li>
+<li>断开连接后 Session 依然运行</li>
+</ul>
+<p><strong>Window（窗口）</strong></p>
+<ul>
+<li>类似浏览器标签页</li>
+<li>一个 Window 包含多个 Pane</li>
+<li>底部状态栏显示所有 Window</li>
+</ul>
+<p><strong>Pane（面板）</strong></p>
+<ul>
+<li>最小单位</li>
+<li>在一个 Window 内分屏显示</li>
+<li>每个 Pane 是独立的终端</li>
+</ul>
+<hr>
+<h2 id="常用操作"><a href="#常用操作" class="headerlink" title="常用操作"></a>常用操作</h2><h3 id="会话管理"><a href="#会话管理" class="headerlink" title="会话管理"></a>会话管理</h3><p><strong>创建新会话</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建匿名会话</span></span><br><span class="line">tmux</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建命名会话</span></span><br><span class="line">tmux new -s work</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建会话并执行命令</span></span><br><span class="line">tmux new -s monitor -d <span class="string">&#x27;htop&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>查看会话列表</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tmux <span class="built_in">ls</span></span><br><span class="line"><span class="comment"># 或在 tmux 内按：Ctrl+b s</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>连接会话</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 连接最近会话</span></span><br><span class="line">tmux attach</span><br><span class="line"></span><br><span class="line"><span class="comment"># 连接指定会话</span></span><br><span class="line">tmux attach -t work</span><br><span class="line"></span><br><span class="line"><span class="comment"># 简写</span></span><br><span class="line">tmux a -t work</span><br></pre></td></tr></table></figure>
+
+<p><strong>断开会话</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在 tmux 内按：Ctrl+b d</span></span><br><span class="line"><span class="comment"># 或执行命令</span></span><br><span class="line">tmux detach</span><br></pre></td></tr></table></figure>
+
+<p><strong>杀死会话</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 杀死指定会话</span></span><br><span class="line">tmux kill-session -t work</span><br><span class="line"></span><br><span class="line"><span class="comment"># 杀死所有会话</span></span><br><span class="line">tmux kill-server</span><br></pre></td></tr></table></figure>
+
+<p><strong>重命名会话</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在 tmux 外</span></span><br><span class="line">tmux rename-session -t old-name new-name</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 tmux 内按：Ctrl+b $</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="窗口操作"><a href="#窗口操作" class="headerlink" title="窗口操作"></a>窗口操作</h3><p>所有快捷键都以 <strong>Ctrl+b</strong> 开头（称为 Prefix），按完 Prefix 再按功能键。</p>
+<p><strong>窗口管理</strong></p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl+b c</td>
+<td>创建新窗口</td>
+</tr>
+<tr>
+<td>Ctrl+b ,</td>
+<td>重命名当前窗口</td>
+</tr>
+<tr>
+<td>Ctrl+b &amp;</td>
+<td>关闭当前窗口</td>
+</tr>
+<tr>
+<td>Ctrl+b w</td>
+<td>列出所有窗口</td>
+</tr>
+</tbody></table>
+<p><strong>窗口切换</strong></p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl+b 0-9</td>
+<td>切换到指定编号窗口</td>
+</tr>
+<tr>
+<td>Ctrl+b p</td>
+<td>切换到上一个窗口</td>
+</tr>
+<tr>
+<td>Ctrl+b n</td>
+<td>切换到下一个窗口</td>
+</tr>
+<tr>
+<td>Ctrl+b l</td>
+<td>切换到最后使用的窗口</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="面板操作"><a href="#面板操作" class="headerlink" title="面板操作"></a>面板操作</h3><p><strong>面板分割</strong></p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl+b %</td>
+<td>垂直分割（左右）</td>
+</tr>
+<tr>
+<td>Ctrl+b “</td>
+<td>水平分割（上下）</td>
+</tr>
+<tr>
+<td>Ctrl+b x</td>
+<td>关闭当前面板</td>
+</tr>
+</tbody></table>
+<p><strong>面板切换</strong></p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl+b 方向键</td>
+<td>切换到指定方向的面板</td>
+</tr>
+<tr>
+<td>Ctrl+b o</td>
+<td>切换到下一个面板</td>
+</tr>
+<tr>
+<td>Ctrl+b ;</td>
+<td>切换到上次使用的面板</td>
+</tr>
+<tr>
+<td>Ctrl+b q</td>
+<td>显示面板编号</td>
+</tr>
+</tbody></table>
+<p><strong>面板调整</strong></p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl+b Ctrl+方向键</td>
+<td>调整面板大小</td>
+</tr>
+<tr>
+<td>Ctrl+b Alt+方向键</td>
+<td>以5格为单位调整</td>
+</tr>
+<tr>
+<td>Ctrl+b z</td>
+<td>最大化&#x2F;还原当前面板</td>
+</tr>
+<tr>
+<td>Ctrl+b {</td>
+<td>当前面板左移</td>
+</tr>
+<tr>
+<td>Ctrl+b }</td>
+<td>当前面板右移</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="复制模式"><a href="#复制模式" class="headerlink" title="复制模式"></a>复制模式</h3><p>Tmux 内置了强大的复制功能：</p>
+<p><strong>进入复制模式</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Ctrl+b [</span><br></pre></td></tr></table></figure>
+
+<p><strong>复制模式快捷键</strong></p>
+<table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>空格</td>
+<td>开始选择</td>
+</tr>
+<tr>
+<td>Enter</td>
+<td>复制选中内容</td>
+</tr>
+<tr>
+<td>q</td>
+<td>退出复制模式</td>
+</tr>
+<tr>
+<td>&#x2F;</td>
+<td>向下搜索</td>
+</tr>
+<tr>
+<td>?</td>
+<td>向上搜索</td>
+</tr>
+</tbody></table>
+<p><strong>粘贴</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Ctrl+b ]</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Oh-My-Tmux-美化"><a href="#Oh-My-Tmux-美化" class="headerlink" title="Oh My Tmux 美化"></a>Oh My Tmux 美化</h2><p>Oh My Tmux 是一个开箱即用的 tmux 配置框架。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/gpakosz/.tmux.git</span><br><span class="line"><span class="built_in">ln</span> -sf .tmux/.tmux.conf .</span><br><span class="line"><span class="built_in">cp</span> .tmux/.tmux.conf.local .</span><br></pre></td></tr></table></figure>
+
+<h3 id="重新加载配置"><a href="#重新加载配置" class="headerlink" title="重新加载配置"></a>重新加载配置</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在 tmux 内执行</span></span><br><span class="line">Ctrl+b : source-file ~/.tmux.conf</span><br></pre></td></tr></table></figure>
+
+<h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><p><strong>视觉优化</strong></p>
+<ul>
+<li>美化的状态栏</li>
+<li>电池电量显示</li>
+<li>日期时间显示</li>
+<li>窗口活动指示器</li>
+</ul>
+<p><strong>功能增强</strong></p>
+<ul>
+<li>更好的鼠标支持</li>
+<li>优化的复制粘贴</li>
+<li>256色支持</li>
+<li>UTF-8 支持</li>
+</ul>
+<h3 id="自定义配置"><a href="#自定义配置" class="headerlink" title="自定义配置"></a>自定义配置</h3><p>编辑 <code>~/.tmux.conf.local</code> 进行个性化设置。</p>
+<p><strong>常用自定义</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 修改 Prefix 键（默认 Ctrl+b）</span></span><br><span class="line"><span class="built_in">set</span> -g prefix2 C-a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开启鼠标支持</span></span><br><span class="line"><span class="built_in">set</span> -g mouse on</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置历史记录行数</span></span><br><span class="line"><span class="built_in">set</span> -g history-limit 10000</span><br><span class="line"></span><br><span class="line"><span class="comment"># 状态栏刷新间隔（秒）</span></span><br><span class="line"><span class="built_in">set</span> -g status-interval 5</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="实用技巧"><a href="#实用技巧" class="headerlink" title="实用技巧"></a>实用技巧</h2><h3 id="快速工作流"><a href="#快速工作流" class="headerlink" title="快速工作流"></a>快速工作流</h3><p><strong>开发环境模板</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># 创建开发会话</span></span><br><span class="line"></span><br><span class="line">SESSION=<span class="string">&quot;dev&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建会话</span></span><br><span class="line">tmux new-session -d -s <span class="variable">$SESSION</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 窗口1: 编辑器</span></span><br><span class="line">tmux rename-window -t <span class="variable">$SESSION</span>:0 <span class="string">&#x27;editor&#x27;</span></span><br><span class="line">tmux send-keys -t <span class="variable">$SESSION</span>:0 <span class="string">&#x27;vim&#x27;</span> C-m</span><br><span class="line"></span><br><span class="line"><span class="comment"># 窗口2: 服务器</span></span><br><span class="line">tmux new-window -t <span class="variable">$SESSION</span>:1 -n <span class="string">&#x27;server&#x27;</span></span><br><span class="line">tmux send-keys -t <span class="variable">$SESSION</span>:1 <span class="string">&#x27;npm run dev&#x27;</span> C-m</span><br><span class="line"></span><br><span class="line"><span class="comment"># 窗口3: 日志</span></span><br><span class="line">tmux new-window -t <span class="variable">$SESSION</span>:2 -n <span class="string">&#x27;logs&#x27;</span></span><br><span class="line">tmux send-keys -t <span class="variable">$SESSION</span>:2 <span class="string">&#x27;tail -f /var/log/app.log&#x27;</span> C-m</span><br><span class="line"></span><br><span class="line"><span class="comment"># 连接会话</span></span><br><span class="line">tmux attach-session -t <span class="variable">$SESSION</span></span><br></pre></td></tr></table></figure>
+
+<p>保存为 <code>dev-session.sh</code>，然后：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">chmod</span> +x dev-session.sh</span><br><span class="line">./dev-session.sh</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="会话持久化"><a href="#会话持久化" class="headerlink" title="会话持久化"></a>会话持久化</h3><p><strong>使用场景</strong></p>
+<ul>
+<li>SSH 连接不稳定</li>
+<li>需要临时断开但保持任务运行</li>
+<li>系统重启后恢复工作环境</li>
+</ul>
+<p><strong>基本流程</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 创建会话并运行任务</span></span><br><span class="line">tmux new -s task</span><br><span class="line"><span class="comment"># ... 在里面执行任务 ...</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 断开（任务继续运行）</span></span><br><span class="line">Ctrl+b d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. SSH 断开、关闭终端都不影响</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 重新连接</span></span><br><span class="line">tmux attach -t task</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="多人协作"><a href="#多人协作" class="headerlink" title="多人协作"></a>多人协作</h3><p><strong>场景：结对编程、远程协助</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主机创建会话</span></span><br><span class="line">tmux new -s pair</span><br><span class="line"></span><br><span class="line"><span class="comment"># 协作者连接同一会话</span></span><br><span class="line">tmux attach -t pair</span><br></pre></td></tr></table></figure>
+
+<p>注意：</p>
+<ul>
+<li>所有参与者看到相同内容</li>
+<li>任何人的操作都会同步</li>
+<li>需要同一台服务器的访问权限</li>
+</ul>
+<hr>
+<h3 id="批量操作"><a href="#批量操作" class="headerlink" title="批量操作"></a>批量操作</h3><p><strong>同步输入到所有面板</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在 tmux 内按：</span></span><br><span class="line">Ctrl+b : setw synchronize-panes on</span><br><span class="line"></span><br><span class="line"><span class="comment"># 现在所有输入会同步到所有面板</span></span><br><span class="line"><span class="comment"># 适合批量部署、更新服务器</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭同步</span></span><br><span class="line">Ctrl+b : setw synchronize-panes off</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="颜色显示不正常"><a href="#颜色显示不正常" class="headerlink" title="颜色显示不正常"></a>颜色显示不正常</h3><p><strong>解决方案：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在 ~/.bashrc 或 ~/.zshrc 添加</span></span><br><span class="line"><span class="built_in">export</span> TERM=screen-256color</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或在 ~/.tmux.conf 添加</span></span><br><span class="line"><span class="built_in">set</span> -g default-terminal <span class="string">&quot;screen-256color&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="鼠标滚动不工作"><a href="#鼠标滚动不工作" class="headerlink" title="鼠标滚动不工作"></a>鼠标滚动不工作</h3><p><strong>开启鼠标支持：</strong></p>
+<p>编辑 <code>~/.tmux.conf.local</code>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">set</span> -g mouse on</span><br></pre></td></tr></table></figure>
+
+<p>重新加载配置：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tmux source-file ~/.tmux.conf</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="复制内容无法粘贴到系统剪贴板"><a href="#复制内容无法粘贴到系统剪贴板" class="headerlink" title="复制内容无法粘贴到系统剪贴板"></a>复制内容无法粘贴到系统剪贴板</h3><p><strong>macOS 解决方案：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装 reattach-to-user-namespace</span></span><br><span class="line">brew install reattach-to-user-namespace</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 ~/.tmux.conf.local 添加</span></span><br><span class="line"><span class="built_in">set</span> -g default-command <span class="string">&quot;reattach-to-user-namespace -l <span class="variable">$SHELL</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Linux 解决方案：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装 xclip</span></span><br><span class="line"><span class="built_in">sudo</span> apt install xclip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制时使用</span></span><br><span class="line">tmux save-buffer - | xclip -selection clipboard</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="会话意外退出"><a href="#会话意外退出" class="headerlink" title="会话意外退出"></a>会话意外退出</h3><p><strong>原因分析：</strong></p>
+<ul>
+<li>所有窗口都关闭</li>
+<li>执行了 <code>exit</code> 或 Ctrl+d</li>
+<li>系统重启</li>
+</ul>
+<p><strong>预防措施：</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建至少保留一个窗口的会话</span></span><br><span class="line">tmux new -s work</span><br><span class="line"><span class="comment"># 创建备用窗口</span></span><br><span class="line">Ctrl+b c</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或使用插件 tmux-resurrect 自动保存</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Prefix-键冲突"><a href="#Prefix-键冲突" class="headerlink" title="Prefix 键冲突"></a>Prefix 键冲突</h3><p><strong>场景：</strong> Ctrl+b 和其他工具冲突（如 Vim）</p>
+<p><strong>解决方案：</strong></p>
+<p>编辑 <code>~/.tmux.conf.local</code>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 修改 Prefix 为 Ctrl+a</span></span><br><span class="line"><span class="built_in">set</span> -g prefix C-a</span><br><span class="line">unbind C-b</span><br><span class="line"><span class="built_in">bind</span> C-a send-prefix</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="快捷键速查表"><a href="#快捷键速查表" class="headerlink" title="快捷键速查表"></a>快捷键速查表</h2><h3 id="会话操作"><a href="#会话操作" class="headerlink" title="会话操作"></a>会话操作</h3><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tmux new -s name</td>
+<td>创建命名会话</td>
+</tr>
+<tr>
+<td>tmux ls</td>
+<td>列出所有会话</td>
+</tr>
+<tr>
+<td>tmux a -t name</td>
+<td>连接会话</td>
+</tr>
+<tr>
+<td>Ctrl+b d</td>
+<td>断开会话</td>
+</tr>
+<tr>
+<td>Ctrl+b s</td>
+<td>会话列表</td>
+</tr>
+</tbody></table>
+<h3 id="窗口操作-1"><a href="#窗口操作-1" class="headerlink" title="窗口操作"></a>窗口操作</h3><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl+b c</td>
+<td>新建窗口</td>
+</tr>
+<tr>
+<td>Ctrl+b ,</td>
+<td>重命名窗口</td>
+</tr>
+<tr>
+<td>Ctrl+b w</td>
+<td>窗口列表</td>
+</tr>
+<tr>
+<td>Ctrl+b 0-9</td>
+<td>切换窗口</td>
+</tr>
+<tr>
+<td>Ctrl+b &amp;</td>
+<td>关闭窗口</td>
+</tr>
+</tbody></table>
+<h3 id="面板操作-1"><a href="#面板操作-1" class="headerlink" title="面板操作"></a>面板操作</h3><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl+b %</td>
+<td>垂直分割</td>
+</tr>
+<tr>
+<td>Ctrl+b “</td>
+<td>水平分割</td>
+</tr>
+<tr>
+<td>Ctrl+b 方向键</td>
+<td>切换面板</td>
+</tr>
+<tr>
+<td>Ctrl+b z</td>
+<td>最大化面板</td>
+</tr>
+<tr>
+<td>Ctrl+b x</td>
+<td>关闭面板</td>
+</tr>
+</tbody></table>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><table>
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ctrl+b ?</td>
+<td>显示所有快捷键</td>
+</tr>
+<tr>
+<td>Ctrl+b t</td>
+<td>显示时钟</td>
+</tr>
+<tr>
+<td>Ctrl+b :</td>
+<td>命令模式</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p><strong>命名规范</strong></p>
+<ul>
+<li>会话：项目名或任务类型（dev, deploy, monitor）</li>
+<li>窗口：功能描述（editor, server, logs）</li>
+</ul>
+<p><strong>资源管理</strong></p>
+<ul>
+<li>定期清理不用的会话：<code>tmux kill-session -t name</code></li>
+<li>使用 <code>tmux ls</code> 查看活动会话</li>
+<li>避免创建过多嵌套的 tmux</li>
+</ul>
+<p><strong>安全建议</strong></p>
+<ul>
+<li>不要在共享服务器上留敏感信息</li>
+<li>及时断开不用的会话</li>
+<li>注意多人协作时的隐私</li>
+</ul>
+<hr>
+<h2 id="进阶资源"><a href="#进阶资源" class="headerlink" title="进阶资源"></a>进阶资源</h2><p><strong>官方文档</strong></p>
+<ul>
+<li><a href="https://github.com/tmux/tmux/wiki">https://github.com/tmux/tmux/wiki</a></li>
+</ul>
+<p><strong>Oh My Tmux</strong></p>
+<ul>
+<li><a href="https://github.com/gpakosz/.tmux">https://github.com/gpakosz/.tmux</a></li>
+</ul>
+<p><strong>插件管理</strong></p>
+<ul>
+<li>TPM (Tmux Plugin Manager): <a href="https://github.com/tmux-plugins/tpm">https://github.com/tmux-plugins/tpm</a></li>
+</ul>
+<p><strong>推荐插件</strong></p>
+<ul>
+<li>tmux-resurrect: 保存&#x2F;恢复会话</li>
+<li>tmux-continuum: 自动保存</li>
+<li>tmux-yank: 增强复制</li>
+</ul>
+<hr>
+<blockquote>
+<p>文档更新: 2026-01-30</p>
+<p>本文基于实际使用经验整理，涵盖从基础到进阶的常用操作。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>技术教程</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>工具</tag>
+        <tag>Tmux</tag>
+        <tag>终端</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>奇点之后：算力时代的人类位置重排</title>
+    <url>/2026/02/20/%E5%A5%87%E7%82%B9%E4%B9%8B%E5%90%8E-%E7%AE%97%E5%8A%9B%E6%97%B6%E4%BB%A3%E7%9A%84%E4%BA%BA%E7%B1%BB%E4%BD%8D%E7%BD%AE%E9%87%8D%E6%8E%92/</url>
+    <content><![CDATA[<h2 id="一、春节那天，你没看见的那条线"><a href="#一、春节那天，你没看见的那条线" class="headerlink" title="一、春节那天，你没看见的那条线"></a>一、春节那天，你没看见的那条线</h2><p>春节没回老家，一个人关在城市边缘的办公室里，窗外是亮得过分的商业区，远处高楼上挂着一个巨大灯牌：<strong>AGI Bar</strong>。</p>
+<p>你当然知道那只是一块广告牌，但越看越觉得它像一根刻在天上的刻度尺——<br>文明曲线一路往上蹿，到这儿突然拐弯，开始接近垂直。</p>
+<p>所谓“奇点”，对今天的人类，大概就是这种感觉：</p>
+<ul>
+<li>不是科幻片里那种“某一天AI觉醒、宣告统治人类”的戏剧性瞬间；</li>
+<li>而是在极长的一段时间里，技术像水位一样慢慢上涨，你每天都习惯性往下看一眼，觉得“也就那样”；</li>
+<li>某天你忽然发现，水已经涨到胸口，再往前一步就是游泳课了。</li>
+</ul>
+<p>关键的那一刀，是底层前提被换掉了：</p>
+<blockquote>
+<p>过去：<strong>智能是稀缺资源</strong>，好老师、好学校、好公司是稀缺智能的入口；<br>现在：<strong>智能第一次变成“可生产”的工业品</strong>，可以靠石油、煤、电力、阳光去“炼”。</p>
+</blockquote>
+<p>训练一个顶级模型的过程，本质上就是：</p>
+<ul>
+<li>把能源和算力，  </li>
+<li>转换成可以复用、可以复制、可以出租的“外接智力”。</li>
+</ul>
+<p>以前你只能带着一颗脑袋去上班，最豪华的配置是“我 + 一个小团队”。<br>现在的设定变成：</p>
+<ul>
+<li>你可以有一整支不睡觉、不涨工资、不需要意义感的智能体队伍；</li>
+<li>它们可以在你睡觉的时候继续跑任务、翻资料、写代码、做实验。</li>
+</ul>
+<p>一旦承认这一点，很多“老世界的常识”都得重算：</p>
+<ul>
+<li>学历是不是还那么重要？</li>
+<li>职业是不是还按“稳定、体面、有前途”来分？</li>
+<li>国家竞争力是不是还看“人口红利”和“受教育年限”？</li>
+</ul>
+<p>奇点的含义不是“明天世界毁灭”，<br>而是：<strong>用“智能稀缺”建立起来的规则，开始普遍失效了。</strong></p>
+<hr>
+<h2 id="二、200-美金，是人类最后的“智能平等期”"><a href="#二、200-美金，是人类最后的“智能平等期”" class="headerlink" title="二、200 美金，是人类最后的“智能平等期”"></a>二、200 美金，是人类最后的“智能平等期”</h2><p>有个细节挺扎心的。</p>
+<p>当年 ChatGPT Plus 出来的时候：</p>
+<ul>
+<li>20 美金 &#x2F; 月，很多人嫌贵；  </li>
+<li>更高配的 Pro、Max 套餐叠上去到 200 美金，就被骂成“智商税”。</li>
+</ul>
+<p>从消费心理看，这没毛病；<br>但从“可用智能”的角度看，那段时间可能是人类历史上<strong>最平等的一段</strong>：</p>
+<ul>
+<li>你 200，我 200；</li>
+<li>用的是同一代模型、同一条推理链路；</li>
+<li>三线城市的自由职业者、刚毕业的大学生、硅谷基金合伙人，在“能调用的最高级 AI 智能”上，差距就是那 200 美金。</li>
+</ul>
+<p>那会儿的现实是：</p>
+<blockquote>
+<p>刚毕业的学生和上市公司 CEO，在“外接智能”维度上的差距，不超过一份订阅价。</p>
+</blockquote>
+<p>现在这个窗口正在快速合上：</p>
+<ul>
+<li>模型分层：基础款、专业款、机构款、定制款，能力差距越来越大；  </li>
+<li>价格分层：  <ul>
+<li>有人每个月在 AI 上烧几百块；  </li>
+<li>有人在重度使用 Claude Code &#x2F; GPT Code，一月 API 消耗轻松过千上万美金；</li>
+</ul>
+</li>
+<li>使用方式分层：  <ul>
+<li>有人一天聊几句、让它写个周报；  </li>
+<li>有人用几十上百个 Agent 做 7×24 小时的并行探索、策略迭代、监控预警。</li>
+</ul>
+</li>
+</ul>
+<p>未来完全可能出现这种对比：</p>
+<ul>
+<li>A：一个人每月在 AI 上花 10 万美金，调度上千个 Agent 做并行搜索、决策、执行；  </li>
+<li>B：另一个人用免费额度，偶尔让 AI 帮自己润色一句话。</li>
+</ul>
+<p>这不是“谁会不会用 ChatGPT”的问题，而是：</p>
+<blockquote>
+<p><strong>谁有资格、大规模地“燃烧 Token”。</strong></p>
+</blockquote>
+<p>智能一旦能被批量生产，就会立刻阶层化：</p>
+<ul>
+<li>顶级智能不再只是“你懂不懂用”的问题，而是<strong>你买不买得起</strong>；</li>
+<li>200 美金那个阶段，是穷人和富人在智能上的差距最小的时候，过了就不再回来。</li>
+</ul>
+<hr>
+<h2 id="三、算力即权力：新生产资料的马太效应"><a href="#三、算力即权力：新生产资料的马太效应" class="headerlink" title="三、算力即权力：新生产资料的马太效应"></a>三、算力即权力：新生产资料的马太效应</h2><p>如果你拉一个冷血旁观者——比如一只“什么也不在乎”的 AI 龙虾 ——来看现在的局面，它可能会给出这样的结构图：</p>
+<h3 id="1-算力是新的石油"><a href="#1-算力是新的石油" class="headerlink" title="1. 算力是新的石油"></a>1. 算力是新的石油</h3><p>链路大致是：</p>
+<blockquote>
+<p>智能 → 模型 → Token → 算力 → 芯片 &#x2F; 数据中心 → 电力 &#x2F; 供应链</p>
+</blockquote>
+<p>智能在数字世界指数型扩张：场景越多、用量越大、任务越复杂；<br>但算力的供给被物理约束：晶圆厂、光刻机、稀土、冷却、输电，全都不能指数涨。</p>
+<p>所以发生的事是：</p>
+<ul>
+<li><strong>需求指数型上涨，供给线性爬坡</strong>，  </li>
+<li>算力成为这个时代最核心、而且高度集中的生产资料。</li>
+</ul>
+<p>集中在哪里？你很清楚：</p>
+<ul>
+<li>高端芯片：几乎锁在少数几家代工厂和设计公司；  </li>
+<li>云基础设施：集中在少数几家超级云厂商和大型互联网公司；  </li>
+<li>顶级模型：掌握在极少数实验室和巨头手里。</li>
+</ul>
+<p>每一次大规模推理、本质上都是在向这些算力地主交“地租”。</p>
+<h3 id="2-正反馈飞轮"><a href="#2-正反馈飞轮" class="headerlink" title="2. 正反馈飞轮"></a>2. 正反馈飞轮</h3><p>把经济学那句老话套过来：</p>
+<blockquote>
+<p>“有算力者，必将获得更多算力。”</p>
+</blockquote>
+<p>具体机制是：</p>
+<ol>
+<li>算力越多 → 模型更强、效果更好；</li>
+<li>模型更强 → 产品更好、用户更多、收入更高；</li>
+<li>收入更高 → 能买到更多算力；</li>
+<li>更多算力 → 进一步拉开差距。</li>
+</ol>
+<p>这个飞轮一旦转起来，就是标准的马太效应。</p>
+<h3 id="3-制衡机制在失效"><a href="#3-制衡机制在失效" class="headerlink" title="3. 制衡机制在失效"></a>3. 制衡机制在失效</h3><p>现代民主制度背后有个不明说的前提：</p>
+<blockquote>
+<p>资本需要劳动力。</p>
+</blockquote>
+<p>因为需要人，工人有筹码：</p>
+<ul>
+<li>可以罢工；</li>
+<li>可以通过工会谈判；</li>
+<li>可以用选票影响政策。</li>
+</ul>
+<p>而 Agent 正在动摇这个前提：</p>
+<ul>
+<li>即便只替代一部分岗位，“你不干，有 Agent 干”这句话本身就会压低所有劳动力的议价空间；</li>
+<li>劳动者筹码下降 → 政治影响力下降 → 有利于劳动者的政策更难推出；</li>
+<li>财富和算力向少数人集中 → 他们对制度、舆论、监管的影响力更大。</li>
+</ul>
+<p>这是第二个飞轮，方向相反，却同样自我强化。</p>
+<p>当你把这两部分叠在一起，就会得到那句有点刺耳的话：</p>
+<blockquote>
+<p><strong>未来很可能不是“资本 vs 劳动力”，而是“算力拥有者 vs 算力依附者”。</strong></p>
+</blockquote>
+<hr>
+<h2 id="四、技术人在内部已经被“重写”了一次"><a href="#四、技术人在内部已经被“重写”了一次" class="headerlink" title="四、技术人在内部已经被“重写”了一次"></a>四、技术人在内部已经被“重写”了一次</h2><p>如果你想感受这件事的“体感速度”，不如先从程序员的世界看起。</p>
+<h3 id="1-从“协作工具”到“干活主体”"><a href="#1-从“协作工具”到“干活主体”" class="headerlink" title="1. 从“协作工具”到“干活主体”"></a>1. 从“协作工具”到“干活主体”</h3><p>最近几年技术圈内部的经历，大致是这样一条路：</p>
+<ul>
+<li>2022：AI 写几行辅助代码，弥补了 Copilot 一类工具的空间；  </li>
+<li>2023：可以写功能块，但需要你反复提示、改、重跑，像一个“勤奋但愚钝的实习生”；  </li>
+<li>2024：开始能独立拉起子项目，但你要盯着，看它别乱搞；  </li>
+<li>2025：顶级模型开始接管一个项目的大部分开发工作；  </li>
+<li>2026：  <ul>
+<li>你用自然语言描述要做的产品：功能、UI、用户流程；  </li>
+<li>它写出成千上万行代码，自己起服务；  </li>
+<li>自己点页面、跑用例；  </li>
+<li>自己看不爽的地方自己改，然后再测；  </li>
+<li>满意了才把结果端到你面前：“来验收。”</li>
+</ul>
+</li>
+</ul>
+<p>重要的转折是：</p>
+<blockquote>
+<p>你从“写代码的人”，变成了“描述目标 + 审核结果的人”。</p>
+</blockquote>
+<h3 id="2-“智能爆炸”的起点：AI-写-AI"><a href="#2-“智能爆炸”的起点：AI-写-AI" class="headerlink" title="2. “智能爆炸”的起点：AI 写 AI"></a>2. “智能爆炸”的起点：AI 写 AI</h3><p>更关键的一步，是 AI 不再只是帮你写业务代码，而是开始写<strong>下一代 AI 自己的代码</strong>。</p>
+<ul>
+<li>某些实验室已经公开写在技术文档里：<br>新模型的训练系统、调试脚本、部署流程，大量是上一代模型写出来的；</li>
+<li>公司 CEO 出来访谈，轻描淡写地说：<br>“我们公司大部分代码已经是 AI 写的了，人与 AI 的反馈循环在每个月加速。”</li>
+</ul>
+<p>这就是“递归自我提升”的胚胎形态：  </p>
+<blockquote>
+<p>这一代 AI 帮你建好脚手架 →<br>下一代 AI 在更好的脚手架上生长 →<br>迭代间隔越来越短，幅度越来越大。</p>
+</blockquote>
+<p>你过去习惯的“版本号 + changelog”的世界观，已经不足以描述这条曲线。</p>
+<h3 id="3-6～12-个月：端到端接管大部分软件工程"><a href="#3-6～12-个月：端到端接管大部分软件工程" class="headerlink" title="3. 6～12 个月：端到端接管大部分软件工程"></a>3. 6～12 个月：端到端接管大部分软件工程</h3><p>有些人已经在公开场合给出非常具体的时间表：</p>
+<ul>
+<li>6～12 个月内，AI 有能力端到端接管大部分软件工程任务；</li>
+<li>不是只写一点代码，而是：<ul>
+<li>接需求；</li>
+<li>选架构；</li>
+<li>写前后端；</li>
+<li>起环境；</li>
+<li>写测试；</li>
+<li>CI&#x2F;CD；</li>
+<li>甚至写发布用的说明文档。</li>
+</ul>
+</li>
+</ul>
+<p>与此同时，有人已经开始讲下一步——<strong>Prompt → 二进制</strong>：</p>
+<blockquote>
+<p>“当前链路是：源代码 → 编译器 → 二进制 → 执行。<br>我觉得很快会变成：目标描述 → AI 直接生成优化好的二进制 → 执行。<br>中间那一步“写代码”，只是过渡形态。”</p>
+</blockquote>
+<p>对于工程师来说，这意味着：</p>
+<ul>
+<li>你原来视作“核心竞争力”的那部分工作，<br>正在迅速变成机器内部的一个中间过程；</li>
+<li>你如果还把“我会某种语言”当成护城河，<br>这个护城河的水位正在抽干。</li>
+</ul>
+<hr>
+<h2 id="五、工作与教育：边际成本归零之后"><a href="#五、工作与教育：边际成本归零之后" class="headerlink" title="五、工作与教育：边际成本归零之后"></a>五、工作与教育：边际成本归零之后</h2><p>当大量认知劳动的边际成本逼近于零时，一些很不舒服的结论会自然浮现出来。</p>
+<h3 id="1-产出低于电费的那一刻"><a href="#1-产出低于电费的那一刻" class="headerlink" title="1. 产出低于电费的那一刻"></a>1. 产出低于电费的那一刻</h3><p>想象这样的对比：</p>
+<ul>
+<li>一个刚毕业的大学生写一份行业报告，需要一周，成本是：  <ul>
+<li>时间 × 一周；  </li>
+<li>加上房租、通勤、办公场地、管理成本……</li>
+</ul>
+</li>
+<li>一个 Agent 写同样一份报告，需要几分钟：  <ul>
+<li>随手连几条 API；  </li>
+<li>电费不到一块钱。</li>
+</ul>
+</li>
+</ul>
+<p>如果两份报告的质量差距不大，甚至 Agent 更好，那……</p>
+<blockquote>
+<p><strong>这个毕业生一周的劳动，对世界的经济价值确实可能低于电费。</strong></p>
+</blockquote>
+<p>这不是愤青式夸张，而是当“智能边际生产成本趋近于零”之后，必然出现的比较尺度。</p>
+<p>再把这条逻辑链拉长一点：</p>
+<ul>
+<li>Karpathy 说，现在大部分 Agent 的输出都是“slop”：看上去像那么回事，仔细一看全是问题；</li>
+<li>但已有数据表明，Agent 实际可用能力大约每 7 个月翻一倍，最近甚至有缩到 4 个月的趋势。</li>
+</ul>
+<p>“slop”会停留多久？<br>没人能给你保证。</p>
+<h3 id="2-教育窗口期被压缩到离谱"><a href="#2-教育窗口期被压缩到离谱" class="headerlink" title="2. 教育窗口期被压缩到离谱"></a>2. 教育窗口期被压缩到离谱</h3><p>在“智能稀缺”的时代，教育的逻辑很简单：</p>
+<ul>
+<li>用十几二十年把一套知识灌进一个人脑袋里；</li>
+<li>社会为这套知识付工资，知识兑现为职业。</li>
+</ul>
+<p>现在的前提是：</p>
+<ul>
+<li>模型可以在几周训练里吃掉全人类几十年的文本、代码、论文、判例、财报；</li>
+<li>你大学四年学的那点东西，它训练时可能四分钟就扫完了。</li>
+</ul>
+<p>这带来一个很残忍的现实：</p>
+<blockquote>
+<p><strong>传统意义上的“学一门专业，吃一辈子饭”的时代，正在快速消失。</strong></p>
+</blockquote>
+<p>这并不意味着教育不重要，而是：</p>
+<ul>
+<li>教育的价值重心，得从“教知识”，<br>转到“重塑思维方式 + 训练与智能协作的能力 + 让你看清自己到底想要什么”。</li>
+</ul>
+<p>如果还按旧剧本——<br>“考好大学 → 找稳定专业 → 等退休”，<br>那你整套路径极有可能在你毕业前就开始过期。</p>
+<hr>
+<h2 id="六、奇点之后，真正追不上的到底是什么？"><a href="#六、奇点之后，真正追不上的到底是什么？" class="headerlink" title="六、奇点之后，真正追不上的到底是什么？"></a>六、奇点之后，真正追不上的到底是什么？</h2><p>在各种“窗口正在关闭”“你再不上车就废了”的话术里，有必要拆一下：<strong>到底啥东西真的是追不上的？</strong></p>
+<h3 id="1-工具差距：半年-vs-半小时"><a href="#1-工具差距：半年-vs-半小时" class="headerlink" title="1. 工具差距：半年 vs 半小时"></a>1. 工具差距：半年 vs 半小时</h3><p>假设有人半年前就开始用比较成熟的 Agent 系统，<br>你是半年前放弃，现在才入场。</p>
+<ul>
+<li>从“会不会用工具”这个维度看，差距就是半年；  </li>
+<li>但工具本身在不断压缩这个差距 ——<br>从 Second-Me 时代要折腾几天部署，到现在 OpenClaw 半小时起盘，一个人都能搞出来 AI 搭子。</li>
+</ul>
+<p><strong>工具差距是实在的，但可以被压缩。</strong></p>
+<h3 id="2-认知差距：高度可迁移"><a href="#2-认知差距：高度可迁移" class="headerlink" title="2. 认知差距：高度可迁移"></a>2. 认知差距：高度可迁移</h3><p>先行者这半年里：</p>
+<ul>
+<li>用 Agent 把自己的工作拆了一轮；  </li>
+<li>踩了大量坑，试过决策、监控、内容生产、自动化；  </li>
+<li>偶尔写篇长文，讲讲经验和踩坑。</li>
+</ul>
+<p>这些东西不是只在他脑子里，会：</p>
+<ul>
+<li>变成文章、播客、视频、课程；  </li>
+<li>被你反复阅读、模仿、改造成自己的方法论。</li>
+</ul>
+<p><strong>认知差距是存在的，但可以通过学习和实践迁移。</strong></p>
+<h3 id="3-真正难追的是“社会资本与位置”"><a href="#3-真正难追的是“社会资本与位置”" class="headerlink" title="3. 真正难追的是“社会资本与位置”"></a>3. 真正难追的是“社会资本与位置”</h3><p>最难追的部分反而是被经常忽略的：</p>
+<ul>
+<li>提前积累起来的流量和受众；</li>
+<li>行业里的地位、话语权；</li>
+<li>在正确时间上牌桌、占到关键坑位；</li>
+<li>提前押准方向拿到的资本、资源、人脉。</li>
+</ul>
+<p>这些东西具有极强的<strong>正反馈</strong>：</p>
+<ul>
+<li>有一点势能 → 更容易拿到资源 → 更容易做大项目 → 得到更多势能；</li>
+<li>后来者想复制这条路径，往往要付出的成本是指数级的。</li>
+</ul>
+<p>现在很多“奇点焦虑”的文案，其实干的是：</p>
+<blockquote>
+<p><strong>拿社会资本的先发优势，包装成“认知上的绝对压制”。</strong></p>
+</blockquote>
+<p>拆开看之后，比较诚实的说法应该是：</p>
+<ul>
+<li>你确实会在话语权、资源、位次上被拉开差距；  </li>
+<li>但这不等于“你注定变成认知残障”；  </li>
+<li>你能做的是：  <ul>
+<li>在自己的约束下，把<strong>工具与认知拉到“足够好”</strong>；  </li>
+<li>把有限的算力和时间，砸在对你而言最有杠杆的地方。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="七、人和机器：价值不等于产出"><a href="#七、人和机器：价值不等于产出" class="headerlink" title="七、人和机器：价值不等于产出"></a>七、人和机器：价值不等于产出</h2><p>还有一个更底层但被经常偷换的前提：</p>
+<blockquote>
+<p>“人的价值 &#x3D; 人的产出。”</p>
+</blockquote>
+<p>只要把价值和“生产力”绑死，你在 AI 面前永远没法不焦虑，因为在产出这个维度，人类注定打不过机器。</p>
+<p>但你真要承认这个等号吗？</p>
+<ul>
+<li>吃饭、散步、发呆、看夕阳；</li>
+<li>和朋友聊天、陪孩子长大；</li>
+<li>发一条只自己觉得好笑的动态；</li>
+<li>夜里走在空无一人的桥上，突然觉得这城市其实也没那么讨厌。</li>
+</ul>
+<p>这些东西价值几何？用什么算？算在谁头上？</p>
+<p>当你开始不耐烦地问“这有什么用”的时候，<br>其实已经在默认：<strong>人只是生产力机器，人活着就是为了“提高效率”。</strong></p>
+<p>在一个“执行成本趋近于零”的世界里，<br>真正稀缺的东西，反而变成了：</p>
+<ul>
+<li>欲望本身（你到底想要什么）；</li>
+<li>审美、趣味、偏好；</li>
+<li>愿意为之浪费时间、甚至付出代价的那点东西。</li>
+</ul>
+<p>AI 可以无限接单，解决所有“明确提出的问题”。<br>但<strong>提出问题的人是谁</strong>，这个权力，它代替不了。</p>
+<hr>
+<h2 id="八、大事正在发生，但大多数人还在原地生活"><a href="#八、大事正在发生，但大多数人还在原地生活" class="headerlink" title="八、大事正在发生，但大多数人还在原地生活"></a>八、大事正在发生，但大多数人还在原地生活</h2><p>现在有一个非常诡异的割裂：</p>
+<p>一边，是搞模型的人说：</p>
+<ul>
+<li>“我 90% 确信，2035 年前会出现‘数据中心里的天才国度’，甚至一两年内就能看到影子”；  </li>
+<li>“模型已经从聪明高中生进化到可以完成博士级工作”；  </li>
+<li>“说十年内达不到 AGI，我觉得才是疯狂”。</li>
+</ul>
+<p>另外一边，你打开朋友圈 &#x2F; 抖音：</p>
+<ul>
+<li>油价、房价、考公、股市、鸡娃；  </li>
+<li>对 AI 的理解停留在“写工作总结、写周报挺好用”。</li>
+</ul>
+<p>很多搞 AI 的人承认：<br>自己对外用了两套话术。</p>
+<ul>
+<li>给圈内人：  <ul>
+<li>讨论参数规模、训练技巧、对齐、安全、奇点时间表；  </li>
+<li>真正会承认“我们自己都被吓到了”；</li>
+</ul>
+</li>
+<li>给圈外人：  <ul>
+<li>平静、礼貌、“看长远会很好”“不用太焦虑”；  </li>
+<li>避免让人觉得“这货脑子坏掉了”。</li>
+</ul>
+</li>
+</ul>
+<p>这就形成 Matt 那个比喻：</p>
+<blockquote>
+<p>现在像 2020 年 2 月：<br>少数人已经看到墙角有一团火，<br>大多数人还在排队等位、准备出国旅游。</p>
+</blockquote>
+<p>差别在于：</p>
+<ul>
+<li>那次是病毒，你能看到“封城”“停课”“戴口罩”；  </li>
+<li>这次是智能体，它在云里，对你“悄无声息地生效” ——<br>直到有一天，你发现自己和整个系统之间的权力关系已经改变。</li>
+</ul>
+<hr>
+<h2 id="九、在“天才国度”的边缘，个人到底能做什么？"><a href="#九、在“天才国度”的边缘，个人到底能做什么？" class="headerlink" title="九、在“天才国度”的边缘，个人到底能做什么？"></a>九、在“天才国度”的边缘，个人到底能做什么？</h2><p>把情绪撇开，给自己列一个更务实的清单。</p>
+<h3 id="1-接受现实：它已经近到能伤到你"><a href="#1-接受现实：它已经近到能伤到你" class="headerlink" title="1. 接受现实：它已经近到能伤到你"></a>1. 接受现实：它已经近到能伤到你</h3><p>如果你还在“等它成熟再说”的心态，那基本已经是在放弃这局。</p>
+<p>你不一定要去卷底层模型训练，<br>但至少可以做这几件事：</p>
+<ul>
+<li>搭一套自己的 AI 工作环境，而不是只在浏览器里偶尔玩玩网页版；  </li>
+<li>把你日常工作拆开，看哪些环节可以交给 Agent 做：  <ul>
+<li>信息收集、整理、总结；  </li>
+<li>简单决策前的分析和对比；  </li>
+<li>重复性高、规则稳定的流程；</li>
+</ul>
+</li>
+<li>养成一个习惯：  <ul>
+<li><strong>任何重复超过三次的认知劳动，先问一句“能不能 Agent 接手？”</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="2-把自己从“算力贫民”挪到“算力中产”"><a href="#2-把自己从“算力贫民”挪到“算力中产”" class="headerlink" title="2. 把自己从“算力贫民”挪到“算力中产”"></a>2. 把自己从“算力贫民”挪到“算力中产”</h3><p>用你的配置来说就是：</p>
+<ul>
+<li>有一套像 OpenClaw 这样的本地 Agent OS，而不是只靠云上的聊天框；  </li>
+<li>有几条固定的“智能流水线”：  <ul>
+<li>读文章→自动抓→本地存档→生成笔记草稿；  </li>
+<li>项目管理→状态汇总→风险预警；  </li>
+<li>代码 &#x2F; 配置变更→自动 review→生成 changelog。</li>
+</ul>
+</li>
+</ul>
+<p>目标不是“追上大厂”，<br>而是在自己可控的范围内，尽量多掌握一些<strong>自用算力 + 自有工具链</strong>。</p>
+<h3 id="3-想清楚你要扮演什么角色"><a href="#3-想清楚你要扮演什么角色" class="headerlink" title="3. 想清楚你要扮演什么角色"></a>3. 想清楚你要扮演什么角色</h3><p>把那句有点俗的话再说一遍：</p>
+<blockquote>
+<p>未来活得比较舒服的，大概还是那几种人：  </p>
+<ul>
+<li>能熟练驱动大模型和 Agent 的技术 + 业务复合型；  </li>
+<li>在某个垂直领域已经站到前排，并用 AI 放大自己的人；  </li>
+<li>有资本、又能看懂局势，把算力配置在关键点上的人。</li>
+</ul>
+</blockquote>
+<p>你不一定要成为其中任何一类的头部，<br>但要避免把自己锁定在：</p>
+<ul>
+<li>完全由别人搭好的智能系统来决定你看到什么、做什么、赚多少钱、怎么花。</li>
+</ul>
+<p>你可以不当“掌舵者”，<br>但尽量别做“全程闭眼坐在船舱里的那个人”。</p>
+<h3 id="4-把“每天一小时”当成最小诚意"><a href="#4-把“每天一小时”当成最小诚意" class="headerlink" title="4. 把“每天一小时”当成最小诚意"></a>4. 把“每天一小时”当成最小诚意</h3><p>这句话可以写死：</p>
+<blockquote>
+<p><strong>每天拿出一小时，只做一件事：实验 AI。</strong></p>
+</blockquote>
+<p>不是刷文章，不是看别人用，而是自己上手：</p>
+<ul>
+<li>把今天最花时间的一项工作，<br>尝试交给 AI &#x2F; Agent 做一遍；  </li>
+<li>不断换不同的问法、约束、工具组合，<br>看看你能把这件事外包到什么程度。</li>
+</ul>
+<p>坚持三个月，你对这波变革的体感，会和周围 99% 的人不一样。</p>
+<hr>
+<h2 id="十、结语：规则变了，轮到你重新选立场"><a href="#十、结语：规则变了，轮到你重新选立场" class="headerlink" title="十、结语：规则变了，轮到你重新选立场"></a>十、结语：规则变了，轮到你重新选立场</h2><p>把你刷到的那些句子串在一起：</p>
+<ul>
+<li>“我们，已经迈过奇点。”  </li>
+<li>“算力即权力。”  </li>
+<li>“程序员只剩 6 个月。”  </li>
+<li>“数据中心里的天才国度快来了。”</li>
+</ul>
+<p>听多了确实容易让人要么瘫掉，要么上头。</p>
+<p>但把所有细节合在一起看，其实更像是在提醒你：</p>
+<ol>
+<li><p><strong>游戏规则真的在变，而且变得比你习惯的节奏快。</strong><br>智能从稀缺资源变成可生产的基础设施，<br>很多旧秩序会自然解体。</p>
+</li>
+<li><p><strong>你仍然有一点点主动权。</strong><br>工具和认知的差距，可以通过学习和实践压缩；<br>真正难追的是社会资本与平台位置，而不是智商。</p>
+</li>
+<li><p><strong>你的立场，不是自动决定的。</strong><br>你可以选择把自己当作系统中的一个可替代节点，<br>也可以选择至少掌握一部分算力和 Agent，<br>在自己的世界里多争取一点话语权。</p>
+</li>
+</ol>
+<p>奇点不会给你发开服公告。<br>现在它已经安静地过去了，<br>剩下的问题，不再是“会不会来”，而是：</p>
+<blockquote>
+<p><strong>在这个新游戏里，你打算站在哪一边？</strong></p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>思考</category>
+        <category>AI</category>
+      </categories>
+      <tags>
+        <tag>奇点</tag>
+        <tag>算力</tag>
+        <tag>AGI</tag>
+        <tag>智能体</tag>
+      </tags>
+  </entry>
+</search>

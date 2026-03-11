@@ -1,0 +1,243 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记 | Mufan's Blog</title><meta name="author" content="mufan"><meta name="copyright" content="mufan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="很多人装完 OpenClaw（俗称小龙虾）的第一反应是：这玩意儿怎么用？ 你可能看着那个黑乎乎的终端窗口，或者 Telegram 里那个半天不蹦出一个词的机器人，心里犯嘀咕：这和 ChatGPT 有什么区别？为什么我还要费劲巴拉地折腾服务器？ 我花了半个月时间，烧了 500 美金，把 OpenClaw 从“装上就吃灰”折腾成了真能干活的 AI 员工。今天这篇长文，不聊虚的跑分，只聊工程实战：如何给">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记">
+<meta property="og:url" content="https://mu-fan-2020.github.io/2026/02/20/openclaw-qwen-agent-team/index.html">
+<meta property="og:site_name" content="Mufan&#39;s Blog">
+<meta property="og:description" content="很多人装完 OpenClaw（俗称小龙虾）的第一反应是：这玩意儿怎么用？ 你可能看着那个黑乎乎的终端窗口，或者 Telegram 里那个半天不蹦出一个词的机器人，心里犯嘀咕：这和 ChatGPT 有什么区别？为什么我还要费劲巴拉地折腾服务器？ 我花了半个月时间，烧了 500 美金，把 OpenClaw 从“装上就吃灰”折腾成了真能干活的 AI 员工。今天这篇长文，不聊虚的跑分，只聊工程实战：如何给">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mu-fan-2020.github.io/img/favicon.png">
+<meta property="article:published_time" content="2026-02-20T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-02-20T08:00:18.146Z">
+<meta property="article:author" content="mufan">
+<meta property="article:tag" content="Agent Team">
+<meta property="article:tag" content="OpenClaw">
+<meta property="article:tag" content="Qwen3.5-Plus">
+<meta property="article:tag" content="工程实践">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mu-fan-2020.github.io/img/favicon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记",
+  "url": "https://mu-fan-2020.github.io/2026/02/20/openclaw-qwen-agent-team/",
+  "image": "https://mu-fan-2020.github.io/img/favicon.png",
+  "datePublished": "2026-02-20T08:00:00.000Z",
+  "dateModified": "2026-02-20T08:00:18.146Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "mufan",
+      "url": "https://mu-fan-2020.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://mu-fan-2020.github.io/2026/02/20/openclaw-qwen-agent-team/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      if ($loadingBox.classList.contains('loaded')) return
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+
+  if (document.readyState === 'complete') {
+    preloader.endLoading()
+  } else {
+    window.addEventListener('load', preloader.endLoading)
+    document.addEventListener('DOMContentLoaded', preloader.endLoading)
+    // Add timeout protection: force end after 7 seconds
+    setTimeout(preloader.endLoading, 7000)
+  }
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/covers/desk-1.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Mufan's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-02-20T08:00:00.000Z" title="发表于 2026-02-20 16:00:00">2026-02-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-02-20T08:00:18.146Z" title="更新于 2026-02-20 16:00:18">2026-02-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/Agent/">Agent</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>很多人装完 OpenClaw（俗称小龙虾）的第一反应是：这玩意儿怎么用？</p>
+<p>你可能看着那个黑乎乎的终端窗口，或者 Telegram 里那个半天不蹦出一个词的机器人，心里犯嘀咕：这和 ChatGPT 有什么区别？为什么我还要费劲巴拉地折腾服务器？</p>
+<p>我花了半个月时间，烧了 500 美金，把 OpenClaw 从“装上就吃灰”折腾成了真能干活的 AI 员工。今天这篇长文，不聊虚的跑分，只聊工程实战：如何给它搭工位、注灵魂，最后把它升级成一支 7×24 小时全自动运行的 AI 工程师团队。</p>
+<h3 id="核心心态：它不是聊天框，是你的远程同事"><a href="#核心心态：它不是聊天框，是你的远程同事" class="headerlink" title="核心心态：它不是聊天框，是你的远程同事"></a>核心心态：它不是聊天框，是你的远程同事</h3><p>在动手之前，我们先切换一下心态：不要把 OpenClaw 当成一个 AI 助手，把它想象成你刚招的一个远程员工。</p>
+<p>人入职了，但工位还没搭好，它现在什么都干不了。你得给它准备电脑（服务器）、选好大脑（模型）、配好网络和工具，最重要的是，你得交代清楚你是谁、你的工作流是什么。</p>
+<h3 id="第一部分：给-AI-员工搭个像样的工位"><a href="#第一部分：给-AI-员工搭个像样的工位" class="headerlink" title="第一部分：给 AI 员工搭个像样的工位"></a>第一部分：给 AI 员工搭个像样的工位</h3><h4 id="1-硬件与大脑的选择"><a href="#1-硬件与大脑的选择" class="headerlink" title="1. 硬件与大脑的选择"></a>1. 硬件与大脑的选择</h4><p>首先，服务器建议直接买海外的（香港、新加坡等），内存 8G 起步。别省这几百块，跑浏览器和自动化脚本极其吃内存，2G 的机器基本上一跑就卡死。</p>
+<p>关于“大脑”，如果你预算无限，Claude Opus 4.6 当然是最强的。但我最近的实战发现，<strong>Qwen3.5-Plus</strong> 才是真正的性价比之神。它采用了极致稀疏的 MoE 架构，智商在线且速度极快。最重要的是，它是开源的，API 价格极低，适合我们这种需要 24 小时高频调用的自治系统。</p>
+<h4 id="2-网络管线：让-AI-真正看懂世界"><a href="#2-网络管线：让-AI-真正看懂世界" class="headerlink" title="2. 网络管线：让 AI 真正看懂世界"></a>2. 网络管线：让 AI 真正看懂世界</h4><p>一个只会“搜索”的 AI 是没法干活的。我为它配置了四层网络能力：</p>
+<ul>
+<li><strong>Brave Search</strong>：基础搜索。</li>
+<li><strong>jina.ai Reader</strong>：它能把复杂的网页转换成 AI 读起来最舒服的 Markdown 格式，甚至能绕过一些付费墙。</li>
+<li><strong>浏览器层级（L0-L3）</strong>：从无头浏览器到截图视觉识别。当遇到需要登录或者滑块验证码时，我配置了 <strong>KasmVNC</strong>。这让你可以随时接管 AI 的屏幕，帮它手动过个验证，然后挥挥手让它继续干活。</li>
+</ul>
+<h4 id="3-文件流转：让成果走进你的文件夹"><a href="#3-文件流转：让成果走进你的文件夹" class="headerlink" title="3. 文件流转：让成果走进你的文件夹"></a>3. 文件流转：让成果走进你的文件夹</h4><p>AI 写完的代码或素材，躺在远程服务器里没用。我推荐用 <strong>rclone</strong> 把服务器文件夹直接挂载到本地 Mac&#x2F;PC 的 Finder 里。配合 <strong>File Browser</strong>，你甚至可以在手机浏览器里随时查看它昨晚通宵写的代码。这种“所见即所得”的体验，是把 AI 嵌入工作流的关键。</p>
+<h3 id="第二部分：注入灵魂——SOUL-md-与入职培训"><a href="#第二部分：注入灵魂——SOUL-md-与入职培训" class="headerlink" title="第二部分：注入灵魂——SOUL.md 与入职培训"></a>第二部分：注入灵魂——SOUL.md 与入职培训</h3><p>很多人的 AI 说话像复读机，是因为你没给它“灵魂”。</p>
+<p>在 OpenClaw 里，有一个核心文件叫 <code>SOUL.md</code>。我在这里面写明了：它是我的同事，不是讨好者。它可以有自己的立场，甚至可以“拦着我”——如果我提的需求明显有坑，它必须直接指出来。</p>
+<p>更进阶的操作是<strong>入职培训</strong>。我把我积累了几年的 Obsidian 知识库整个同步给它，让它读一遍。它读完后，竟然推测出了我完整的人际关系和性格特点。这种“被 AI 深度理解”的感觉非常奇妙，从此之后，我提一个模糊的需求，它都能根据我的历史习惯精准接单。</p>
+<h3 id="第三部分：从“聊天”到“自治”——Qwen3-5-Plus-2-0-系统"><a href="#第三部分：从“聊天”到“自治”——Qwen3-5-Plus-2-0-系统" class="headerlink" title="第三部分：从“聊天”到“自治”——Qwen3.5-Plus 2.0 系统"></a>第三部分：从“聊天”到“自治”——Qwen3.5-Plus 2.0 系统</h3><p>传统的 AI 编程太“粘人”：你得盯着它，它改错一行你就得纠正。</p>
+<p>为了解决这个问题，我跑通了一套“自治开发系统”。它的核心逻辑是：<strong>不要让 AI 记在脑子里，要让它记在文件里。</strong></p>
+<p>我把开发过程变成了“轮班工人”状态机，依赖四个支点：</p>
+<ol>
+<li><strong>feature_list.json</strong>：这是工单，记录了所有待办任务。</li>
+<li><strong>progress.txt</strong>：交接日志。</li>
+<li><strong>CLAUDE.md</strong>：行为准则。</li>
+<li><strong>init.sh</strong>：环境自检脚本。</li>
+</ol>
+<p>配合一个 <code>run_autonomy.py</code> 脚本，AI 会进入无限循环：读取任务 -&gt; 执行（调用 Qwen3.5-Plus）-&gt; 自动跑测试 -&gt; 成功则更新工单，失败则回滚 Git 并记录日志。</p>
+<p>有了这套系统，你洗澡前扔个大需求给它，第二天起来，它可能已经自发进行了 50 轮迭代，文件夹里已经躺好了跑通的代码。</p>
+<h3 id="第四部分：Agent-Team-3-0——从一个人到一支团队"><a href="#第四部分：Agent-Team-3-0——从一个人到一支团队" class="headerlink" title="第四部分：Agent Team 3.0——从一个人到一支团队"></a>第四部分：Agent Team 3.0——从一个人到一支团队</h3><p>当项目复杂度提升（比如要同时写前端 UI、后端接口和自动化测试）时，单线程的 AI 会顾此失失彼。这时就需要开启 <strong>Agent Team</strong> 模式。</p>
+<p>在 3.0 架构中，我构建了一个微型软件公司：</p>
+<ul>
+<li><strong>Lead Agent (CTO)</strong>：负责读文档、拆任务、分派工作。它不写代码，只看架构和 Review。</li>
+<li><strong>@backend-integrator</strong>：只管 Python 和数据库，上下文极其干净。</li>
+<li><strong>@frontend-polisher</strong>：专注 UI 和交互。</li>
+<li><strong>@qa-engineer</strong>：它就像个“找茬的”，负责跑测试。如果测试挂了，它不会自己乱修，而是把报错甩给后端：“你接口 500 了，去查配置。”</li>
+</ul>
+<p>这种角色分工让协作变得极其丝滑。后端在写接口的同时，前端正在优化加载动画，QA 坐在旁边实时反馈。这已经不是在用工具，而是在管理一个团队。</p>
+<h3 id="第五部分：安全与踩坑——别让-AI-把自己改死"><a href="#第五部分：安全与踩坑——别让-AI-把自己改死" class="headerlink" title="第五部分：安全与踩坑——别让 AI 把自己改死"></a>第五部分：安全与踩坑——别让 AI 把自己改死</h3><p>实战中最大的坑是：<strong>AI 会把自己改死。</strong></p>
+<p>AI 有时候会产生幻觉，去修改 OpenClaw 的配置文件，结果改错一个参数，程序重启后就挂了。</p>
+<ul>
+<li><strong>建议 1</strong>：配置完成后，关掉自动重启。</li>
+<li><strong>建议 2</strong>：修改底层配置这种重活，交给专职的命令行工具（如 Claude Code），而不是让 Agent 在聊天框里自我修改。</li>
+<li><strong>建议 3</strong>：善用 <code>steer</code> 模式。这能让你在 AI 执行长任务（比如搜 10 个网页）中途实时喊停或调整方向，而不用干等。</li>
+</ul>
+<h3 id="结语：先有工作流，再有-AI-同事"><a href="#结语：先有工作流，再有-AI-同事" class="headerlink" title="结语：先有工作流，再有 AI 同事"></a>结语：先有工作流，再有 AI 同事</h3><p>很多人装完 OpenClaw 觉得没用，本质上是因为自己没有明确的工作流。</p>
+<p>OpenClaw 就像一个能力极强的实习生，如果你不给它布置活，它只能在工位上发呆。先搞清楚你手头哪些活是可以标准化的（比如写爬虫、整理素材、跑单元测试），再用这套系统去放大。</p>
+<p>这套 OpenClaw + Qwen3.5-Plus 的组合，让我第一次感觉到：全自动 AI 开发不再是实验室里的 Demo，而是真正能帮我 24 小时守着工位、不断产出的生产力系统。</p>
+<p>如果你也想拥有一支不拿工资、不喝咖啡、只吃 Token 的全栈工程师团队，现在就是最好的入场时机。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://mu-fan-2020.github.io">mufan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://mu-fan-2020.github.io/2026/02/20/openclaw-qwen-agent-team/">https://mu-fan-2020.github.io/2026/02/20/openclaw-qwen-agent-team/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://mu-fan-2020.github.io" target="_blank">Mufan's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/OpenClaw/">OpenClaw</a><a class="post-meta__tags" href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/">工程实践</a><a class="post-meta__tags" href="/tags/Qwen3-5-Plus/">Qwen3.5-Plus</a><a class="post-meta__tags" href="/tags/Agent-Team/">Agent Team</a></div><div class="post-share"><div class="social-share" data-image="/img/favicon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/02/20/ai-rss-and-x-topic-skills/" title="不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill</div></div><div class="info-2"><div class="info-item-1">在 AI 领域，信息的半衰期极短。作为一名内容创作者或技术观察者，每天醒来面对的往往是排山倒海的信息量。为了缓解这种“信息焦虑”和“选题焦虑”，我并没有去订阅更多的公众号，而是决定利用 AI 为自己量身定制两个自动化工具：一个是基于 Karpathy 推荐信源的 RSS 日报 Skill，另一个是专治收藏夹吃灰的 X（Twitter）选题 Skill。 这篇文章将系统梳理这两个工具的设计思路、技术实现以及我在迭代过程中的踩坑经验。 第一部分：RSS 日报 Skill——对接一手信息的“降噪漏斗”信息排泄链的问题在信息传播中存在一个“信息排泄链”现象：源头信息经过层层翻译、转述、加工，到达受众手中时往往已经丢失了核心细节，甚至充满了误读。为了绕开链路末端的“残渣”，我决定直接对接一手信息源。 机会来自于 Karpathy（OpenAI 联合创始人）推荐的 92 个高质量技术 RSS 订阅源。这些源包含了顶级研究者和博主的个人站点，是真正的 AI 资讯原产地。但问题在于，没人能每天手动刷完 90 多个博客。 需求与设计逻辑我给这个 Skill 定下了 5 个核心需求：支持时间窗口设置...</div></div></div></a><a class="pagination-related" href="/2026/02/20/openclaw-agent-system-hardcore/" title="硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统</div></div><div class="info-2"><div class="info-item-1">随着大模型技术的普惠，构建一个 Agent 原型已经变得异常简单：几行代码调用 LLM，配合一个简单的 ReAct 循环就能跑起来。但在真实的工程实践中，如何让 Agent 在多渠道高并发输入下不乱套？如何处理 LLM 不稳定的上下文限制和 API 故障？如何保证高权限工具调用的安全性？ OpenClaw（原 Clawdbot）作为一个面向多渠道的桌面 Agent 操作系统，其设计中蕴含了大量解决上述“生产级难题”的工程智慧。本文将深入拆解 OpenClaw 的架构设计、调度逻辑、容错机制以及记忆体系，探讨如何构建一套真正稳健、可落地的 Agent 系统。 状态分离：Agent 的“工作室”逻辑在工程设计之初，首要解决的是数据存储的组织方式。OpenClaw 提出了一个非常清晰的拆分思路：将 Agent 的数据分为工作区（Workspace）和状态区（State）。  工作区（Workspace）：存放 Agent 的行为指令（AGENTS.md）和性格设定（SOUL.md）。这部分数据是“逻辑本体”，可以被分发、版本控制，甚至方便地迁移到其他机器。 状态区（State）：包括敏...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/02/20/openclaw-agent-system-hardcore/" title="硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-20</div><div class="info-item-2">硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统</div></div><div class="info-2"><div class="info-item-1">随着大模型技术的普惠，构建一个 Agent 原型已经变得异常简单：几行代码调用 LLM，配合一个简单的 ReAct 循环就能跑起来。但在真实的工程实践中，如何让 Agent 在多渠道高并发输入下不乱套？如何处理 LLM 不稳定的上下文限制和 API 故障？如何保证高权限工具调用的安全性？ OpenClaw（原 Clawdbot）作为一个面向多渠道的桌面 Agent 操作系统，其设计中蕴含了大量解决上述“生产级难题”的工程智慧。本文将深入拆解 OpenClaw 的架构设计、调度逻辑、容错机制以及记忆体系，探讨如何构建一套真正稳健、可落地的 Agent 系统。 状态分离：Agent 的“工作室”逻辑在工程设计之初，首要解决的是数据存储的组织方式。OpenClaw 提出了一个非常清晰的拆分思路：将 Agent 的数据分为工作区（Workspace）和状态区（State）。  工作区（Workspace）：存放 Agent 的行为指令（AGENTS.md）和性格设定（SOUL.md）。这部分数据是“逻辑本体”，可以被分发、版本控制，甚至方便地迁移到其他机器。 状态区（State）：包括敏...</div></div></div></a><a class="pagination-related" href="/2026/02/17/openclaw-telegram-topics-concurrency/" title="OpenClaw 实战：如何在 Telegram 实现多任务并发处理"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-17</div><div class="info-item-2">OpenClaw 实战：如何在 Telegram 实现多任务并发处理</div></div><div class="info-2"><div class="info-item-1">不少同学在使用 OpenClaw 时都会遇到一个痛点：机器人处理任务时只能“排队”，如果一个任务卡住了，后面的对话就全得等着。其实，OpenClaw 本身就是一个强大的“并发任务引擎”，关键在于你如何利用 Sessions。 在 Telegram 环境下，最简单且优雅的实现方式就是利用 Topics (话题) 功能。 核心思路：一个 Topic &#x3D; 一个独立 SessionOpenClaw 的并发能力建立在 Session 之上：  一条 Session &#x3D; 一条独立任务流（拥有独立的上下文）。 多个 Session &#x3D; OpenClaw 能够同时处理多条互不干扰的任务。  通过在 Telegram 群组中开启 Topics 模式，每一个 Topic 都会被 OpenClaw 识别为独立的 Session。这意味着你可以在同一个群里开辟多条并行车道。 场景规划建议为了让工作流更清晰，建议在群组中至少创建以下三个 Topic：  #Chat：日常闲聊，上下文可以自由发散，不影响正式工作。 #Work：专门办正事，只讨论具体任务和指令。 #Feed：用于...</div></div></div></a><a class="pagination-related" href="/2026/02/02/openclaw-architecture-analysis/" title="OpenClaw 架构原理深度解析"><img class="cover" src="/img/covers/openclaw-architecture.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-02</div><div class="info-item-2">OpenClaw 架构原理深度解析</div></div><div class="info-2"><div class="info-item-1"> 深入剖析 OpenClaw 个人 AI 助手平台的架构设计，探索本地优先、多渠道、跨平台的技术实现原理。    目录 引言 架构总览 Gateway 控制平面详解 Pi Agent 与多渠道接入 会话模型与工具系统 安全模型与远程访问 Skills 系统 总结   引言在人工智能飞速发展的今天，个人AI助手已成为提升效率、简化生活的重要工具。OpenClaw 正是这样一个旨在赋能用户，构建属于自己的、高度可定制化个人AI助手的平台。它不仅仅是一个简单的AI聊天机器人，更是一个本地优先、多渠道、跨平台的智能生态系统。 OpenClaw 的核心理念在于将AI能力下放至用户边缘设备，强调数据隐私与个性化体验。与依赖云服务的传统AI助手不同，OpenClaw 致力于在确保性能和功能的前提下，最大化地利用本地计算资源。这不仅提供了更低的延迟和更高的安全性，也为用户带来了前所未有的控制权。 OpenClaw 的核心特点包括：  本地优先（Local-First）：尽可能在用户的设备上运行AI模型和处理数据，减少对外部云服务的依赖，增强隐私保护。 多渠道（Multi-Channel）：支持通...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">mufan</div><div class="author-info-description">折腾不止，记录不息</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客 🖤</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%BF%83%E6%80%81%EF%BC%9A%E5%AE%83%E4%B8%8D%E6%98%AF%E8%81%8A%E5%A4%A9%E6%A1%86%EF%BC%8C%E6%98%AF%E4%BD%A0%E7%9A%84%E8%BF%9C%E7%A8%8B%E5%90%8C%E4%BA%8B"><span class="toc-number">1.</span> <span class="toc-text">核心心态：它不是聊天框，是你的远程同事</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%EF%BC%9A%E7%BB%99-AI-%E5%91%98%E5%B7%A5%E6%90%AD%E4%B8%AA%E5%83%8F%E6%A0%B7%E7%9A%84%E5%B7%A5%E4%BD%8D"><span class="toc-number">2.</span> <span class="toc-text">第一部分：给 AI 员工搭个像样的工位</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%A1%AC%E4%BB%B6%E4%B8%8E%E5%A4%A7%E8%84%91%E7%9A%84%E9%80%89%E6%8B%A9"><span class="toc-number">2.1.</span> <span class="toc-text">1. 硬件与大脑的选择</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%BA%BF%EF%BC%9A%E8%AE%A9-AI-%E7%9C%9F%E6%AD%A3%E7%9C%8B%E6%87%82%E4%B8%96%E7%95%8C"><span class="toc-number">2.2.</span> <span class="toc-text">2. 网络管线：让 AI 真正看懂世界</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%96%87%E4%BB%B6%E6%B5%81%E8%BD%AC%EF%BC%9A%E8%AE%A9%E6%88%90%E6%9E%9C%E8%B5%B0%E8%BF%9B%E4%BD%A0%E7%9A%84%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="toc-number">2.3.</span> <span class="toc-text">3. 文件流转：让成果走进你的文件夹</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%EF%BC%9A%E6%B3%A8%E5%85%A5%E7%81%B5%E9%AD%82%E2%80%94%E2%80%94SOUL-md-%E4%B8%8E%E5%85%A5%E8%81%8C%E5%9F%B9%E8%AE%AD"><span class="toc-number">3.</span> <span class="toc-text">第二部分：注入灵魂——SOUL.md 与入职培训</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E9%83%A8%E5%88%86%EF%BC%9A%E4%BB%8E%E2%80%9C%E8%81%8A%E5%A4%A9%E2%80%9D%E5%88%B0%E2%80%9C%E8%87%AA%E6%B2%BB%E2%80%9D%E2%80%94%E2%80%94Qwen3-5-Plus-2-0-%E7%B3%BB%E7%BB%9F"><span class="toc-number">4.</span> <span class="toc-text">第三部分：从“聊天”到“自治”——Qwen3.5-Plus 2.0 系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E9%83%A8%E5%88%86%EF%BC%9AAgent-Team-3-0%E2%80%94%E2%80%94%E4%BB%8E%E4%B8%80%E4%B8%AA%E4%BA%BA%E5%88%B0%E4%B8%80%E6%94%AF%E5%9B%A2%E9%98%9F"><span class="toc-number">5.</span> <span class="toc-text">第四部分：Agent Team 3.0——从一个人到一支团队</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E9%83%A8%E5%88%86%EF%BC%9A%E5%AE%89%E5%85%A8%E4%B8%8E%E8%B8%A9%E5%9D%91%E2%80%94%E2%80%94%E5%88%AB%E8%AE%A9-AI-%E6%8A%8A%E8%87%AA%E5%B7%B1%E6%94%B9%E6%AD%BB"><span class="toc-number">6.</span> <span class="toc-text">第五部分：安全与踩坑——别让 AI 把自己改死</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD%EF%BC%9A%E5%85%88%E6%9C%89%E5%B7%A5%E4%BD%9C%E6%B5%81%EF%BC%8C%E5%86%8D%E6%9C%89-AI-%E5%90%8C%E4%BA%8B"><span class="toc-number">7.</span> <span class="toc-text">结语：先有工作流，再有 AI 同事</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/ai-rss-and-x-topic-skills/" title="不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill">不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill</a><time datetime="2026-02-20T09:00:00.000Z" title="发表于 2026-02-20 17:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/openclaw-qwen-agent-team/" title="从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记">从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</a><time datetime="2026-02-20T08:00:00.000Z" title="发表于 2026-02-20 16:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/openclaw-agent-system-hardcore/" title="硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统">硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统</a><time datetime="2026-02-20T07:00:00.000Z" title="发表于 2026-02-20 15:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/%E5%A5%87%E7%82%B9%E4%B9%8B%E5%90%8E-%E7%AE%97%E5%8A%9B%E6%97%B6%E4%BB%A3%E7%9A%84%E4%BA%BA%E7%B1%BB%E4%BD%8D%E7%BD%AE%E9%87%8D%E6%8E%92/" title="奇点之后：算力时代的人类位置重排">奇点之后：算力时代的人类位置重排</a><time datetime="2026-02-20T05:40:00.000Z" title="发表于 2026-02-20 13:40:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/17/openclaw-telegram-topics-concurrency/" title="OpenClaw 实战：如何在 Telegram 实现多任务并发处理">OpenClaw 实战：如何在 Telegram 实现多任务并发处理</a><time datetime="2026-02-16T16:45:00.000Z" title="发表于 2026-02-17 00:45:00">2026-02-17</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By mufan</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></span></div><div class="footer_custom_text">用心记录每一次折腾</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill | Mufan's Blog</title><meta name="author" content="mufan"><meta name="copyright" content="mufan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="在 AI 领域，信息的半衰期极短。作为一名内容创作者或技术观察者，每天醒来面对的往往是排山倒海的信息量。为了缓解这种“信息焦虑”和“选题焦虑”，我并没有去订阅更多的公众号，而是决定利用 AI 为自己量身定制两个自动化工具：一个是基于 Karpathy 推荐信源的 RSS 日报 Skill，另一个是专治收藏夹吃灰的 X（Twitter）选题 Skill。 这篇文章将系统梳理这两个工具的设计思路、技术">
+<meta property="og:type" content="article">
+<meta property="og:title" content="不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill">
+<meta property="og:url" content="https://mu-fan-2020.github.io/2026/02/20/ai-rss-and-x-topic-skills/index.html">
+<meta property="og:site_name" content="Mufan&#39;s Blog">
+<meta property="og:description" content="在 AI 领域，信息的半衰期极短。作为一名内容创作者或技术观察者，每天醒来面对的往往是排山倒海的信息量。为了缓解这种“信息焦虑”和“选题焦虑”，我并没有去订阅更多的公众号，而是决定利用 AI 为自己量身定制两个自动化工具：一个是基于 Karpathy 推荐信源的 RSS 日报 Skill，另一个是专治收藏夹吃灰的 X（Twitter）选题 Skill。 这篇文章将系统梳理这两个工具的设计思路、技术">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mu-fan-2020.github.io/img/favicon.png">
+<meta property="article:published_time" content="2026-02-20T09:00:00.000Z">
+<meta property="article:modified_time" content="2026-02-20T09:18:38.461Z">
+<meta property="article:author" content="mufan">
+<meta property="article:tag" content="RSS">
+<meta property="article:tag" content="Skill">
+<meta property="article:tag" content="X&#x2F;Twitter">
+<meta property="article:tag" content="信息源">
+<meta property="article:tag" content="选题">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mu-fan-2020.github.io/img/favicon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill",
+  "url": "https://mu-fan-2020.github.io/2026/02/20/ai-rss-and-x-topic-skills/",
+  "image": "https://mu-fan-2020.github.io/img/favicon.png",
+  "datePublished": "2026-02-20T09:00:00.000Z",
+  "dateModified": "2026-02-20T09:18:38.461Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "mufan",
+      "url": "https://mu-fan-2020.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://mu-fan-2020.github.io/2026/02/20/ai-rss-and-x-topic-skills/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      if ($loadingBox.classList.contains('loaded')) return
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+
+  if (document.readyState === 'complete') {
+    preloader.endLoading()
+  } else {
+    window.addEventListener('load', preloader.endLoading)
+    document.addEventListener('DOMContentLoaded', preloader.endLoading)
+    // Add timeout protection: force end after 7 seconds
+    setTimeout(preloader.endLoading, 7000)
+  }
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/covers/desk-1.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Mufan's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-02-20T09:00:00.000Z" title="发表于 2026-02-20 17:00:00">2026-02-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-02-20T09:18:38.461Z" title="更新于 2026-02-20 17:18:38">2026-02-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/AI-%E5%B7%A5%E4%BD%9C%E6%B5%81/">AI 工作流</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>在 AI 领域，信息的半衰期极短。作为一名内容创作者或技术观察者，每天醒来面对的往往是排山倒海的信息量。为了缓解这种“信息焦虑”和“选题焦虑”，我并没有去订阅更多的公众号，而是决定利用 AI 为自己量身定制两个自动化工具：一个是基于 Karpathy 推荐信源的 RSS 日报 Skill，另一个是专治收藏夹吃灰的 X（Twitter）选题 Skill。</p>
+<p>这篇文章将系统梳理这两个工具的设计思路、技术实现以及我在迭代过程中的踩坑经验。</p>
+<h3 id="第一部分：RSS-日报-Skill——对接一手信息的“降噪漏斗”"><a href="#第一部分：RSS-日报-Skill——对接一手信息的“降噪漏斗”" class="headerlink" title="第一部分：RSS 日报 Skill——对接一手信息的“降噪漏斗”"></a>第一部分：RSS 日报 Skill——对接一手信息的“降噪漏斗”</h3><h4 id="信息排泄链的问题"><a href="#信息排泄链的问题" class="headerlink" title="信息排泄链的问题"></a>信息排泄链的问题</h4><p>在信息传播中存在一个“信息排泄链”现象：源头信息经过层层翻译、转述、加工，到达受众手中时往往已经丢失了核心细节，甚至充满了误读。为了绕开链路末端的“残渣”，我决定直接对接一手信息源。</p>
+<p>机会来自于 Karpathy（OpenAI 联合创始人）推荐的 92 个高质量技术 RSS 订阅源。这些源包含了顶级研究者和博主的个人站点，是真正的 AI 资讯原产地。但问题在于，没人能每天手动刷完 90 多个博客。</p>
+<h4 id="需求与设计逻辑"><a href="#需求与设计逻辑" class="headerlink" title="需求与设计逻辑"></a>需求与设计逻辑</h4><p>我给这个 Skill 定下了 5 个核心需求：支持时间窗口设置（如最近 24 小时）、可自定义推荐篇数、自动生成中文摘要、保留原文链接、全自动生成排版美观的日报。</p>
+<p>整个 Pipeline 的设计分为四个阶段：</p>
+<ol>
+<li><strong>抓取与过滤</strong>：扫描 92 个源，拉取全部更新，并根据预设的时间窗口（如 48 小时内）过滤掉旧文章。</li>
+<li><strong>AI 打分</strong>：将剩余文章交给 Gemini 模型。我设计了三个维度的评分标准，总分 30 分。AI 会根据内容的创新性、技术深度和实用价值进行筛选。</li>
+<li><strong>内容提炼</strong>：对高分文章进行标题翻译和中文摘要生成。</li>
+<li><strong>结构化输出</strong>：将结果整合成一份包含“今日看点”和分类列表的日报。</li>
+</ol>
+<h4 id="从“能用”到“好用”的迭代"><a href="#从“能用”到“好用”的迭代" class="headerlink" title="从“能用”到“好用”的迭代"></a>从“能用”到“好用”的迭代</h4><p>第一版工具跑出来后，我发现虽然省了翻网页的时间，但依然缺乏宏观视角。于是我尝试了一件非常有意思的事：直接问 AI“你觉得这个日报还有哪些优化空间”。</p>
+<p>根据 AI 的建议和我的实际体验，我进行了二次迭代：</p>
+<ul>
+<li><strong>增加可视化</strong>：引入了分类饼图和高频关键词条形图，一眼就能看出当天 AI 圈的热点分布（例如某天 AI&#x2F;ML 内容占了 70% 以上）。</li>
+<li><strong>文章漏斗化</strong>：在日报中展示数据漏斗（例如从 2505 篇文章中筛出 15 篇精选），这种 167:1 的降噪比带来了极高的信息获取效率。</li>
+<li><strong>主题分组</strong>：将零散的文章按 AI&#x2F;ML、工程实践、行业观点等维度分组，方便按需阅读。</li>
+</ul>
+<h3 id="第二部分：X-选题-Skill——把“收藏夹”变成“生产力”"><a href="#第二部分：X-选题-Skill——把“收藏夹”变成“生产力”" class="headerlink" title="第二部分：X 选题 Skill——把“收藏夹”变成“生产力”"></a>第二部分：X 选题 Skill——把“收藏夹”变成“生产力”</h3><h4 id="解决“收藏吃灰”的痛点"><a href="#解决“收藏吃灰”的痛点" class="headerlink" title="解决“收藏吃灰”的痛点"></a>解决“收藏吃灰”的痛点</h4><p>推特是我获取灵感的另一个主战场，但刷推的场景通常在通勤路上，看到好的内容随手一点收藏，回头就忘。等到想写东西时，翻开几百条收藏记录，完全想不起当时觉得哪里好。</p>
+<p>为了解决这个问题，我开发了 X 选题 Skill，核心目标是将碎片化的推文转化为可用的选题建议。</p>
+<h4 id="技术方案选择：为何不用-API？"><a href="#技术方案选择：为何不用-API？" class="headerlink" title="技术方案选择：为何不用 API？"></a>技术方案选择：为何不用 API？</h4><p>推特的官方 API 价格昂贵且限制较多。借鉴了宝玉大佬的思路，我选择了 Chrome CDP（Chrome DevTools Protocol）方案。通过浏览器内置的调试协议，让程序模拟人为滚动和抓取。虽然这需要保持 Chrome 的登录状态，但胜在免费且能精准获取页面内容。</p>
+<h4 id="扫描模式-vs-书签模式"><a href="#扫描模式-vs-书签模式" class="headerlink" title="扫描模式 vs 书签模式"></a>扫描模式 vs 书签模式</h4><p>在迭代过程中，我意识到用户对不同来源内容的心理预期是不同的，因此将 Skill 拆分为两种模式：</p>
+<ol>
+<li><strong>扫描模式</strong>：针对特定列表或首页。这是“大海捞针”，需要通过 AI 排序和数据排序（点赞、转发等加权）找到最热门或最有质量的内容。</li>
+<li><strong>书签模式</strong>：针对已收藏的内容。因为收藏动作已经完成了一次人工筛选，所以这个模式不再进行排序，而是专注于“深度分析+选题建议”。</li>
+</ol>
+<h4 id="交互与报告的优化"><a href="#交互与报告的优化" class="headerlink" title="交互与报告的优化"></a>交互与报告的优化</h4><p>在 v1.0 版本中，每设置一个参数都要进行一轮确认，交互非常繁琐。在 v1.1 中，我将其改造成了一次性并行配置，并支持“记住上次选择”，极大地提升了日常使用体验。</p>
+<p>报告结构也经历了多次重塑：</p>
+<ul>
+<li><strong>全文提取</strong>：针对 X 上的长文章（Article），专门增加了识别并点击展开的逻辑，确保 AI 能读到全文而非只有标题。</li>
+<li><strong>选题建议</strong>：书签模式下的报告不仅有摘要，还会给出具体的写作切入点。例如：“可以结合推文 A 的技术细节和推文 B 的应用案例，写一篇关于 AI 代理落地的深度分析”。</li>
+<li><strong>词云与统计</strong>：通过话题标签云和关键词统计，辅助判断当下的选题热度。</li>
+</ul>
+<h3 id="第三部分：共同的工程经验与方法论"><a href="#第三部分：共同的工程经验与方法论" class="headerlink" title="第三部分：共同的工程经验与方法论"></a>第三部分：共同的工程经验与方法论</h3><p>这两个 Skill 的开发过程，让我总结出了一套用 AI 做工具的迭代方法论：</p>
+<ol>
+<li><strong>解决自己的不爽</strong>：工具的每一次改动（如 X Skill 从多步确认改为单步配置、RSS 日报增加饼图）都不是预先规划好的，而是因为自己在日常使用中觉得“别扭”。这种基于真实痛点的反馈循环是工具进化的核心动力。</li>
+<li><strong>明确排序逻辑</strong>：我曾尝试在 X 选题中使用“混合排序”（数据+AI），结果发现效果极差，因为你无法判断一个高分项到底是因为热度高还是内容好。最终我将其拆分为独立的模式，让信号回归纯粹。</li>
+<li><strong>让 AI 参与设计</strong>：不要只把 AI 当成写代码的工具，要让它参与产品设计。RSS 日报的趋势总结和可视化方案，很大程度上得益于 AI 提供的建议。</li>
+</ol>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>通过这两个 Skill，我建立了一套完整的信息工作流：白天在地铁上随手收藏推特内容，晚上回家一键跑出书签报告拿到选题建议；每天早晨自动接收一份来自全球 92 个顶级信源的 RSS 日报。</p>
+<p>这种“自用 Skill”的价值不在于它的技术多么高深，而在于它真正将我从无效的信息流中解放了出来。在 AI 时代，我们不应该去适应现成的工具，而应该学会利用 AI 为自己打造最顺手的利刃。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://mu-fan-2020.github.io">mufan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://mu-fan-2020.github.io/2026/02/20/ai-rss-and-x-topic-skills/">https://mu-fan-2020.github.io/2026/02/20/ai-rss-and-x-topic-skills/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://mu-fan-2020.github.io" target="_blank">Mufan's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E4%BF%A1%E6%81%AF%E6%BA%90/">信息源</a><a class="post-meta__tags" href="/tags/%E9%80%89%E9%A2%98/">选题</a><a class="post-meta__tags" href="/tags/Skill/">Skill</a><a class="post-meta__tags" href="/tags/RSS/">RSS</a><a class="post-meta__tags" href="/tags/X-Twitter/">X/Twitter</a></div><div class="post-share"><div class="social-share" data-image="/img/favicon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/02/20/openclaw-qwen-agent-team/" title="从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</div></div><div class="info-2"><div class="info-item-1">很多人装完 OpenClaw（俗称小龙虾）的第一反应是：这玩意儿怎么用？ 你可能看着那个黑乎乎的终端窗口，或者 Telegram 里那个半天不蹦出一个词的机器人，心里犯嘀咕：这和 ChatGPT 有什么区别？为什么我还要费劲巴拉地折腾服务器？ 我花了半个月时间，烧了 500 美金，把 OpenClaw 从“装上就吃灰”折腾成了真能干活的 AI 员工。今天这篇长文，不聊虚的跑分，只聊工程实战：如何给它搭工位、注灵魂，最后把它升级成一支 7×24 小时全自动运行的 AI 工程师团队。 核心心态：它不是聊天框，是你的远程同事在动手之前，我们先切换一下心态：不要把 OpenClaw 当成一个 AI 助手，把它想象成你刚招的一个远程员工。 人入职了，但工位还没搭好，它现在什么都干不了。你得给它准备电脑（服务器）、选好大脑（模型）、配好网络和工具，最重要的是，你得交代清楚你是谁、你的工作流是什么。 第一部分：给 AI 员工搭个像样的工位1. 硬件与大脑的选择首先，服务器建议直接买海外的（香港、新加坡等），内存 8G 起步。别省这几百块，跑浏览器和自动化脚本极其吃内存，2G 的机器基本上一跑就...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">mufan</div><div class="author-info-description">折腾不止，记录不息</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客 🖤</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%EF%BC%9ARSS-%E6%97%A5%E6%8A%A5-Skill%E2%80%94%E2%80%94%E5%AF%B9%E6%8E%A5%E4%B8%80%E6%89%8B%E4%BF%A1%E6%81%AF%E7%9A%84%E2%80%9C%E9%99%8D%E5%99%AA%E6%BC%8F%E6%96%97%E2%80%9D"><span class="toc-number">1.</span> <span class="toc-text">第一部分：RSS 日报 Skill——对接一手信息的“降噪漏斗”</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%8E%92%E6%B3%84%E9%93%BE%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">1.1.</span> <span class="toc-text">信息排泄链的问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9C%80%E6%B1%82%E4%B8%8E%E8%AE%BE%E8%AE%A1%E9%80%BB%E8%BE%91"><span class="toc-number">1.2.</span> <span class="toc-text">需求与设计逻辑</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8E%E2%80%9C%E8%83%BD%E7%94%A8%E2%80%9D%E5%88%B0%E2%80%9C%E5%A5%BD%E7%94%A8%E2%80%9D%E7%9A%84%E8%BF%AD%E4%BB%A3"><span class="toc-number">1.3.</span> <span class="toc-text">从“能用”到“好用”的迭代</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%EF%BC%9AX-%E9%80%89%E9%A2%98-Skill%E2%80%94%E2%80%94%E6%8A%8A%E2%80%9C%E6%94%B6%E8%97%8F%E5%A4%B9%E2%80%9D%E5%8F%98%E6%88%90%E2%80%9C%E7%94%9F%E4%BA%A7%E5%8A%9B%E2%80%9D"><span class="toc-number">2.</span> <span class="toc-text">第二部分：X 选题 Skill——把“收藏夹”变成“生产力”</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E2%80%9C%E6%94%B6%E8%97%8F%E5%90%83%E7%81%B0%E2%80%9D%E7%9A%84%E7%97%9B%E7%82%B9"><span class="toc-number">2.1.</span> <span class="toc-text">解决“收藏吃灰”的痛点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88%E9%80%89%E6%8B%A9%EF%BC%9A%E4%B8%BA%E4%BD%95%E4%B8%8D%E7%94%A8-API%EF%BC%9F"><span class="toc-number">2.2.</span> <span class="toc-text">技术方案选择：为何不用 API？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%AB%E6%8F%8F%E6%A8%A1%E5%BC%8F-vs-%E4%B9%A6%E7%AD%BE%E6%A8%A1%E5%BC%8F"><span class="toc-number">2.3.</span> <span class="toc-text">扫描模式 vs 书签模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%A4%E4%BA%92%E4%B8%8E%E6%8A%A5%E5%91%8A%E7%9A%84%E4%BC%98%E5%8C%96"><span class="toc-number">2.4.</span> <span class="toc-text">交互与报告的优化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E9%83%A8%E5%88%86%EF%BC%9A%E5%85%B1%E5%90%8C%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%BB%8F%E9%AA%8C%E4%B8%8E%E6%96%B9%E6%B3%95%E8%AE%BA"><span class="toc-number">3.</span> <span class="toc-text">第三部分：共同的工程经验与方法论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">4.</span> <span class="toc-text">结语</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/ai-rss-and-x-topic-skills/" title="不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill">不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill</a><time datetime="2026-02-20T09:00:00.000Z" title="发表于 2026-02-20 17:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/openclaw-qwen-agent-team/" title="从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记">从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</a><time datetime="2026-02-20T08:00:00.000Z" title="发表于 2026-02-20 16:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/openclaw-agent-system-hardcore/" title="硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统">硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统</a><time datetime="2026-02-20T07:00:00.000Z" title="发表于 2026-02-20 15:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/%E5%A5%87%E7%82%B9%E4%B9%8B%E5%90%8E-%E7%AE%97%E5%8A%9B%E6%97%B6%E4%BB%A3%E7%9A%84%E4%BA%BA%E7%B1%BB%E4%BD%8D%E7%BD%AE%E9%87%8D%E6%8E%92/" title="奇点之后：算力时代的人类位置重排">奇点之后：算力时代的人类位置重排</a><time datetime="2026-02-20T05:40:00.000Z" title="发表于 2026-02-20 13:40:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/17/openclaw-telegram-topics-concurrency/" title="OpenClaw 实战：如何在 Telegram 实现多任务并发处理">OpenClaw 实战：如何在 Telegram 实现多任务并发处理</a><time datetime="2026-02-16T16:45:00.000Z" title="发表于 2026-02-17 00:45:00">2026-02-17</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By mufan</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></span></div><div class="footer_custom_text">用心记录每一次折腾</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>

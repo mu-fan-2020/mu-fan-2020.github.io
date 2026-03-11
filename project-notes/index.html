@@ -1,0 +1,365 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>项目备忘录 | Mufan's Blog</title><meta name="author" content="mufan"><meta name="copyright" content="mufan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="记录我最近看到、觉得有意思，但不一定会立刻动手的项目，方便自己和别人随时回顾。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="项目备忘录">
+<meta property="og:url" content="https://mu-fan-2020.github.io/project-notes/index.html">
+<meta property="og:site_name" content="Mufan&#39;s Blog">
+<meta property="og:description" content="记录我最近看到、觉得有意思，但不一定会立刻动手的项目，方便自己和别人随时回顾。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mu-fan-2020.github.io/img/favicon.png">
+<meta property="article:published_time" content="2026-02-18T04:00:00.000Z">
+<meta property="article:modified_time" content="2026-02-18T04:00:00.000Z">
+<meta property="article:author" content="mufan">
+<meta property="article:tag" content="技术, AI, Linux, 教程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mu-fan-2020.github.io/img/favicon.png"><script type="application/ld+json"></script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://mu-fan-2020.github.io/project-notes/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '项目备忘录',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      if ($loadingBox.classList.contains('loaded')) return
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+
+  if (document.readyState === 'complete') {
+    preloader.endLoading()
+  } else {
+    window.addEventListener('load', preloader.endLoading)
+    document.addEventListener('DOMContentLoaded', preloader.endLoading)
+    // Add timeout protection: force end after 7 seconds
+    setTimeout(preloader.endLoading, 7000)
+  }
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page fixed" id="page-header" style="background-image: url(/img/covers/desk-1.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Mufan's Blog</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">项目备忘录</h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><p>这里用来记录「我看到了、觉得有意思，但不一定会立刻动手」的项目。<br>每个项目互相独立，只写清楚：这是啥、为啥记它、现在做到哪一步。</p>
+<hr>
+<h2 id="ezBookkeeping"><a href="#ezBookkeeping" class="headerlink" title="ezBookkeeping"></a>ezBookkeeping</h2><blockquote>
+<p><strong>类型</strong>：自托管记账系统（Web 应用）<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/mayswind/ezbookkeeping">https://github.com/mayswind/ezbookkeeping</a><br><strong>当前状态</strong>：已在内网部署，研究 API &#x2F; MCP 接入中</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个轻量级的个人记账 Web 应用，可以自己在服务器上部署。支持多账户、多币种、账单导入、搜索和统计图表，也提供 API &#x2F; MCP 接口，方便被其他工具或 Agent 调用。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>目标是让 AI 助手直接连到这个系统，自动做月度&#x2F;年度消费分析、分类汇总、异常支出提醒，尽量减少手动导出和整理。</p>
+<hr>
+<h2 id="AiToEarn"><a href="#AiToEarn" class="headerlink" title="AiToEarn"></a>AiToEarn</h2><blockquote>
+<p><strong>类型</strong>：内容营销 &#x2F; 多平台分发系统<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/yikart/AiToEarn">https://github.com/yikart/AiToEarn</a><br><strong>当前状态</strong>：代码已克隆本地，处于架构研究阶段</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个开源的内容营销平台，支持一键多平台发文、热点追踪、评论数据收集和分析。后端用 Docker 可以一键起服务，自带数据库、队列等组件。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>主要关注它的整体架构设计和 MCP 接入方式。以后如果要做自己的「内容中枢」或个人品牌运营工具，可以借鉴它的数据流设计，而不一定直接使用它的前端。</p>
+<hr>
+<h2 id="ai-architecture"><a href="#ai-architecture" class="headerlink" title="ai-architecture"></a>ai-architecture</h2><blockquote>
+<p><strong>类型</strong>：AI 系统架构文档合集<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/MyInvestPilot/ai-architecture">https://github.com/MyInvestPilot/ai-architecture</a><br><strong>当前状态</strong>：文档已拉到本地，慢慢消化中</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一套关于 AI 原生系统设计的文档合集，涵盖 AI 驱动开发流程、混合 Agent 架构、个人基础设施搭建等内容，更偏「方法论」和「架构图」，不是一个可以直接部署的产品。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>对设计「个人 AI OS」这类系统很有参考价值。以后在做出题系统、账本分析系统、内容分发系统时，可以从这里借一些架构思路和实践案例。</p>
+<hr>
+<h2 id="OpenSpec"><a href="#OpenSpec" class="headerlink" title="OpenSpec"></a>OpenSpec</h2><blockquote>
+<p><strong>类型</strong>：Spec 驱动开发框架<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/Fission-AI/OpenSpec">https://github.com/Fission-AI/OpenSpec</a><br><strong>当前状态</strong>：持续演进中，不定期会有新想法和实践</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个用规范（Spec）来驱动 AI 写代码的框架。核心思想是先用结构化的规范描述需求和接口，再由 AI 根据这些规范生成实现，避免「聊天式开发」的混乱。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>这是自己在做的长期项目，用来提升 AI 辅助开发的可控性。未来和任何新系统（比如出题系统、各种 Agent 服务）结合时，都希望先有 Spec 再写实现。</p>
+<hr>
+<h2 id="awesome-openclaw-usecases"><a href="#awesome-openclaw-usecases" class="headerlink" title="awesome-openclaw-usecases"></a>awesome-openclaw-usecases</h2><blockquote>
+<p><strong>类型</strong>：OpenClaw 使用案例 &#x2F; 资源合集<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/hesamsheikh/awesome-openclaw-usecases">https://github.com/hesamsheikh/awesome-openclaw-usecases</a><br><strong>当前状态</strong>：已收藏，准备后面挑典型场景深入看</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个围绕 OpenClaw 的「awesome 列表」，收集了各种使用场景、示例项目和实践资源，方便快速了解别人是怎么用 OpenClaw 搭东西的。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>以后在设计自己的用例、Skill、集成方案时，可以参考这里的案例，把有价值的模式搬到自己的个人 AI OS 里，避免闭门造车。</p>
+<hr>
+<h2 id="visual-explainer"><a href="#visual-explainer" class="headerlink" title="visual-explainer"></a>visual-explainer</h2><blockquote>
+<p><strong>类型</strong>：Agent 可视化说明 &#x2F; HTML 报告生成 Skill<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/nicobailon/visual-explainer">https://github.com/nicobailon/visual-explainer</a><br><strong>当前状态</strong>：已收藏，后续接 IDE &#x2F; Coding Agent 时考虑集成</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个 Agent Skill，用来把复杂的终端输出（架构说明、diff review、计划审查、数据表等）转成带样式的独立 HTML 页面，而不是单纯的 ASCII 图和表格。支持暗色&#x2F;亮色主题、Mermaid 图表、交互式缩放。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>以后在做代码审查、架构回顾、计划审计时，可以用它把”Agent 的分析结果”变成可读性很强的 HTML 报告，方便在浏览器里看、发给别人、或嵌到知识库里，比纯终端输出更适合长期保存。</p>
+<hr>
+<h2 id="ClawRag"><a href="#ClawRag" class="headerlink" title="ClawRag"></a>ClawRag</h2><blockquote>
+<p><strong>类型</strong>：OpenClaw 专用 RAG 后端 &#x2F; 长期记忆引擎<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/2dogsandanerd/ClawRag">https://github.com/2dogsandanerd/ClawRag</a><br><strong>当前状态</strong>：已收藏，未来作为「个人 AI OS 长期记忆 &#x2F; 教材 RAG」的候选方案</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个为 OpenClaw 定制的 RAG 系统，用 Docling 做文档解析、用 ChromaDB 做向量存储，通过统一的 HTTP API 对外提供”长文本检索 + 问答”能力，可以被 OpenClaw 当成长期记忆&#x2F;知识库后端来用。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>未来如果要给个人 AI OS 搭一套统一的知识大脑（比如装教材 PDF、项目文档、博客归档），可以考虑直接用它做 RAG 中枢，让 OpenClaw 通过 API 调它做检索，而不是自己从零搭 Docling + 向量库。</p>
+<hr>
+<h2 id="llmfit"><a href="#llmfit" class="headerlink" title="llmfit"></a>llmfit</h2><blockquote>
+<p><strong>类型</strong>：本地 LLM 模型选型 &#x2F; 评估工具<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/AlexsJones/llmfit">https://github.com/AlexsJones/llmfit</a><br><strong>当前状态</strong>：已收藏，后续在有 GPU 的机器上做本地模型选型时使用</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个命令行工具，内置了近百个模型和数十个 Provider 的配置。它会自动检测机器的 CPU、内存、GPU、显存等硬件信息，然后根据”能不能跑、速度、质量、上下文长度”给模型打分，帮你筛出在当前机器上最合适的模型和量化方案。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>适合用在将来搭建本地 LLM 节点时做”第一轮体检”：先用它看这台机器适合跑哪些 7B&#x2F;13B&#x2F;70B 模型、用什么量化，再决定实际部署什么模型。也可以作为自动选型脚本&#x2F;Agent 的一环，输出 JSON 结果给其它工具消费。</p>
+<hr>
+<h2 id="awesome-llm-apps"><a href="#awesome-llm-apps" class="headerlink" title="awesome-llm-apps"></a>awesome-llm-apps</h2><blockquote>
+<p><strong>类型</strong>：LLM 应用案例 &#x2F; 模板合集<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/Shubhamsaboo/awesome-llm-apps">https://github.com/Shubhamsaboo/awesome-llm-apps</a><br><strong>当前状态</strong>：已收藏，后续设计和实现自己 Agent &#x2F; RAG 应用时作为案例参考</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个整理好的 LLM 应用示例合集，按场景分类收集了大量基于 RAG、AI Agents、多 Agent 团队、MCP、语音助手等模式构建的开源项目，覆盖代码助手、数据分析、内容创作等不同领域。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>在设计个人 AI OS 里的新能力（比如出题系统、账本分析 Agent、内容管家）时，可以参考这些应用的任务拆分方式、交互流程和技术栈选型，用来对照和借鉴，而不是从零闭门造车。</p>
+<hr>
+<h2 id="PentAGI"><a href="#PentAGI" class="headerlink" title="PentAGI"></a>PentAGI</h2><blockquote>
+<p><strong>类型</strong>：AI 驱动的自动化渗透测试系统 &#x2F; 安全研究平台<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/vxcontrol/pentagi">https://github.com/vxcontrol/pentagi</a><br><strong>当前状态</strong>：仅作为参考项目记录，尚未在本机部署或运行</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>PentAGI（Penetration testing Artificial General Intelligence）是一个多 Agent 驱动的自动化渗透测试平台。它把安全测试拆成多个专职 AI Agent（情报收集、漏洞研究、利用开发、基础设施等），结合长期记忆系统和 Neo4j 知识图谱，配合内置浏览器、Tavily&#x2F;Perplexity&#x2F;Google CSE 等外部搜索，用类似”AI 红队作战室”的方式执行渗透测试任务。整体通过 Docker 沙盒运行，并提供 Grafana&#x2F;Prometheus 监控和详细报告输出。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>短期内不会直接在生产环境或当前 OpenClaw 主机上部署，主要把它当成”多 Agent + 安全场景”的架构教材来参考：</p>
+<ul>
+<li>看它如何设计安全测试 Agent 团队的分工与协作；</li>
+<li>学习它的长期记忆、知识图谱和情报收集链路，对以后做「个人资产安全自检 Skill」有借鉴价值；</li>
+<li>未来如果要在单独、安全隔离的环境里给自己服务做体检，可以考虑选其部分组件和工作流思路，而不是整套照搬。</li>
+</ul>
+<hr>
+<h2 id="Social-Media-Trend-Tracker"><a href="#Social-Media-Trend-Tracker" class="headerlink" title="Social-Media-Trend-Tracker"></a>Social-Media-Trend-Tracker</h2><blockquote>
+<p><strong>类型</strong>：全面的 Twitter&#x2F;Reddit 社交媒体趋势分析系统<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/AbhayAyare/Social-Media-Trend-Tracker">https://github.com/AbhayAyare/Social-Media-Trend-Tracker</a><br><strong>当前状态</strong>：已查阅评估</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个基于 Python 的数据分析项目，通过 Twitter API 和 Reddit Pushshift API 收集数据，运用 NLP 和机器学习技术，分析社交媒体趋势、用户情绪和新兴话题，并支持 Streamlit 仪表盘可视化。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>它功能全面，能够同时追踪 Twitter 和 Reddit 的通用热点并进行情感分析。如果需要构建一个通用的社交媒体数据分析平台，其纯 Python 的实现和清晰的架构值得借鉴。核心逻辑可以由 Agent 调用来生成报告。</p>
+<hr>
+<h2 id="reddit-ai-trends"><a href="#reddit-ai-trends" class="headerlink" title="reddit-ai-trends"></a>reddit-ai-trends</h2><blockquote>
+<p><strong>类型</strong>：Reddit AI 趋势智能报告生成器<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/liyedanpdx/reddit-ai-trends">https://github.com/liyedanpdx/reddit-ai-trends</a><br><strong>当前状态</strong>：已查阅评估</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个专注于 Reddit 上 AI 领域趋势的自动化报告工具。它利用 Reddit 官方 API 获取帖子，结合 LLM 进行多模态内容分析（图片、YouTube 视频、网页内容总结），深入总结关键讨论并追踪趋势。每日生成中英文 Markdown 报告，并通过智能缓存优化 API 成本。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>如果重点是追踪 Reddit 上 AI 领域的热点，并需要高质量、智能化的内容总结和趋势分析，这个项目是绝佳选择。其直接生成 Markdown 报告和 LLM 深度分析的特性，使其非常适合由 Agent 集成和定期生成报告。</p>
+<hr>
+<h2 id="Canary-The-social-media-monitor"><a href="#Canary-The-social-media-monitor" class="headerlink" title="Canary-The-social-media-monitor"></a>Canary-The-social-media-monitor</h2><blockquote>
+<p><strong>类型</strong>：多平台社交媒体监控与趋势预测系统<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/Neel-G-png/Canary-The-social-media-monitor">https://github.com/Neel-G-png/Canary-The-social-media-monitor</a><br><strong>当前状态</strong>：已查阅评估，不建议直接集成到 Agent</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个集成了 Reddit、YouTube 和 Twitter 数据的社交媒体监控系统。其核心亮点在于能够通过分析历史数据，预测内容（如点赞、转发）的受欢迎程度。项目包含 React 前端、Flask 后端和 MySQL 数据库，提供数据可视化仪表盘。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>尽管功能强大且涵盖多平台，但其复杂的 Web 应用架构（React&#x2F;Flask&#x2F;MySQL）使其非常不适合直接作为 Agent 的技能模块。部署和集成难度极高，更适合作为独立运行的服务。主要作为参考，学习其多平台数据集成和趋势预测的思路。</p>
+<hr>
+<h2 id="BookLore"><a href="#BookLore" class="headerlink" title="BookLore"></a>BookLore</h2><blockquote>
+<p><strong>类型</strong>：自托管多用户数字图书馆 &#x2F; 阅读管理系统<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/booklore-app/booklore">https://github.com/booklore-app/booklore</a><br><strong>当前状态</strong>：已收藏，后续考虑在内网部署做「个人图书馆中枢」</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>BookLore 是一个自托管的多用户数字图书馆，支持通过 Docker 一键部署。它提供智能书架（规则驱动的 Magic Shelves）、自动元数据抓取（封面、简介、评分和评论）、内置 EPUB&#x2F;PDF&#x2F;漫画阅读器，以及基于 OPDS 的设备同步，兼容 Kobo、KOReader 等阅读设备。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>它非常适合做「个人&#x2F;家庭图书馆中枢」：把散落在各处的电子书集中管理，统一做分类、搜索和进度同步。以后可以考虑：</p>
+<ul>
+<li>在内网起一个实例，把现有 EPUB&#x2F;PDF 书库接进去；</li>
+<li>让 OpenClaw &#x2F; Agent 通过 OPDS 或 API 读取书库信息，做「读书进度追踪、推荐下一本、基于书单的学习计划」等自动化；</li>
+<li>结合现有的记笔记&#x2F;知识库系统，把阅读记录和项目备忘录打通。</li>
+</ul>
+<hr>
+<h2 id="huge-ai-search"><a href="#huge-ai-search" class="headerlink" title="huge-ai-search"></a>huge-ai-search</h2><blockquote>
+<p><strong>类型</strong>：AI 搜索工作流规范 &#x2F; 深度追问策略模板<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/wangwingzero/huge-ai-search">https://github.com/wangwingzero/huge-ai-search</a><br><strong>当前状态</strong>：已收藏，准备在 Coding Agent &#x2F; OpenClaw Skills 中内化其搜索策略</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>这是一个围绕 MCP 工具 <code>mcp_huge_ai_search_search</code> 设计的「搜索优先」工作流规范，重点不是代码本身，而是一整套 AI 如何先搜索、再多轮追问、再行动的流程。它定义了什么时候必须搜索、追问哪些问题（场景化、避坑、最佳实践）、以及 Bug 修复和架构设计时的通用问法模板。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>对我这种重度依赖 Agent 的工作流来说，它更像一份「AI 搜索守则」：</p>
+<ul>
+<li>以后可以把里面的触发条件和追问模板，内化到 coding-agent &#x2F; OpenSpec &#x2F; OpenClaw Skills 里，让所有子 Agent 在高风险改动前强制先搜再干；</li>
+<li>也可以作为写自己搜索 Skill 文档的蓝本，约束 AI 在遇到架构设计、性能优化、bug 修复这类高风险任务时不瞎拍脑袋，而是遵守一套固定的深度追问流程。</li>
+</ul>
+<hr>
+<h2 id="openclaw-memory"><a href="#openclaw-memory" class="headerlink" title="openclaw-memory"></a>openclaw-memory</h2><blockquote>
+<p><strong>类型</strong>：OpenClaw 原生记忆管理 Skill<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/geq1fan/openclaw-memory">https://github.com/geq1fan/openclaw-memory</a><br><strong>当前状态</strong>：待评估部署</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个专为 OpenClaw 设计的自动记忆管理系统。通过两个定时任务（memory-writer 和 memory-janitor）自动扫描对话记录、提取关键信息、归档旧日志，并维护 MEMORY.md。内置知识验证功能，能自动检测过时、重复、孤立、冲突的信息。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>目前 JARVIS 的记忆完全靠手动维护，经常忘事。这个方案最轻量（只需 2 个 cron 任务），原生集成 OpenClaw，安装简单。如果效果好，可以解决记忆遗忘问题，让 AI 助手真正”记住”历史对话。</p>
+<hr>
+<h2 id="ClawIntelligentMemory"><a href="#ClawIntelligentMemory" class="headerlink" title="ClawIntelligentMemory"></a>ClawIntelligentMemory</h2><blockquote>
+<p><strong>类型</strong>：OpenClaw 智能记忆系统解决方案<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/denda188/ClawIntelligentMemory">https://github.com/denda188/ClawIntelligentMemory</a><br><strong>当前状态</strong>：待评估部署</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一套三层架构的智能记忆管理系统（每日日志 → 精选记忆 → 长期归档）。通过 LLM 智能提取关键信息（从 150 行日志提取 3-5 个关键项），包含检查点系统、决策日志、模式提取、主动优化、动机系统等 6 大功能模块。作者声称效率提升约 16 倍。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>功能比 openclaw-memory 更完整，有决策追溯、模式分析、成就系统等高级功能。如果基础的记忆管理不够用，可以考虑升级到这个方案。适合需要深度分析和长期记忆优化的场景。</p>
+<hr>
+<h2 id="PowerMem"><a href="#PowerMem" class="headerlink" title="PowerMem"></a>PowerMem</h2><blockquote>
+<p><strong>类型</strong>：企业级 AI 记忆基础设施<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/oceanbase/powermem">https://github.com/oceanbase/powermem</a><br><strong>当前状态</strong>：待评估部署</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>OceanBase 出品的生产级记忆系统。在 LOCOMO 基准测试中，准确率提升 48.77%、响应速度提升 91.83%、Token 消耗减少 96.53%。支持智能记忆提取、艾宾浩斯遗忘曲线、用户画像、多智能体隔离、多模态（文本&#x2F;图片&#x2F;音频）、混合检索（向量+全文+图数据库）。提供 Python SDK、HTTP API、MCP Server 三种集成方式。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>如果 JARVIS 和 Friday 两个 bot 需要独立记忆空间但又能共享部分信息，PowerMem 的多智能体支持很合适。性能指标也很强，适合长期使用。但需要配置数据库（OceanBase&#x2F;PostgreSQL&#x2F;SQLite），部署成本比前两个高。</p>
+<hr>
+<h2 id="memU"><a href="#memU" class="headerlink" title="memU"></a>memU</h2><blockquote>
+<p><strong>类型</strong>：24&#x2F;7 Agent 长期记忆框架<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/NevaMind-AI/memU">https://github.com/NevaMind-AI/memU</a><br><strong>当前状态</strong>：已部署但停用（最后更新 2026-02-12）</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个为 24&#x2F;7 运行的 AI Agent 设计的记忆框架，作为主 agent 的”记忆侧车”运行。支持监控对话、抽取记忆、预测意图，可以用 in-memory 模式或 Postgres + pgvector 持久化。需要 Rust + Python + Postgres 环境。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>2 月 12 日测试过，服务还在跑但没有真正接入工作流（数据库里有 78 条资源 + 311 条记忆，但都是测试数据）。功能相对基础，不如 PowerMem 完善。暂时不考虑重启，除非其他方案都不合适。</p>
+<hr>
+<hr>
+<h2 id="MiroFish"><a href="#MiroFish" class="headerlink" title="MiroFish"></a>MiroFish</h2><blockquote>
+<p><strong>类型</strong>：群体智能引擎 &#x2F; AI 预测系统<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/666ghj/MiroFish">https://github.com/666ghj/MiroFish</a><br><strong>当前状态</strong>：已查阅评估</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个基于多智能体技术的新一代 AI 预测引擎。通过提取现实世界的种子信息（新闻、政策、金融信号），自动构建高保真平行数字世界。成千上万个具备独立人格、长期记忆与行为逻辑的智能体在此自由交互与社会演化。用户可通过「上帝视角」动态注入变量，精准推演未来走向。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>核心思路是「让未来在数字沙盘中预演」。对设计复杂系统的预测和推演很有参考价值：</p>
+<ul>
+<li>学习其多 Agent 架构设计和群体智能模拟方法；</li>
+<li>借鉴「种子信息 → 数字孪生 → 推演预测」的工作流；</li>
+<li>未来在做政策&#x2F;市场&#x2F;舆情预测类项目时，可以参考其架构思路。</li>
+</ul>
+<p>以后看到新的项目，如果觉得「值得记一下」，就按下面这个格式往下追加一段：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">## 项目名</span></span><br><span class="line"></span><br><span class="line"><span class="quote">&gt; <span class="strong">**类型**</span>：简单一句话说明  </span></span><br><span class="line"><span class="quote">&gt; <span class="strong">**链接**</span>：<span class="language-xml">&lt;https://github.com/...&gt;</span>  </span></span><br><span class="line"><span class="quote">&gt; <span class="strong">**当前状态**</span>：只是记录 / 已克隆 / 已部署 / 正在集成</span></span><br><span class="line"></span><br><span class="line"><span class="strong">**这是个什么项目？**</span>  </span><br><span class="line">用 2–4 句话描述它大概是干嘛的。</span><br><span class="line"></span><br><span class="line"><span class="strong">**我为什么记它？以后可能怎么用？**</span>  </span><br><span class="line">写清楚&quot;和我有什么关系&quot;：准备怎么用、打算从它身上学什么。</span><br></pre></td></tr></table></figure>
+
+</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">mufan</div><div class="author-info-description">折腾不止，记录不息</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客 🖤</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/ai-rss-and-x-topic-skills/" title="不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill">不刷二手资讯：我用 AI 做了 RSS 日报和 X 选题两个 Skill</a><time datetime="2026-02-20T09:00:00.000Z" title="发表于 2026-02-20 17:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/openclaw-qwen-agent-team/" title="从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记">从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</a><time datetime="2026-02-20T08:00:00.000Z" title="发表于 2026-02-20 16:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/openclaw-agent-system-hardcore/" title="硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统">硬核拆解 OpenClaw：如何做一套真正能落地的 Agent 系统</a><time datetime="2026-02-20T07:00:00.000Z" title="发表于 2026-02-20 15:00:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/20/%E5%A5%87%E7%82%B9%E4%B9%8B%E5%90%8E-%E7%AE%97%E5%8A%9B%E6%97%B6%E4%BB%A3%E7%9A%84%E4%BA%BA%E7%B1%BB%E4%BD%8D%E7%BD%AE%E9%87%8D%E6%8E%92/" title="奇点之后：算力时代的人类位置重排">奇点之后：算力时代的人类位置重排</a><time datetime="2026-02-20T05:40:00.000Z" title="发表于 2026-02-20 13:40:00">2026-02-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/17/openclaw-telegram-topics-concurrency/" title="OpenClaw 实战：如何在 Telegram 实现多任务并发处理">OpenClaw 实战：如何在 Telegram 实现多任务并发处理</a><time datetime="2026-02-16T16:45:00.000Z" title="发表于 2026-02-17 00:45:00">2026-02-17</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%80%9D%E8%80%83/"><span class="card-category-list-name">思考</span><span class="card-category-list-count">1</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%80%9D%E8%80%83/AI/"><span class="card-category-list-name">AI</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF/"><span class="card-category-list-name">技术</span><span class="card-category-list-count">4</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF/AI-%E5%B7%A5%E4%BD%9C%E6%B5%81/"><span class="card-category-list-name">AI 工作流</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF/Agent/"><span class="card-category-list-name">Agent</span><span class="card-category-list-count">2</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/"><span class="card-category-list-name">技术教程</span><span class="card-category-list-count">6</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6/"><span class="card-category-list-name">技术深度</span><span class="card-category-list-count">1</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E4%BF%A1%E6%81%AF%E6%BA%90/" style="font-size: 1.15em; color: rgb(50, 131, 112);">信息源</a><a href="/tags/%E9%80%89%E9%A2%98/" style="font-size: 1.15em; color: rgb(88, 110, 152);">选题</a><a href="/tags/Skill/" style="font-size: 1.15em; color: rgb(50, 50, 56);">Skill</a><a href="/tags/RSS/" style="font-size: 1.15em; color: rgb(50, 105, 79);">RSS</a><a href="/tags/X-Twitter/" style="font-size: 1.15em; color: rgb(83, 138, 52);">X/Twitter</a><a href="/tags/AI/" style="font-size: 1.45em; color: rgb(78, 50, 162);">AI</a><a href="/tags/Claude/" style="font-size: 1.15em; color: rgb(171, 166, 98);">Claude</a><a href="/tags/Memory/" style="font-size: 1.15em; color: rgb(89, 50, 113);">Memory</a><a href="/tags/RAG/" style="font-size: 1.15em; color: rgb(138, 123, 91);">RAG</a><a href="/tags/DevTools/" style="font-size: 1.15em; color: rgb(155, 159, 135);">DevTools</a><a href="/tags/Clawdbot/" style="font-size: 1.15em; color: rgb(59, 64, 107);">Clawdbot</a><a href="/tags/%E6%95%99%E7%A8%8B/" style="font-size: 1.35em; color: rgb(68, 137, 50);">教程</a><a href="/tags/Linux/" style="font-size: 1.35em; color: rgb(160, 50, 124);">Linux</a><a href="/tags/ARM64/" style="font-size: 1.15em; color: rgb(112, 125, 114);">ARM64</a><a href="/tags/Claude-Code/" style="font-size: 1.15em; color: rgb(182, 79, 187);">Claude Code</a><a href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" style="font-size: 1.15em; color: rgb(120, 50, 151);">开发工具</a><a href="/tags/TDD/" style="font-size: 1.15em; color: rgb(50, 164, 174);">TDD</a><a href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" style="font-size: 1.15em; color: rgb(132, 158, 137);">最佳实践</a><a href="/tags/Hexo/" style="font-size: 1.15em; color: rgb(181, 50, 198);">Hexo</a><a href="/tags/GitHub-Pages/" style="font-size: 1.15em; color: rgb(154, 77, 176);">GitHub Pages</a><a href="/tags/Butterfly/" style="font-size: 1.15em; color: rgb(82, 50, 171);">Butterfly</a><a href="/tags/OpenClaw/" style="font-size: 1.45em; color: rgb(177, 70, 96);">OpenClaw</a><a href="/tags/Agent-%E7%B3%BB%E7%BB%9F/" style="font-size: 1.15em; color: rgb(50, 73, 54);">Agent 系统</a><a href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" style="font-size: 1.25em; color: rgb(50, 57, 188);">工程实践</a><a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 1.15em; color: rgb(50, 164, 111);">架构</a><a href="/tags/%E4%B8%AA%E4%BA%BA%E5%8A%A9%E6%89%8B/" style="font-size: 1.15em; color: rgb(50, 164, 115);">个人助手</a><a href="/tags/Qwen3-5-Plus/" style="font-size: 1.15em; color: rgb(92, 55, 194);">Qwen3.5-Plus</a><a href="/tags/Agent-Team/" style="font-size: 1.15em; color: rgb(50, 50, 50);">Agent Team</a><a href="/tags/Telegram/" style="font-size: 1.15em; color: rgb(50, 197, 85);">Telegram</a><a href="/tags/%E6%95%88%E7%8E%87/" style="font-size: 1.15em; color: rgb(163, 50, 190);">效率</a><a href="/tags/%E4%BB%A3%E7%90%86/" style="font-size: 1.15em; color: rgb(124, 125, 88);">代理</a><a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 1.25em; color: rgb(50, 127, 50);">工具</a><a href="/tags/Tmux/" style="font-size: 1.15em; color: rgb(101, 57, 132);">Tmux</a><a href="/tags/%E7%BB%88%E7%AB%AF/" style="font-size: 1.15em; color: rgb(50, 50, 50);">终端</a><a href="/tags/%E5%A5%87%E7%82%B9/" style="font-size: 1.15em; color: rgb(109, 79, 105);">奇点</a><a href="/tags/%E7%AE%97%E5%8A%9B/" style="font-size: 1.15em; color: rgb(66, 130, 188);">算力</a><a href="/tags/AGI/" style="font-size: 1.15em; color: rgb(50, 110, 72);">AGI</a><a href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93/" style="font-size: 1.15em; color: rgb(50, 78, 85);">智能体</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/02/">
+            <span class="card-archive-list-date">
+              二月 2026
+            </span>
+            <span class="card-archive-list-count">7</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/01/">
+            <span class="card-archive-list-date">
+              一月 2026
+            </span>
+            <span class="card-archive-list-count">4</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/02/">
+            <span class="card-archive-list-date">
+              二月 2024
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">12</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By mufan</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></span></div><div class="footer_custom_text">用心记录每一次折腾</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
