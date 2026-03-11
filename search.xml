@@ -1272,69 +1272,6 @@
       </tags>
   </entry>
   <entry>
-    <title>从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</title>
-    <url>/2026/02/20/openclaw-qwen-agent-team/</url>
-    <content><![CDATA[<p>很多人装完 OpenClaw（俗称小龙虾）的第一反应是：这玩意儿怎么用？</p>
-<p>你可能看着那个黑乎乎的终端窗口，或者 Telegram 里那个半天不蹦出一个词的机器人，心里犯嘀咕：这和 ChatGPT 有什么区别？为什么我还要费劲巴拉地折腾服务器？</p>
-<p>我花了半个月时间，烧了 500 美金，把 OpenClaw 从“装上就吃灰”折腾成了真能干活的 AI 员工。今天这篇长文，不聊虚的跑分，只聊工程实战：如何给它搭工位、注灵魂，最后把它升级成一支 7×24 小时全自动运行的 AI 工程师团队。</p>
-<h3 id="核心心态：它不是聊天框，是你的远程同事"><a href="#核心心态：它不是聊天框，是你的远程同事" class="headerlink" title="核心心态：它不是聊天框，是你的远程同事"></a>核心心态：它不是聊天框，是你的远程同事</h3><p>在动手之前，我们先切换一下心态：不要把 OpenClaw 当成一个 AI 助手，把它想象成你刚招的一个远程员工。</p>
-<p>人入职了，但工位还没搭好，它现在什么都干不了。你得给它准备电脑（服务器）、选好大脑（模型）、配好网络和工具，最重要的是，你得交代清楚你是谁、你的工作流是什么。</p>
-<h3 id="第一部分：给-AI-员工搭个像样的工位"><a href="#第一部分：给-AI-员工搭个像样的工位" class="headerlink" title="第一部分：给 AI 员工搭个像样的工位"></a>第一部分：给 AI 员工搭个像样的工位</h3><h4 id="1-硬件与大脑的选择"><a href="#1-硬件与大脑的选择" class="headerlink" title="1. 硬件与大脑的选择"></a>1. 硬件与大脑的选择</h4><p>首先，服务器建议直接买海外的（香港、新加坡等），内存 8G 起步。别省这几百块，跑浏览器和自动化脚本极其吃内存，2G 的机器基本上一跑就卡死。</p>
-<p>关于“大脑”，如果你预算无限，Claude Opus 4.6 当然是最强的。但我最近的实战发现，<strong>Qwen3.5-Plus</strong> 才是真正的性价比之神。它采用了极致稀疏的 MoE 架构，智商在线且速度极快。最重要的是，它是开源的，API 价格极低，适合我们这种需要 24 小时高频调用的自治系统。</p>
-<h4 id="2-网络管线：让-AI-真正看懂世界"><a href="#2-网络管线：让-AI-真正看懂世界" class="headerlink" title="2. 网络管线：让 AI 真正看懂世界"></a>2. 网络管线：让 AI 真正看懂世界</h4><p>一个只会“搜索”的 AI 是没法干活的。我为它配置了四层网络能力：</p>
-<ul>
-<li><strong>Brave Search</strong>：基础搜索。</li>
-<li><strong>jina.ai Reader</strong>：它能把复杂的网页转换成 AI 读起来最舒服的 Markdown 格式，甚至能绕过一些付费墙。</li>
-<li><strong>浏览器层级（L0-L3）</strong>：从无头浏览器到截图视觉识别。当遇到需要登录或者滑块验证码时，我配置了 <strong>KasmVNC</strong>。这让你可以随时接管 AI 的屏幕，帮它手动过个验证，然后挥挥手让它继续干活。</li>
-</ul>
-<h4 id="3-文件流转：让成果走进你的文件夹"><a href="#3-文件流转：让成果走进你的文件夹" class="headerlink" title="3. 文件流转：让成果走进你的文件夹"></a>3. 文件流转：让成果走进你的文件夹</h4><p>AI 写完的代码或素材，躺在远程服务器里没用。我推荐用 <strong>rclone</strong> 把服务器文件夹直接挂载到本地 Mac&#x2F;PC 的 Finder 里。配合 <strong>File Browser</strong>，你甚至可以在手机浏览器里随时查看它昨晚通宵写的代码。这种“所见即所得”的体验，是把 AI 嵌入工作流的关键。</p>
-<h3 id="第二部分：注入灵魂——SOUL-md-与入职培训"><a href="#第二部分：注入灵魂——SOUL-md-与入职培训" class="headerlink" title="第二部分：注入灵魂——SOUL.md 与入职培训"></a>第二部分：注入灵魂——SOUL.md 与入职培训</h3><p>很多人的 AI 说话像复读机，是因为你没给它“灵魂”。</p>
-<p>在 OpenClaw 里，有一个核心文件叫 <code>SOUL.md</code>。我在这里面写明了：它是我的同事，不是讨好者。它可以有自己的立场，甚至可以“拦着我”——如果我提的需求明显有坑，它必须直接指出来。</p>
-<p>更进阶的操作是<strong>入职培训</strong>。我把我积累了几年的 Obsidian 知识库整个同步给它，让它读一遍。它读完后，竟然推测出了我完整的人际关系和性格特点。这种“被 AI 深度理解”的感觉非常奇妙，从此之后，我提一个模糊的需求，它都能根据我的历史习惯精准接单。</p>
-<h3 id="第三部分：从“聊天”到“自治”——Qwen3-5-Plus-2-0-系统"><a href="#第三部分：从“聊天”到“自治”——Qwen3-5-Plus-2-0-系统" class="headerlink" title="第三部分：从“聊天”到“自治”——Qwen3.5-Plus 2.0 系统"></a>第三部分：从“聊天”到“自治”——Qwen3.5-Plus 2.0 系统</h3><p>传统的 AI 编程太“粘人”：你得盯着它，它改错一行你就得纠正。</p>
-<p>为了解决这个问题，我跑通了一套“自治开发系统”。它的核心逻辑是：<strong>不要让 AI 记在脑子里，要让它记在文件里。</strong></p>
-<p>我把开发过程变成了“轮班工人”状态机，依赖四个支点：</p>
-<ol>
-<li><strong>feature_list.json</strong>：这是工单，记录了所有待办任务。</li>
-<li><strong>progress.txt</strong>：交接日志。</li>
-<li><strong>CLAUDE.md</strong>：行为准则。</li>
-<li><strong>init.sh</strong>：环境自检脚本。</li>
-</ol>
-<p>配合一个 <code>run_autonomy.py</code> 脚本，AI 会进入无限循环：读取任务 -&gt; 执行（调用 Qwen3.5-Plus）-&gt; 自动跑测试 -&gt; 成功则更新工单，失败则回滚 Git 并记录日志。</p>
-<p>有了这套系统，你洗澡前扔个大需求给它，第二天起来，它可能已经自发进行了 50 轮迭代，文件夹里已经躺好了跑通的代码。</p>
-<h3 id="第四部分：Agent-Team-3-0——从一个人到一支团队"><a href="#第四部分：Agent-Team-3-0——从一个人到一支团队" class="headerlink" title="第四部分：Agent Team 3.0——从一个人到一支团队"></a>第四部分：Agent Team 3.0——从一个人到一支团队</h3><p>当项目复杂度提升（比如要同时写前端 UI、后端接口和自动化测试）时，单线程的 AI 会顾此失失彼。这时就需要开启 <strong>Agent Team</strong> 模式。</p>
-<p>在 3.0 架构中，我构建了一个微型软件公司：</p>
-<ul>
-<li><strong>Lead Agent (CTO)</strong>：负责读文档、拆任务、分派工作。它不写代码，只看架构和 Review。</li>
-<li><strong>@backend-integrator</strong>：只管 Python 和数据库，上下文极其干净。</li>
-<li><strong>@frontend-polisher</strong>：专注 UI 和交互。</li>
-<li><strong>@qa-engineer</strong>：它就像个“找茬的”，负责跑测试。如果测试挂了，它不会自己乱修，而是把报错甩给后端：“你接口 500 了，去查配置。”</li>
-</ul>
-<p>这种角色分工让协作变得极其丝滑。后端在写接口的同时，前端正在优化加载动画，QA 坐在旁边实时反馈。这已经不是在用工具，而是在管理一个团队。</p>
-<h3 id="第五部分：安全与踩坑——别让-AI-把自己改死"><a href="#第五部分：安全与踩坑——别让-AI-把自己改死" class="headerlink" title="第五部分：安全与踩坑——别让 AI 把自己改死"></a>第五部分：安全与踩坑——别让 AI 把自己改死</h3><p>实战中最大的坑是：<strong>AI 会把自己改死。</strong></p>
-<p>AI 有时候会产生幻觉，去修改 OpenClaw 的配置文件，结果改错一个参数，程序重启后就挂了。</p>
-<ul>
-<li><strong>建议 1</strong>：配置完成后，关掉自动重启。</li>
-<li><strong>建议 2</strong>：修改底层配置这种重活，交给专职的命令行工具（如 Claude Code），而不是让 Agent 在聊天框里自我修改。</li>
-<li><strong>建议 3</strong>：善用 <code>steer</code> 模式。这能让你在 AI 执行长任务（比如搜 10 个网页）中途实时喊停或调整方向，而不用干等。</li>
-</ul>
-<h3 id="结语：先有工作流，再有-AI-同事"><a href="#结语：先有工作流，再有-AI-同事" class="headerlink" title="结语：先有工作流，再有 AI 同事"></a>结语：先有工作流，再有 AI 同事</h3><p>很多人装完 OpenClaw 觉得没用，本质上是因为自己没有明确的工作流。</p>
-<p>OpenClaw 就像一个能力极强的实习生，如果你不给它布置活，它只能在工位上发呆。先搞清楚你手头哪些活是可以标准化的（比如写爬虫、整理素材、跑单元测试），再用这套系统去放大。</p>
-<p>这套 OpenClaw + Qwen3.5-Plus 的组合，让我第一次感觉到：全自动 AI 开发不再是实验室里的 Demo，而是真正能帮我 24 小时守着工位、不断产出的生产力系统。</p>
-<p>如果你也想拥有一支不拿工资、不喝咖啡、只吃 Token 的全栈工程师团队，现在就是最好的入场时机。</p>
-]]></content>
-      <categories>
-        <category>技术</category>
-        <category>Agent</category>
-      </categories>
-      <tags>
-        <tag>OpenClaw</tag>
-        <tag>工程实践</tag>
-        <tag>Qwen3.5-Plus</tag>
-        <tag>Agent Team</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>OpenClaw 架构原理深度解析</title>
     <url>/2026/02/02/openclaw-architecture-analysis/</url>
     <content><![CDATA[<blockquote>
@@ -1556,6 +1493,69 @@
         <tag>OpenClaw</tag>
         <tag>架构</tag>
         <tag>个人助手</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>从一只小龙虾到一支 AI 工程师队：OpenClaw + Qwen3.5-Plus 实战笔记</title>
+    <url>/2026/02/20/openclaw-qwen-agent-team/</url>
+    <content><![CDATA[<p>很多人装完 OpenClaw（俗称小龙虾）的第一反应是：这玩意儿怎么用？</p>
+<p>你可能看着那个黑乎乎的终端窗口，或者 Telegram 里那个半天不蹦出一个词的机器人，心里犯嘀咕：这和 ChatGPT 有什么区别？为什么我还要费劲巴拉地折腾服务器？</p>
+<p>我花了半个月时间，烧了 500 美金，把 OpenClaw 从“装上就吃灰”折腾成了真能干活的 AI 员工。今天这篇长文，不聊虚的跑分，只聊工程实战：如何给它搭工位、注灵魂，最后把它升级成一支 7×24 小时全自动运行的 AI 工程师团队。</p>
+<h3 id="核心心态：它不是聊天框，是你的远程同事"><a href="#核心心态：它不是聊天框，是你的远程同事" class="headerlink" title="核心心态：它不是聊天框，是你的远程同事"></a>核心心态：它不是聊天框，是你的远程同事</h3><p>在动手之前，我们先切换一下心态：不要把 OpenClaw 当成一个 AI 助手，把它想象成你刚招的一个远程员工。</p>
+<p>人入职了，但工位还没搭好，它现在什么都干不了。你得给它准备电脑（服务器）、选好大脑（模型）、配好网络和工具，最重要的是，你得交代清楚你是谁、你的工作流是什么。</p>
+<h3 id="第一部分：给-AI-员工搭个像样的工位"><a href="#第一部分：给-AI-员工搭个像样的工位" class="headerlink" title="第一部分：给 AI 员工搭个像样的工位"></a>第一部分：给 AI 员工搭个像样的工位</h3><h4 id="1-硬件与大脑的选择"><a href="#1-硬件与大脑的选择" class="headerlink" title="1. 硬件与大脑的选择"></a>1. 硬件与大脑的选择</h4><p>首先，服务器建议直接买海外的（香港、新加坡等），内存 8G 起步。别省这几百块，跑浏览器和自动化脚本极其吃内存，2G 的机器基本上一跑就卡死。</p>
+<p>关于“大脑”，如果你预算无限，Claude Opus 4.6 当然是最强的。但我最近的实战发现，<strong>Qwen3.5-Plus</strong> 才是真正的性价比之神。它采用了极致稀疏的 MoE 架构，智商在线且速度极快。最重要的是，它是开源的，API 价格极低，适合我们这种需要 24 小时高频调用的自治系统。</p>
+<h4 id="2-网络管线：让-AI-真正看懂世界"><a href="#2-网络管线：让-AI-真正看懂世界" class="headerlink" title="2. 网络管线：让 AI 真正看懂世界"></a>2. 网络管线：让 AI 真正看懂世界</h4><p>一个只会“搜索”的 AI 是没法干活的。我为它配置了四层网络能力：</p>
+<ul>
+<li><strong>Brave Search</strong>：基础搜索。</li>
+<li><strong>jina.ai Reader</strong>：它能把复杂的网页转换成 AI 读起来最舒服的 Markdown 格式，甚至能绕过一些付费墙。</li>
+<li><strong>浏览器层级（L0-L3）</strong>：从无头浏览器到截图视觉识别。当遇到需要登录或者滑块验证码时，我配置了 <strong>KasmVNC</strong>。这让你可以随时接管 AI 的屏幕，帮它手动过个验证，然后挥挥手让它继续干活。</li>
+</ul>
+<h4 id="3-文件流转：让成果走进你的文件夹"><a href="#3-文件流转：让成果走进你的文件夹" class="headerlink" title="3. 文件流转：让成果走进你的文件夹"></a>3. 文件流转：让成果走进你的文件夹</h4><p>AI 写完的代码或素材，躺在远程服务器里没用。我推荐用 <strong>rclone</strong> 把服务器文件夹直接挂载到本地 Mac&#x2F;PC 的 Finder 里。配合 <strong>File Browser</strong>，你甚至可以在手机浏览器里随时查看它昨晚通宵写的代码。这种“所见即所得”的体验，是把 AI 嵌入工作流的关键。</p>
+<h3 id="第二部分：注入灵魂——SOUL-md-与入职培训"><a href="#第二部分：注入灵魂——SOUL-md-与入职培训" class="headerlink" title="第二部分：注入灵魂——SOUL.md 与入职培训"></a>第二部分：注入灵魂——SOUL.md 与入职培训</h3><p>很多人的 AI 说话像复读机，是因为你没给它“灵魂”。</p>
+<p>在 OpenClaw 里，有一个核心文件叫 <code>SOUL.md</code>。我在这里面写明了：它是我的同事，不是讨好者。它可以有自己的立场，甚至可以“拦着我”——如果我提的需求明显有坑，它必须直接指出来。</p>
+<p>更进阶的操作是<strong>入职培训</strong>。我把我积累了几年的 Obsidian 知识库整个同步给它，让它读一遍。它读完后，竟然推测出了我完整的人际关系和性格特点。这种“被 AI 深度理解”的感觉非常奇妙，从此之后，我提一个模糊的需求，它都能根据我的历史习惯精准接单。</p>
+<h3 id="第三部分：从“聊天”到“自治”——Qwen3-5-Plus-2-0-系统"><a href="#第三部分：从“聊天”到“自治”——Qwen3-5-Plus-2-0-系统" class="headerlink" title="第三部分：从“聊天”到“自治”——Qwen3.5-Plus 2.0 系统"></a>第三部分：从“聊天”到“自治”——Qwen3.5-Plus 2.0 系统</h3><p>传统的 AI 编程太“粘人”：你得盯着它，它改错一行你就得纠正。</p>
+<p>为了解决这个问题，我跑通了一套“自治开发系统”。它的核心逻辑是：<strong>不要让 AI 记在脑子里，要让它记在文件里。</strong></p>
+<p>我把开发过程变成了“轮班工人”状态机，依赖四个支点：</p>
+<ol>
+<li><strong>feature_list.json</strong>：这是工单，记录了所有待办任务。</li>
+<li><strong>progress.txt</strong>：交接日志。</li>
+<li><strong>CLAUDE.md</strong>：行为准则。</li>
+<li><strong>init.sh</strong>：环境自检脚本。</li>
+</ol>
+<p>配合一个 <code>run_autonomy.py</code> 脚本，AI 会进入无限循环：读取任务 -&gt; 执行（调用 Qwen3.5-Plus）-&gt; 自动跑测试 -&gt; 成功则更新工单，失败则回滚 Git 并记录日志。</p>
+<p>有了这套系统，你洗澡前扔个大需求给它，第二天起来，它可能已经自发进行了 50 轮迭代，文件夹里已经躺好了跑通的代码。</p>
+<h3 id="第四部分：Agent-Team-3-0——从一个人到一支团队"><a href="#第四部分：Agent-Team-3-0——从一个人到一支团队" class="headerlink" title="第四部分：Agent Team 3.0——从一个人到一支团队"></a>第四部分：Agent Team 3.0——从一个人到一支团队</h3><p>当项目复杂度提升（比如要同时写前端 UI、后端接口和自动化测试）时，单线程的 AI 会顾此失失彼。这时就需要开启 <strong>Agent Team</strong> 模式。</p>
+<p>在 3.0 架构中，我构建了一个微型软件公司：</p>
+<ul>
+<li><strong>Lead Agent (CTO)</strong>：负责读文档、拆任务、分派工作。它不写代码，只看架构和 Review。</li>
+<li><strong>@backend-integrator</strong>：只管 Python 和数据库，上下文极其干净。</li>
+<li><strong>@frontend-polisher</strong>：专注 UI 和交互。</li>
+<li><strong>@qa-engineer</strong>：它就像个“找茬的”，负责跑测试。如果测试挂了，它不会自己乱修，而是把报错甩给后端：“你接口 500 了，去查配置。”</li>
+</ul>
+<p>这种角色分工让协作变得极其丝滑。后端在写接口的同时，前端正在优化加载动画，QA 坐在旁边实时反馈。这已经不是在用工具，而是在管理一个团队。</p>
+<h3 id="第五部分：安全与踩坑——别让-AI-把自己改死"><a href="#第五部分：安全与踩坑——别让-AI-把自己改死" class="headerlink" title="第五部分：安全与踩坑——别让 AI 把自己改死"></a>第五部分：安全与踩坑——别让 AI 把自己改死</h3><p>实战中最大的坑是：<strong>AI 会把自己改死。</strong></p>
+<p>AI 有时候会产生幻觉，去修改 OpenClaw 的配置文件，结果改错一个参数，程序重启后就挂了。</p>
+<ul>
+<li><strong>建议 1</strong>：配置完成后，关掉自动重启。</li>
+<li><strong>建议 2</strong>：修改底层配置这种重活，交给专职的命令行工具（如 Claude Code），而不是让 Agent 在聊天框里自我修改。</li>
+<li><strong>建议 3</strong>：善用 <code>steer</code> 模式。这能让你在 AI 执行长任务（比如搜 10 个网页）中途实时喊停或调整方向，而不用干等。</li>
+</ul>
+<h3 id="结语：先有工作流，再有-AI-同事"><a href="#结语：先有工作流，再有-AI-同事" class="headerlink" title="结语：先有工作流，再有 AI 同事"></a>结语：先有工作流，再有 AI 同事</h3><p>很多人装完 OpenClaw 觉得没用，本质上是因为自己没有明确的工作流。</p>
+<p>OpenClaw 就像一个能力极强的实习生，如果你不给它布置活，它只能在工位上发呆。先搞清楚你手头哪些活是可以标准化的（比如写爬虫、整理素材、跑单元测试），再用这套系统去放大。</p>
+<p>这套 OpenClaw + Qwen3.5-Plus 的组合，让我第一次感觉到：全自动 AI 开发不再是实验室里的 Demo，而是真正能帮我 24 小时守着工位、不断产出的生产力系统。</p>
+<p>如果你也想拥有一支不拿工资、不喝咖啡、只吃 Token 的全栈工程师团队，现在就是最好的入场时机。</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+        <category>Agent</category>
+      </categories>
+      <tags>
+        <tag>OpenClaw</tag>
+        <tag>工程实践</tag>
+        <tag>Qwen3.5-Plus</tag>
+        <tag>Agent Team</tag>
       </tags>
   </entry>
   <entry>
