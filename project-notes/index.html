@@ -304,7 +304,6 @@
 <p><strong>这是个什么项目？</strong><br>一个为 24&#x2F;7 运行的 AI Agent 设计的记忆框架，作为主 agent 的”记忆侧车”运行。支持监控对话、抽取记忆、预测意图，可以用 in-memory 模式或 Postgres + pgvector 持久化。需要 Rust + Python + Postgres 环境。</p>
 <p><strong>我为什么记它？以后可能怎么用？</strong><br>2 月 12 日测试过，服务还在跑但没有真正接入工作流（数据库里有 78 条资源 + 311 条记忆，但都是测试数据）。功能相对基础，不如 PowerMem 完善。暂时不考虑重启，除非其他方案都不合适。</p>
 <hr>
-<hr>
 <h2 id="MiroFish"><a href="#MiroFish" class="headerlink" title="MiroFish"></a>MiroFish</h2><blockquote>
 <p><strong>类型</strong>：群体智能引擎 &#x2F; AI 预测系统<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/666ghj/MiroFish">https://github.com/666ghj/MiroFish</a><br><strong>当前状态</strong>：已查阅评估</p>
 </blockquote>
@@ -315,8 +314,6 @@
 <li>借鉴「种子信息 → 数字孪生 → 推演预测」的工作流；</li>
 <li>未来在做政策&#x2F;市场&#x2F;舆情预测类项目时，可以参考其架构思路。</li>
 </ul>
-<hr>
-<hr>
 <hr>
 <h2 id="AI-Account-Toolkit"><a href="#AI-Account-Toolkit" class="headerlink" title="AI-Account-Toolkit"></a>AI-Account-Toolkit</h2><blockquote>
 <p><strong>类型</strong>：ChatGPT 账号注册与管理工具集合<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/adminlove520/AI-Account-Toolkit">https://github.com/adminlove520/AI-Account-Toolkit</a><br><strong>当前状态</strong>：已查阅评估（高风险工具）</p>
@@ -331,6 +328,66 @@
 </ul>
 <p><strong>风险提示</strong>：此类工具涉及违反服务条款的操作，生产环境使用可能导致法律风险或账号封禁。</p>
 <hr>
+<h2 id="inkos"><a href="#inkos" class="headerlink" title="inkos"></a>inkos</h2><blockquote>
+<p><strong>类型</strong>：Autonomous novel writing CLI agent — AI agents write, audit, and revise novels with human review gates<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/Narcooo/inkos">https://github.com/Narcooo/inkos</a><br><strong>当前状态</strong>：已查阅评估</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个面向长篇小说创作的 CLI 多 Agent 写作系统，强调可控与可审计：由多个 AI 角色（写作&#x2F;审校&#x2F;改写等）协作产出章节，并通过”人工审核关口”把质量和方向锁住。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>对”长文本生成 + 质量控制 + 人类把关”这类工作流很有参考价值：</p>
+<ul>
+<li>借鉴其多 Agent 分工（写作&#x2F;审校&#x2F;修订）和质量门禁设计；</li>
+<li>以后要做长文&#x2F;剧本&#x2F;连载内容自动化时，可直接参考它的流水线与提示词组织方式。</li>
+</ul>
+<hr>
+<h2 id="SearXNG"><a href="#SearXNG" class="headerlink" title="SearXNG"></a>SearXNG</h2><blockquote>
+<p><strong>类型</strong>：Privacy-respecting, hackable metasearch engine<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/searxng/searxng">https://github.com/searxng/searxng</a><br><strong>当前状态</strong>：已查阅评估</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个可自托管的隐私友好元搜索引擎（metasearch），聚合多搜索源结果并提供统一搜索入口。支持引擎扩展、主题&#x2F;插件、以及容器化部署。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>对”个人搜索中枢”和”Agent 网页检索”很有价值：</p>
+<ul>
+<li>可作为本地&#x2F;内网的默认搜索入口，减少对单一搜索源依赖；</li>
+<li>以后可以把它接到 OpenClaw&#x2F;Skill 的搜索工具链里，做可控的网页检索与聚合。</li>
+</ul>
+<hr>
+<h2 id="Strix"><a href="#Strix" class="headerlink" title="Strix"></a>Strix</h2><blockquote>
+<p><strong>类型</strong>：AI-driven security testing &#x2F; penetration testing toolkit<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/usestrix/strix">https://github.com/usestrix/strix</a><br><strong>当前状态</strong>：已查阅评估</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个面向安全测试&#x2F;渗透测试的 AI 工具（更偏”AI 安全助手&#x2F;自动化测试”方向），用于辅助情报收集、漏洞验证、测试流程编排等。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>主要当作安全领域的架构与工作流参考：</p>
+<ul>
+<li>借鉴它如何把安全测试任务拆解成可重复的步骤&#x2F;模块；</li>
+<li>以后要做自家服务安全自检（在隔离环境跑）时，可以参考其设计思路。</li>
+</ul>
+<hr>
+<h2 id="opencli-skill"><a href="#opencli-skill" class="headerlink" title="opencli-skill"></a>opencli-skill</h2><blockquote>
+<p><strong>类型</strong>：Claude Code 多平台操控 Skill<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/joeseesun/opencli-skill">https://github.com/joeseesun/opencli-skill</a><br><strong>当前状态</strong>：已查阅评估</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个给 Claude Code 用的 Skill，让 AI 通过浏览器复用登录态，以自然语言操控多个平台（读&#x2F;搜&#x2F;发帖&#x2F;回复&#x2F;点赞等），无需平台 API Key。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>对多平台自动化很有参考价值：</p>
+<ul>
+<li>学习”复用浏览器登录态”绕过 API 限制的方案；</li>
+<li>未来做内容分发、社交监听、自动运营时可参考其统一抽象。</li>
+</ul>
+<hr>
+<h2 id="Resin"><a href="#Resin" class="headerlink" title="Resin"></a>Resin</h2><blockquote>
+<p><strong>类型</strong>：高性能智能代理池网关<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/Resinat/Resin">https://github.com/Resinat/Resin</a><br><strong>当前状态</strong>：已查阅评估</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个高性能智能代理池网关，用于把海量代理订阅聚合成稳定可观测的单一出口。强调会话保持（sticky routing）、健康检查、智能调度、跨订阅去重与热更新。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>对代理池&#x2F;出口治理很有参考价值：</p>
+<ul>
+<li>借鉴其”会话保持 + 故障切换”和健康检查&#x2F;延迟评分体系；</li>
+<li>以后如果要做大规模代理节点运营或出口网关，可以直接参考其实现。</li>
+</ul>
+<hr>
+<h2 id="AstrBot"><a href="#AstrBot" class="headerlink" title="AstrBot"></a>AstrBot</h2><blockquote>
+<p><strong>类型</strong>：开源 Agentic IM 聊天机器人框架<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/AstrBotDevs/AstrBot">https://github.com/AstrBotDevs/AstrBot</a><br><strong>当前状态</strong>：已查阅评估</p>
+</blockquote>
+<p><strong>这是个什么项目？</strong><br>一个开源的一站式 Agentic 个人&#x2F;群聊助手，可部署在 QQ、Telegram、企业微信、飞书、钉钉、Slack 等多平台；内置 WebUI、插件生态、Agent Sandbox、知识库与人格设定。</p>
+<p><strong>我为什么记它？以后可能怎么用？</strong><br>对跨平台 IM 机器人和”对话式基础设施”很有参考价值：</p>
+<ul>
+<li>学习多平台接入与插件体系设计；</li>
+<li>以后要做群聊助手&#x2F;智能客服&#x2F;企业知识库入口时，可直接参考其架构。</li>
+</ul>
+<hr>
 <p>以后看到新的项目，如果觉得「值得记一下」，就按下面这个格式往下追加一段：</p>
 <h2 id="项目名"><a href="#项目名" class="headerlink" title="项目名"></a>项目名</h2><blockquote>
 <p><strong>类型</strong>：简单一句话说明<br><strong>链接</strong>：<a target="_blank" rel="noopener" href="https://github.com/...">https://github.com/...</a><br><strong>当前状态</strong>：只是记录 &#x2F; 已克隆 &#x2F; 已部署 &#x2F; 正在集成</p>
@@ -344,7 +401,7 @@
           </div>
           <ul class="card-category-list" id="aside-cat-list">
             <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%80%9D%E8%80%83/"><span class="card-category-list-name">思考</span><span class="card-category-list-count">1</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%80%9D%E8%80%83/AI/"><span class="card-category-list-name">AI</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF/"><span class="card-category-list-name">技术</span><span class="card-category-list-count">4</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF/AI-%E5%B7%A5%E4%BD%9C%E6%B5%81/"><span class="card-category-list-name">AI 工作流</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF/Agent/"><span class="card-category-list-name">Agent</span><span class="card-category-list-count">2</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/"><span class="card-category-list-name">技术教程</span><span class="card-category-list-count">6</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%B7%B1%E5%BA%A6/"><span class="card-category-list-name">技术深度</span><span class="card-category-list-count">1</span></a></li>
-          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E4%BF%A1%E6%81%AF%E6%BA%90/" style="font-size: 1.15em; color: rgb(114, 50, 66);">信息源</a><a href="/tags/%E9%80%89%E9%A2%98/" style="font-size: 1.15em; color: rgb(50, 59, 50);">选题</a><a href="/tags/Skill/" style="font-size: 1.15em; color: rgb(95, 106, 50);">Skill</a><a href="/tags/RSS/" style="font-size: 1.15em; color: rgb(144, 69, 61);">RSS</a><a href="/tags/X-Twitter/" style="font-size: 1.15em; color: rgb(172, 151, 171);">X/Twitter</a><a href="/tags/AI/" style="font-size: 1.45em; color: rgb(50, 112, 144);">AI</a><a href="/tags/Claude/" style="font-size: 1.15em; color: rgb(50, 74, 50);">Claude</a><a href="/tags/Memory/" style="font-size: 1.15em; color: rgb(96, 84, 132);">Memory</a><a href="/tags/RAG/" style="font-size: 1.15em; color: rgb(50, 50, 169);">RAG</a><a href="/tags/DevTools/" style="font-size: 1.15em; color: rgb(197, 92, 142);">DevTools</a><a href="/tags/Clawdbot/" style="font-size: 1.15em; color: rgb(155, 158, 140);">Clawdbot</a><a href="/tags/%E6%95%99%E7%A8%8B/" style="font-size: 1.35em; color: rgb(178, 90, 104);">教程</a><a href="/tags/Linux/" style="font-size: 1.35em; color: rgb(178, 72, 58);">Linux</a><a href="/tags/ARM64/" style="font-size: 1.15em; color: rgb(50, 152, 126);">ARM64</a><a href="/tags/Claude-Code/" style="font-size: 1.15em; color: rgb(98, 143, 155);">Claude Code</a><a href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" style="font-size: 1.15em; color: rgb(50, 50, 185);">开发工具</a><a href="/tags/TDD/" style="font-size: 1.15em; color: rgb(138, 195, 193);">TDD</a><a href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" style="font-size: 1.15em; color: rgb(121, 61, 188);">最佳实践</a><a href="/tags/Hexo/" style="font-size: 1.15em; color: rgb(106, 50, 152);">Hexo</a><a href="/tags/GitHub-Pages/" style="font-size: 1.15em; color: rgb(99, 128, 134);">GitHub Pages</a><a href="/tags/Butterfly/" style="font-size: 1.15em; color: rgb(50, 158, 107);">Butterfly</a><a href="/tags/OpenClaw/" style="font-size: 1.45em; color: rgb(50, 100, 110);">OpenClaw</a><a href="/tags/Agent-%E7%B3%BB%E7%BB%9F/" style="font-size: 1.15em; color: rgb(50, 199, 108);">Agent 系统</a><a href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" style="font-size: 1.25em; color: rgb(109, 50, 102);">工程实践</a><a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 1.15em; color: rgb(55, 50, 132);">架构</a><a href="/tags/%E4%B8%AA%E4%BA%BA%E5%8A%A9%E6%89%8B/" style="font-size: 1.15em; color: rgb(50, 145, 88);">个人助手</a><a href="/tags/Qwen3-5-Plus/" style="font-size: 1.15em; color: rgb(174, 133, 136);">Qwen3.5-Plus</a><a href="/tags/Agent-Team/" style="font-size: 1.15em; color: rgb(50, 91, 88);">Agent Team</a><a href="/tags/Telegram/" style="font-size: 1.15em; color: rgb(196, 87, 95);">Telegram</a><a href="/tags/%E6%95%88%E7%8E%87/" style="font-size: 1.15em; color: rgb(144, 168, 89);">效率</a><a href="/tags/%E4%BB%A3%E7%90%86/" style="font-size: 1.15em; color: rgb(50, 119, 57);">代理</a><a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 1.25em; color: rgb(50, 183, 153);">工具</a><a href="/tags/Tmux/" style="font-size: 1.15em; color: rgb(50, 130, 196);">Tmux</a><a href="/tags/%E7%BB%88%E7%AB%AF/" style="font-size: 1.15em; color: rgb(50, 50, 76);">终端</a><a href="/tags/%E5%A5%87%E7%82%B9/" style="font-size: 1.15em; color: rgb(158, 75, 66);">奇点</a><a href="/tags/%E7%AE%97%E5%8A%9B/" style="font-size: 1.15em; color: rgb(164, 77, 162);">算力</a><a href="/tags/AGI/" style="font-size: 1.15em; color: rgb(50, 50, 50);">AGI</a><a href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93/" style="font-size: 1.15em; color: rgb(181, 74, 116);">智能体</a></div></div><div class="card-widget card-archives">
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E4%BF%A1%E6%81%AF%E6%BA%90/" style="font-size: 1.15em; color: rgb(50, 149, 139);">信息源</a><a href="/tags/%E9%80%89%E9%A2%98/" style="font-size: 1.15em; color: rgb(118, 145, 83);">选题</a><a href="/tags/Skill/" style="font-size: 1.15em; color: rgb(50, 131, 160);">Skill</a><a href="/tags/RSS/" style="font-size: 1.15em; color: rgb(50, 130, 50);">RSS</a><a href="/tags/X-Twitter/" style="font-size: 1.15em; color: rgb(50, 144, 132);">X/Twitter</a><a href="/tags/AI/" style="font-size: 1.45em; color: rgb(50, 50, 106);">AI</a><a href="/tags/Claude/" style="font-size: 1.15em; color: rgb(76, 171, 50);">Claude</a><a href="/tags/Memory/" style="font-size: 1.15em; color: rgb(78, 116, 50);">Memory</a><a href="/tags/RAG/" style="font-size: 1.15em; color: rgb(126, 103, 138);">RAG</a><a href="/tags/DevTools/" style="font-size: 1.15em; color: rgb(157, 50, 135);">DevTools</a><a href="/tags/Clawdbot/" style="font-size: 1.15em; color: rgb(171, 173, 111);">Clawdbot</a><a href="/tags/%E6%95%99%E7%A8%8B/" style="font-size: 1.35em; color: rgb(169, 50, 89);">教程</a><a href="/tags/Linux/" style="font-size: 1.35em; color: rgb(182, 72, 197);">Linux</a><a href="/tags/ARM64/" style="font-size: 1.15em; color: rgb(50, 130, 50);">ARM64</a><a href="/tags/Claude-Code/" style="font-size: 1.15em; color: rgb(115, 83, 147);">Claude Code</a><a href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" style="font-size: 1.15em; color: rgb(50, 140, 127);">开发工具</a><a href="/tags/TDD/" style="font-size: 1.15em; color: rgb(118, 50, 141);">TDD</a><a href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" style="font-size: 1.15em; color: rgb(146, 152, 66);">最佳实践</a><a href="/tags/Hexo/" style="font-size: 1.15em; color: rgb(50, 198, 51);">Hexo</a><a href="/tags/GitHub-Pages/" style="font-size: 1.15em; color: rgb(136, 118, 134);">GitHub Pages</a><a href="/tags/Butterfly/" style="font-size: 1.15em; color: rgb(160, 50, 50);">Butterfly</a><a href="/tags/OpenClaw/" style="font-size: 1.45em; color: rgb(50, 134, 166);">OpenClaw</a><a href="/tags/Agent-%E7%B3%BB%E7%BB%9F/" style="font-size: 1.15em; color: rgb(50, 168, 58);">Agent 系统</a><a href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/" style="font-size: 1.25em; color: rgb(177, 95, 50);">工程实践</a><a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 1.15em; color: rgb(150, 63, 50);">架构</a><a href="/tags/%E4%B8%AA%E4%BA%BA%E5%8A%A9%E6%89%8B/" style="font-size: 1.15em; color: rgb(73, 50, 180);">个人助手</a><a href="/tags/Qwen3-5-Plus/" style="font-size: 1.15em; color: rgb(124, 91, 91);">Qwen3.5-Plus</a><a href="/tags/Agent-Team/" style="font-size: 1.15em; color: rgb(75, 50, 113);">Agent Team</a><a href="/tags/Telegram/" style="font-size: 1.15em; color: rgb(50, 119, 137);">Telegram</a><a href="/tags/%E6%95%88%E7%8E%87/" style="font-size: 1.15em; color: rgb(50, 153, 147);">效率</a><a href="/tags/%E4%BB%A3%E7%90%86/" style="font-size: 1.15em; color: rgb(50, 194, 103);">代理</a><a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 1.25em; color: rgb(132, 144, 50);">工具</a><a href="/tags/Tmux/" style="font-size: 1.15em; color: rgb(63, 114, 50);">Tmux</a><a href="/tags/%E7%BB%88%E7%AB%AF/" style="font-size: 1.15em; color: rgb(50, 94, 171);">终端</a><a href="/tags/%E5%A5%87%E7%82%B9/" style="font-size: 1.15em; color: rgb(185, 99, 190);">奇点</a><a href="/tags/%E7%AE%97%E5%8A%9B/" style="font-size: 1.15em; color: rgb(95, 52, 50);">算力</a><a href="/tags/AGI/" style="font-size: 1.15em; color: rgb(102, 196, 143);">AGI</a><a href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93/" style="font-size: 1.15em; color: rgb(50, 149, 65);">智能体</a></div></div><div class="card-widget card-archives">
     <div class="item-headline">
       <i class="fas fa-archive"></i>
       <span>归档</span>
