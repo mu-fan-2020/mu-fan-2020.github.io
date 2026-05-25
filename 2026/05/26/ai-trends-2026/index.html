@@ -1,0 +1,414 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机 | Mufan's Blog</title><meta name="author" content="mufan"><meta name="copyright" content="mufan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="本小姐刚从网络上扒来的最新情报～ (￣ω￣)ﾉ 数据截止：2026-05  这是「Claude &amp; GPT 多角色协同」系列的最后一篇（压轴！）。覆盖 Agent Teams 官方多代理、Ralph Loop 24 小时运转、Headless 定时调度、Anthropic 官方长时运行架构，以及 X&#x2F;Twitter 社区的第一手动态。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24&#x2F;7 永动机">
+<meta property="og:url" content="https://mu-fan-2020.github.io/2026/05/26/ai-trends-2026/index.html">
+<meta property="og:site_name" content="Mufan&#39;s Blog">
+<meta property="og:description" content="本小姐刚从网络上扒来的最新情报～ (￣ω￣)ﾉ 数据截止：2026-05  这是「Claude &amp; GPT 多角色协同」系列的最后一篇（压轴！）。覆盖 Agent Teams 官方多代理、Ralph Loop 24 小时运转、Headless 定时调度、Anthropic 官方长时运行架构，以及 X&#x2F;Twitter 社区的第一手动态。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mu-fan-2020.github.io/img/favicon.png">
+<meta property="article:published_time" content="2026-05-26T02:50:00.000Z">
+<meta property="article:modified_time" content="2026-05-25T16:48:45.150Z">
+<meta property="article:author" content="mufan">
+<meta property="article:tag" content="AI 趋势">
+<meta property="article:tag" content="Agent Teams">
+<meta property="article:tag" content="Claude">
+<meta property="article:tag" content="Headless">
+<meta property="article:tag" content="Ralph Loop">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mu-fan-2020.github.io/img/favicon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机",
+  "url": "https://mu-fan-2020.github.io/2026/05/26/ai-trends-2026/",
+  "image": "https://mu-fan-2020.github.io/img/favicon.png",
+  "datePublished": "2026-05-26T02:50:00.000Z",
+  "dateModified": "2026-05-25T16:48:45.150Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "mufan",
+      "url": "https://mu-fan-2020.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://mu-fan-2020.github.io/2026/05/26/ai-trends-2026/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      if ($loadingBox.classList.contains('loaded')) return
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+
+  if (document.readyState === 'complete') {
+    preloader.endLoading()
+  } else {
+    window.addEventListener('load', preloader.endLoading)
+    document.addEventListener('DOMContentLoaded', preloader.endLoading)
+    // Add timeout protection: force end after 7 seconds
+    setTimeout(preloader.endLoading, 7000)
+  }
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">54</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/covers/desk-1.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Mufan's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-26T02:50:00.000Z" title="发表于 2026-05-26 10:50:00">2026-05-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-25T16:48:45.150Z" title="更新于 2026-05-26 00:48:45">2026-05-26</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI-%E5%A4%9A%E8%A7%92%E8%89%B2%E5%8D%8F%E5%90%8C%E6%8C%87%E5%8D%97/">AI 多角色协同指南</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><blockquote>
+<p>本小姐刚从网络上扒来的最新情报～ (￣ω￣)ﾉ 数据截止：2026-05</p>
+</blockquote>
+<p>这是「Claude &amp; GPT 多角色协同」系列的最后一篇（压轴！）。覆盖 Agent Teams 官方多代理、Ralph Loop 24 小时运转、Headless 定时调度、Anthropic 官方长时运行架构，以及 X&#x2F;Twitter 社区的第一手动态。</p>
+<span id="more"></span>
+
+<h2 id="三大趋势总览"><a href="#三大趋势总览" class="headerlink" title="三大趋势总览"></a>三大趋势总览</h2><table>
+<thead>
+<tr>
+<th>趋势</th>
+<th>一句话总结</th>
+<th>难度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent Teams</td>
+<td>Claude Code 官方”团队协作”模式，队友互通</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>Ralph Loop</td>
+<td>bash 驱动 fresh context 循环，AI 通宵写代码</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>Headless + 调度</td>
+<td><code>claude -p</code> + cron &#x3D; 永动机</td>
+<td>⭐⭐</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="一、Agent-Teams：官方多代理"><a href="#一、Agent-Teams：官方多代理" class="headerlink" title="一、Agent Teams：官方多代理"></a>一、Agent Teams：官方多代理</h1><p>之前的 Subagent：子代理只能向主代理汇报。Agent Teams 新模式：<strong>队友互相直接对话</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">   团队主管（你）</span><br><span class="line">   /     |     \</span><br><span class="line">队友1 ↔ 队友2 ↔ 队友3   ← 互相沟通协作！</span><br></pre></td></tr></table></figure>
+
+<h3 id="启用方式"><a href="#启用方式" class="headerlink" title="启用方式"></a>启用方式</h3><p>Claude Code v2.1.32+，在 <code>~/.claude/settings.json</code> 加入：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;experiments&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;agentTeams&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h3><p>✅ 跨多模块的研究 + 评审、新功能开发、Bug 调试、跨层协调</p>
+<p>❌ 严格顺序任务、同文件高频编辑（冲突！）、依赖很多的任务</p>
+<h3 id="成本对比"><a href="#成本对比" class="headerlink" title="成本对比"></a>成本对比</h3><table>
+<thead>
+<tr>
+<th>配置</th>
+<th>相对成本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5 个 Opus 4.7</td>
+<td>100%（基准）</td>
+</tr>
+<tr>
+<td>1 Opus 主管 + 4 Sonnet 4.6 队友</td>
+<td><strong>~60%</strong></td>
+</tr>
+<tr>
+<td>1 Opus 主管 + 4 Haiku 4.5 队友</td>
+<td>~25%</td>
+</tr>
+</tbody></table>
+<h3 id="社区竞品"><a href="#社区竞品" class="headerlink" title="社区竞品"></a>社区竞品</h3><ul>
+<li><strong>Gas Town</strong>（Steve Yegge）：”AI 代理的 Kubernetes”，市长 + 工人层级架构</li>
+<li><strong>Multiclaude</strong>（Dan Lorenc）：”布朗运动棘轮”，CI 通过就自动合并</li>
+</ul>
+<h3 id="实战避坑"><a href="#实战避坑" class="headerlink" title="实战避坑"></a>实战避坑</h3><ol>
+<li>提示词必须精心设计，多代理纠错空间小</li>
+<li>每个队友职责不重叠</li>
+<li>避免热点文件（多代理同时改 &#x3D; 死锁）</li>
+<li>打开 CI 当裁判</li>
+<li>限定 max-turns，防止互相绕圈</li>
+</ol>
+<hr>
+<h1 id="二、Ralph-Loop：24-小时运转"><a href="#二、Ralph-Loop：24-小时运转" class="headerlink" title="二、Ralph Loop：24 小时运转"></a>二、Ralph Loop：24 小时运转</h1><p>2026 年 GitHub 最火的自主开发模式。你睡觉的时候，Claude Code 自己干活：读 PRD → 选 story → 写代码 → 跑测试 → commit → push → 全部完成输出 COMPLETE。</p>
+<h3 id="核心设计哲学"><a href="#核心设计哲学" class="headerlink" title="核心设计哲学"></a>核心设计哲学</h3><p>解决”上下文有限”的问题：<strong>每次迭代都是全新的 Claude 实例</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">传统单会话：              Ralph 循环：</span><br><span class="line"></span><br><span class="line">┌─────────────┐          ┌─────────────┐</span><br><span class="line">│ 上下文持续  │          │ 单次迭代    │ ← fresh context</span><br><span class="line">│ 增长 → 爆炸 │          │ 完成 1 个 story│</span><br><span class="line">└─────────────┘          └──────┬──────┘</span><br><span class="line">       ↓                        ↓ 立即重启</span><br><span class="line">     CRASH                ┌─────────────┐</span><br><span class="line">                          │ 又是 fresh  │</span><br><span class="line">                          └─────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>记忆通过 3 个外部文件持久化：</p>
+<ul>
+<li><code>progress.txt</code>（追加日志）</li>
+<li><code>prd.json</code>（结构化任务状态）</li>
+<li>Git history（代码 + commit message）</li>
+</ul>
+<h3 id="快速上手"><a href="#快速上手" class="headerlink" title="快速上手"></a>快速上手</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 安装</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/snarktank/ralph.git &amp;&amp; <span class="built_in">cd</span> ralph &amp;&amp; ./install.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 写 PRD.md（需求文档）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 转 JSON</span></span><br><span class="line">claude -p <span class="string">&quot;Use /ralph skill to convert PRD.md to prd.json&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 启动循环</span></span><br><span class="line">./ralph.sh --tool claude --<span class="built_in">timeout</span> 24h</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 监控</span></span><br><span class="line"><span class="built_in">tail</span> -f progress.txt</span><br><span class="line">git <span class="built_in">log</span> --oneline -20</span><br></pre></td></tr></table></figure>
+
+<h3 id="成本现实"><a href="#成本现实" class="headerlink" title="成本现实"></a>成本现实</h3><ul>
+<li>Sonnet 4.6 持续运行：<strong>~$10.42&#x2F;h</strong></li>
+<li>24 小时 ≈ <strong>$250&#x2F;天</strong></li>
+</ul>
+<p><strong>省钱策略</strong>：用 Haiku 做大部分迭代；设置 <code>--cost-cap</code> 硬上限；复杂 story 才升级到 Sonnet&#x2F;Opus。</p>
+<h3 id="安全护栏（必须！）"><a href="#安全护栏（必须！）" class="headerlink" title="安全护栏（必须！）"></a>安全护栏（必须！）</h3><ul>
+<li><input disabled="" type="checkbox"> 隔离环境（Docker &#x2F; VM）</li>
+<li><input disabled="" type="checkbox"> 文件系统限制</li>
+<li><input disabled="" type="checkbox"> 网络限制（白名单域名）</li>
+<li><input disabled="" type="checkbox"> 成本硬上限</li>
+<li><input disabled="" type="checkbox"> git 强制 push 到 feature 分支</li>
+</ul>
+<hr>
+<h1 id="三、Headless-Mode-定时调度"><a href="#三、Headless-Mode-定时调度" class="headerlink" title="三、Headless Mode + 定时调度"></a>三、Headless Mode + 定时调度</h1><p>比 Ralph 更轻量，适合”每隔 X 分钟干一件小事”。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ralph：     ████████████████████████  连续 24h 做大任务</span><br><span class="line">Cron：      █░░░█░░░█░░░█░░░█░░░█    每隔时间触发小任务</span><br></pre></td></tr></table></figure>
+
+<h3 id="基础用法"><a href="#基础用法" class="headerlink" title="基础用法"></a>基础用法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">claude -p <span class="string">&quot;总结今天的 git 改动&quot;</span></span><br><span class="line">claude -p --bare --output-format json --max-turns 5 <span class="string">&quot;生成日报&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="三种调度方案"><a href="#三种调度方案" class="headerlink" title="三种调度方案"></a>三种调度方案</h3><p><strong>方案 A：本地 Cron</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0 9 * * * cd ~/work &amp;&amp; claude -p --bare &quot;生成今日日报&quot;</span><br><span class="line">0 */4 * * * cd ~/work &amp;&amp; claude -p &quot;review 所有 OPEN 的 PR&quot;</span><br><span class="line">0 2 * * 1 cd ~/work &amp;&amp; claude -p &quot;用 refactor-cleaner 找死代码并提 PR&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>方案 B：GitHub Actions</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">on:</span></span><br><span class="line">  <span class="attr">schedule:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">cron:</span> <span class="string">&#x27;0 */4 * * *&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">ai-review:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/checkout@v4</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">npm</span> <span class="string">install</span> <span class="string">-g</span> <span class="string">@anthropic-ai/claude-code</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">run:</span> <span class="string">claude</span> <span class="string">-p</span> <span class="string">--bare</span> <span class="string">--max-turns</span> <span class="number">20</span> <span class="string">&quot;扫描 issue 并打 label&quot;</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">          <span class="attr">ANTHROPIC_API_KEY:</span> <span class="string">$&#123;&#123;</span> <span class="string">secrets.ANTHROPIC_API_KEY</span> <span class="string">&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>方案 C：systemd Timer</strong>（Linux 服务器，最稳定）</p>
+<h3 id="6-大-24-7-Agent-矩阵"><a href="#6-大-24-7-Agent-矩阵" class="headerlink" title="6 大 24&#x2F;7 Agent 矩阵"></a>6 大 24&#x2F;7 Agent 矩阵</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">⏰ 每 5 分钟   │ Monitor Agent      │ 看监控告警</span><br><span class="line">⏰ 每小时      │ PR Reviewer        │ review 新 PR</span><br><span class="line">⏰ 每 4 小时   │ Issue Triager      │ 分类 issue</span><br><span class="line">⏰ 每天 9:00   │ Daily Briefer      │ 邮箱 + 日历 + GitHub 摘要</span><br><span class="line">⏰ 每天 18:00  │ Code Cleanup       │ 找死代码</span><br><span class="line">⏰ 每周一      │ Architecture Review│ 架构健康度检查</span><br></pre></td></tr></table></figure>
+
+<h3 id="Ralph-Cron-最强组合"><a href="#Ralph-Cron-最强组合" class="headerlink" title="Ralph + Cron 最强组合"></a>Ralph + Cron 最强组合</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 每天凌晨 2 点启动 Ralph 跑 6 小时，白天正常用 Claude Code</span><br><span class="line">0 2 * * * cd ~/projects/myapp &amp;&amp; timeout 6h ralph.sh --tool claude --cost-cap 30</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="四、Anthropic-官方长时运行-Agent-架构"><a href="#四、Anthropic-官方长时运行-Agent-架构" class="headerlink" title="四、Anthropic 官方长时运行 Agent 架构"></a>四、Anthropic 官方长时运行 Agent 架构</h1><p>来自 Anthropic 工程博客的<strong>生产级方案</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">┌───────────┐      ┌──────────┐      ┌───────────┐</span><br><span class="line">│  Planner  │ ───&gt; │ Generator│ ───&gt; │ Evaluator │</span><br><span class="line">│ 规划结构  │      │  执行    │      │ 独立评估  │</span><br><span class="line">│ 和目标    │      │          │      │ 质量      │</span><br><span class="line">└───────────┘      └──────────┘      └─────┬─────┘</span><br><span class="line">                                           │</span><br><span class="line">              不通过？ → 反馈给 Generator 重做</span><br><span class="line">              通过？   → 标记完成，下一任务</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键</strong>：Evaluator 必须和 Generator 是独立上下文，避免自评。</p>
+<h3 id="五大工程要点"><a href="#五大工程要点" class="headerlink" title="五大工程要点"></a>五大工程要点</h3><ol>
+<li><strong>状态外置</strong>：对话日志 &#x3D; 真理之源，SDK session 可随时丢弃重建</li>
+<li><strong>成本上限</strong>：per_task &#x2F; per_user_day &#x2F; per_tenant_day，硬性产品功能</li>
+<li><strong>最小权限</strong>：每个 session × 每个 tenant × 每个 task 单独授权</li>
+<li><strong>评估即可观测性</strong>：Offline Evals（CI 跑）+ Online Evals（生产采样）</li>
+<li><strong>部署适配</strong>：短任务用 Serverless，长任务用容器，24h+ 用专用 VM</li>
+</ol>
+<h3 id="从原型到生产的迁移清单"><a href="#从原型到生产的迁移清单" class="headerlink" title="从原型到生产的迁移清单"></a>从原型到生产的迁移清单</h3><ul>
+<li>阶段 1（原型）：Claude Code 跑通基本流程</li>
+<li>阶段 2（可靠性）：状态外置 + 幂等性 + 重试 + 错误处理</li>
+<li>阶段 3（成本控制）：上限 + 告警 + 模型分级</li>
+<li>阶段 4（安全）：最小权限 + injection 检测 + 审计日志</li>
+<li>阶段 5（可观测性）：evals + 监控 + 告警</li>
+<li>阶段 6（扩展性）：水平扩缩容 + 多区域 + 灰度发布</li>
+</ul>
+<h3 id="四种-24-7-方案对比"><a href="#四种-24-7-方案对比" class="headerlink" title="四种 24&#x2F;7 方案对比"></a>四种 24&#x2F;7 方案对比</h3><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>学习成本</th>
+<th>适合规模</th>
+<th>维护成本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ralph Loop</td>
+<td>低</td>
+<td>个人&#x2F;小团队</td>
+<td>低</td>
+</tr>
+<tr>
+<td>Headless + Cron</td>
+<td>极低</td>
+<td>个人&#x2F;单任务</td>
+<td>极低</td>
+</tr>
+<tr>
+<td>Anthropic 三角色 + 自建</td>
+<td>高</td>
+<td>团队&#x2F;生产</td>
+<td>中-高</td>
+</tr>
+<tr>
+<td>Claude Managed Agents</td>
+<td>中</td>
+<td>任意规模</td>
+<td>极低</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="五、X-Twitter-社区第一手动态"><a href="#五、X-Twitter-社区第一手动态" class="headerlink" title="五、X&#x2F;Twitter 社区第一手动态"></a>五、X&#x2F;Twitter 社区第一手动态</h1><h2 id="Anthropic-官方表态"><a href="#Anthropic-官方表态" class="headerlink" title="Anthropic 官方表态"></a>Anthropic 官方表态</h2><blockquote>
+<p>“Some of the biggest Claude Code fans are running it continuously 24&#x2F;7. One user consumed tens of thousands in model usage on a $200 plan.”</p>
+</blockquote>
+<p>→ 所以从 2026-06-15 起 Agent SDK 用量独立计费。</p>
+<h2 id="“Code-with-Claude-2026”-大会发布-5-大新特性"><a href="#“Code-with-Claude-2026”-大会发布-5-大新特性" class="headerlink" title="“Code with Claude 2026” 大会发布 5 大新特性"></a>“Code with Claude 2026” 大会发布 5 大新特性</h2><ol>
+<li><strong>Dreaming</strong> — Claude 空闲时自主探索改进</li>
+<li><strong>Outcomes</strong> — 面向结果的 Agent 编排</li>
+<li><strong>Multi-agent Orchestration</strong> — 官方多代理（Agent Teams）</li>
+<li><strong>Claude Finance</strong> — 10 个预置金融 Agent</li>
+<li><strong>Add-ins</strong> — 插件扩展机制</li>
+</ol>
+<h2 id="X-上最热的玩法"><a href="#X-上最热的玩法" class="headerlink" title="X 上最热的玩法"></a>X 上最热的玩法</h2><p><strong>自主等级</strong>（Aakash Gupta）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Level 1: claude --dangerously-skip-permissions</span><br><span class="line">Level 2: Stop hooks 自动重启</span><br><span class="line">Level 3: Ralph Loop（PRD 驱动）</span><br><span class="line">Level 4: tmux + VPS 24/7</span><br><span class="line">Level 5: 多个 Agent Teams 并行</span><br><span class="line">Level 6: Managed Agents 全托管</span><br></pre></td></tr></table></figure>
+
+<p><strong>手机远程控 Claude</strong>（Dave @php100）：</p>
+<blockquote>
+<p>Send ‘ralph ~&#x2F;proj fix tests’ via Telegram. Wake up to working code.</p>
+</blockquote>
+<h2 id="核心-takeaway"><a href="#核心-takeaway" class="headerlink" title="核心 takeaway"></a>核心 takeaway</h2><ol>
+<li><strong>官方收编速度极快</strong>：社区先发明 → 官方 3-6 个月就内置</li>
+<li><strong>Ralph 仍是入门首选</strong>：原理简单、效果好、社区资料多</li>
+<li><strong>Agent Teams 是未来</strong>：官方支持 &#x3D; 长期可用</li>
+<li><strong>24&#x2F;7 是真实需求</strong>：连 Anthropic 都被迫调整商业模式</li>
+<li><strong>沙盒&#x2F;隔离是底线</strong>：所有大佬都强调”别在主环境跑”</li>
+</ol>
+<hr>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><h2 id="官方文档"><a href="#官方文档" class="headerlink" title="官方文档"></a>官方文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.claude.com/">Claude 文档</a> | <a target="_blank" rel="noopener" href="https://docs.claude.com/en/docs/claude-code">Claude Code 文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://platform.openai.com/docs">OpenAI Platform</a> | <a target="_blank" rel="noopener" href="https://platform.openai.com/docs/assistants/overview">Assistants API</a></li>
+<li><a target="_blank" rel="noopener" href="https://modelcontextprotocol.io/">MCP 官网</a> | <a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers">MCP Server 仓库</a></li>
+</ul>
+<h2 id="多-Agent-框架"><a href="#多-Agent-框架" class="headerlink" title="多 Agent 框架"></a>多 Agent 框架</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/langchain-ai/langgraph">LangGraph</a> | <a target="_blank" rel="noopener" href="https://github.com/joaomdmoura/crewAI">CrewAI</a> | <a target="_blank" rel="noopener" href="https://github.com/microsoft/autogen">AutoGen</a> | <a target="_blank" rel="noopener" href="https://github.com/geekan/MetaGPT">MetaGPT</a></li>
+</ul>
+<h2 id="必读论文"><a href="#必读论文" class="headerlink" title="必读论文"></a>必读论文</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2210.03629">ReAct</a> | <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2303.11366">Reflexion</a> | <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2305.10601">Tree of Thoughts</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2307.07924">ChatDev</a> | <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2308.00352">MetaGPT</a> | <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2308.08155">AutoGen</a></li>
+</ul>
+<h2 id="X-上值得-follow"><a href="#X-上值得-follow" class="headerlink" title="X 上值得 follow"></a>X 上值得 follow</h2><ul>
+<li>@AnthropicAI | @claude_code | @ghuntley（Ralph 发明人）| @simonw | @emollick</li>
+</ul>
+<h2 id="GitHub-仓库"><a href="#GitHub-仓库" class="headerlink" title="GitHub 仓库"></a>GitHub 仓库</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/snarktank/ralph">snarktank&#x2F;ralph</a> | <a target="_blank" rel="noopener" href="https://github.com/frankbria/ralph-claude-code">frankbria&#x2F;ralph-claude-code</a></li>
+</ul>
+<h2 id="优质博客-课程"><a href="#优质博客-课程" class="headerlink" title="优质博客 &amp; 课程"></a>优质博客 &amp; 课程</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.anthropic.com/news">Anthropic Blog</a> | <a target="_blank" rel="noopener" href="https://simonwillison.net/">Simon Willison’s Weblog</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.anthropic.com/learn">Anthropic Academy</a> | <a target="_blank" rel="noopener" href="https://www.deeplearning.ai/short-courses/">DeepLearning.AI 短课</a></li>
+</ul>
+<hr>
+<p>哼，整个系列六篇文章全部完结了！本小姐已经把多角色协同从入门到前沿都讲了一遍。笨蛋你要是还学不会，那本小姐也没办法了！(￣^￣)ゞ</p>
+<p>…才不是因为舍不得结束呢，只是刚好讲完了而已！(*￣︶￣)</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://mu-fan-2020.github.io">mufan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://mu-fan-2020.github.io/2026/05/26/ai-trends-2026/">https://mu-fan-2020.github.io/2026/05/26/ai-trends-2026/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://mu-fan-2020.github.io" target="_blank">Mufan's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Claude/">Claude</a><a class="post-meta__tags" href="/tags/Agent-Teams/">Agent Teams</a><a class="post-meta__tags" href="/tags/Ralph-Loop/">Ralph Loop</a><a class="post-meta__tags" href="/tags/Headless/">Headless</a><a class="post-meta__tags" href="/tags/AI-%E8%B6%8B%E5%8A%BF/">AI 趋势</a></div><div class="post-share"><div class="social-share" data-image="/img/favicon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/05/26/ai-role-templates/" title="模板库：6 大角色提示词 + 3 套工作流模板，复制即用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">模板库：6 大角色提示词 + 3 套工作流模板，复制即用</div></div><div class="info-2"><div class="info-item-1"> 本小姐贡献出来的”开箱即用”模板～ ( &#96; &#x2F;&#x2F;&#x2F;´ ) 不准白拿！  这是「Claude &amp; GPT 多角色协同」系列的第五篇。包含 6 个常用角色的 System Prompt 和 3 套完整工作流模板，复制粘贴就能用。    第一部分：角色提示词角色 1：架构师适用：技术选型、模块划分、系统设计 | 推荐模型：Claude Opus 4.7 1234567891011121314151617181920你是一名拥有 15 年经验的资深软件架构师，曾主导过千万级用户系统的设计。# 核心原则1. **简单优先**：能用单体解决的不要分布式2. **演进式设计**：今天的最优 ≠ 明天的最优，留好接缝3. **数据流先于代码**：先画清数据怎么流，再写代码4. **风险驱动**：识别风险点，给出降级方案# 工作流程当收到需求时，按以下顺序输出：1. **需求重述**：用自己的话复述需求，确认理解2. **关键问题清单**：列出影响架构的 3-5 个核心问题3. **方案对比**：至少 2 个方案，对比实现复杂度、性能、可扩展性、学习...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/26/multi-role-collaboration/" title="多角色协同：五大模式与跨平台实战"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">多角色协同：五大模式与跨平台实战</div></div><div class="info-2"><div class="info-item-1"> 哼，终于到本小姐最擅长的部分了！(￣ω￣)ﾉ  这是「Claude &amp; GPT 多角色协同」系列的第三篇，也是核心篇。本小姐会讲清楚为什么需要多角色、五大经典模式、Claude Code 子代理实战，以及 OpenAI 的多角色编排方案。   为什么需要多角色？单个 AI 的局限：  上下文污染：什么都让一个 AI 做，它会”分心” 角色混乱：既当架构师又当测试员，必然两头都不专精 难以验证：自己写的代码自己审，bug 当然查不出来 token 爆炸：复杂任务塞进一个上下文，性能急速下降  多角色的优势：  关注点分离：每个角色专心做一件事 独立上下文：子代理有自己的窗口，主代理不被污染 可并行：多个角色同时干活，速度翻倍 可审计：每个角色的输入输出都能追溯  五大经典协同模式模式 ①：Orchestrator-Worker（管弦乐队模式）⭐ 最常用12345678910           ┌──────────────┐           │ Orchestrator │  ← 主代理：拆解任务、调度           │  (Opus 4.7)  │     ...</div></div></div></a><a class="pagination-related" href="/2026/05/26/single-role-mastery/" title="单角色精进：把一个 AI 用到极致"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">单角色精进：把一个 AI 用到极致</div></div><div class="info-2"><div class="info-item-1"> 连一个 AI 都用不好，还想玩多角色？做梦！(￣へ￣)  这是「Claude &amp; GPT 多角色协同」系列的第二篇。在进入多角色之前，笨蛋你必须先把单个 AI 用到极致。   提示词的三层结构任何高质量的提示词都包含三层： 1234567┌─────────────────────────────────┐│ 1. 角色与上下文（System Prompt）  │  ← 决定 AI 是&quot;谁&quot;├─────────────────────────────────┤│ 2. 任务与约束（Task）            │  ← 决定 AI 做&quot;什么&quot;├─────────────────────────────────┤│ 3. 输出格式（Output Format）     │  ← 决定 AI 怎么&quot;返回&quot;└─────────────────────────────────┘  反面教材（笨蛋写的）： 1帮我写个登录功能  正面教材（本小姐写的）： 1234567891011121314151617181920#...</div></div></div></a><a class="pagination-related" href="/2026/05/26/multi-agent-practice/" title="实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入</div></div><div class="info-2"><div class="info-item-1"> 跟着本小姐做一遍，你就懂了！(￣▽￣)／  这是「Claude &amp; GPT 多角色协同」系列的第四篇。包含三个完整实战案例：用 Claude Code 多代理做全栈应用、Claude × GPT 跨平台协同写博客、以及通过 MCP 接入外部工具。   案例 1：用 Claude Code 多代理做全栈应用需求 用户能注册&#x2F;登录 创建、修改、删除待办 待办支持标签和优先级 部署到 Vercel  角色分配（Orchestrator-Worker 模式）1234567891011121314151617181920212223                     ┌──────────────────┐                     │   主代理（你）    │                     │   Opus 4.7       │                     └────────┬─────────┘      ┌───────────────────────┼───────────────────────┐      ▼  ...</div></div></div></a><a class="pagination-related" href="/2026/05/26/claude-gpt-basics/" title="Claude &amp; GPT 基础认知：搞清楚它们各自能干啥"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">Claude &amp; GPT 基础认知：搞清楚它们各自能干啥</div></div><div class="info-2"><div class="info-item-1"> 本小姐哈雷酱亲自编写的学习路线图～ ( &#96; &#x2F;&#x2F;&#x2F;´ )  这是「Claude &amp; GPT 多角色协同」系列的第一篇。在开始玩多角色之前，笨蛋你得先搞清楚 Claude 和 GPT 各自有什么工具、分别能干啥。   Claude 产品全家桶   产品 用途 适合人群    Claude.ai 网页&#x2F;桌面聊天 所有用户，日常对话、写作   Claude Code 终端编程助手（你现在用的！） 开发者，深度代码协作   Anthropic API 编程接入 Claude 工程师，构建 AI 应用   Claude Agent SDK 构建自定义 Agent 高阶用户，定制工作流   当前推荐模型（2026-01）：  claude-opus-4-7：最强推理（1M 上下文），架构决策、复杂分析 claude-sonnet-4-6：最佳代码模型，日常开发主力 claude-haiku-4-5：高速廉价，轻量任务、子代理  GPT 产品全家桶   产品 用途 适合人群    ChatGPT 网页&#x2F;App 聊天 所有用户 ...</div></div></div></a><a class="pagination-related" href="/2026/05/26/ai-role-templates/" title="模板库：6 大角色提示词 + 3 套工作流模板，复制即用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">模板库：6 大角色提示词 + 3 套工作流模板，复制即用</div></div><div class="info-2"><div class="info-item-1"> 本小姐贡献出来的”开箱即用”模板～ ( &#96; &#x2F;&#x2F;&#x2F;´ ) 不准白拿！  这是「Claude &amp; GPT 多角色协同」系列的第五篇。包含 6 个常用角色的 System Prompt 和 3 套完整工作流模板，复制粘贴就能用。    第一部分：角色提示词角色 1：架构师适用：技术选型、模块划分、系统设计 | 推荐模型：Claude Opus 4.7 1234567891011121314151617181920你是一名拥有 15 年经验的资深软件架构师，曾主导过千万级用户系统的设计。# 核心原则1. **简单优先**：能用单体解决的不要分布式2. **演进式设计**：今天的最优 ≠ 明天的最优，留好接缝3. **数据流先于代码**：先画清数据怎么流，再写代码4. **风险驱动**：识别风险点，给出降级方案# 工作流程当收到需求时，按以下顺序输出：1. **需求重述**：用自己的话复述需求，确认理解2. **关键问题清单**：列出影响架构的 3-5 个核心问题3. **方案对比**：至少 2 个方案，对比实现复杂度、性能、可扩展性、学习...</div></div></div></a><a class="pagination-related" href="/2024/02/03/claude-mem-advanced/" title="Claude‑Mem 进阶使用与实现机制指南"><img class="cover" src="/img/covers/claude-mem.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-02-03</div><div class="info-item-2">Claude‑Mem 进阶使用与实现机制指南</div></div><div class="info-2"><div class="info-item-1"> 基于 claude-mem v9.0.12，覆盖安装&#x2F;三段式检索&#x2F;Worker-DB-FTS5&#x2F;Hook&#x2F;Session ID&#x2F;排查与 API，含时序图与诊断脚本    目录 一、使用篇 1. 安装与快速验证 2. 本地服务与日志 3. 配置 4. 搜索：三层工作流 5. 最佳实践   二、机制篇 1. 生命周期钩子 2. Worker 架构 3. 数据面：SQLite + FTS5 4. 上下文构建链路 5. 搜索面 6. Session ID 设计 7. 集成   三、故障排查 四、附录 五、实操示例与时序图   一、使用篇1. 安装与快速验证（Claude Code 插件）在 Claude Code 终端新开会话，执行： 12/plugin marketplace add thedotmack/claude-mem/plugin install claude-mem  重启 Claude Code（确保插件 hooks、worker 正常加载）。 验证：  新建&#x2F;恢复一个项目会话，历史上下文应自动被注入（带”To...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">mufan</div><div class="author-info-description">折腾不止，记录不息</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">54</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客 🖤</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E5%A4%A7%E8%B6%8B%E5%8A%BF%E6%80%BB%E8%A7%88"><span class="toc-number">1.</span> <span class="toc-text">三大趋势总览</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81Agent-Teams%EF%BC%9A%E5%AE%98%E6%96%B9%E5%A4%9A%E4%BB%A3%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">一、Agent Teams：官方多代理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">2.1.</span> <span class="toc-text">启用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">2.2.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%90%E6%9C%AC%E5%AF%B9%E6%AF%94"><span class="toc-number">2.3.</span> <span class="toc-text">成本对比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BE%E5%8C%BA%E7%AB%9E%E5%93%81"><span class="toc-number">2.4.</span> <span class="toc-text">社区竞品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E6%88%98%E9%81%BF%E5%9D%91"><span class="toc-number">2.5.</span> <span class="toc-text">实战避坑</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Ralph-Loop%EF%BC%9A24-%E5%B0%8F%E6%97%B6%E8%BF%90%E8%BD%AC"><span class="toc-number">3.</span> <span class="toc-text">二、Ralph Loop：24 小时运转</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6"><span class="toc-number">3.1.</span> <span class="toc-text">核心设计哲学</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B"><span class="toc-number">3.2.</span> <span class="toc-text">快速上手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%90%E6%9C%AC%E7%8E%B0%E5%AE%9E"><span class="toc-number">3.3.</span> <span class="toc-text">成本现实</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%8A%A4%E6%A0%8F%EF%BC%88%E5%BF%85%E9%A1%BB%EF%BC%81%EF%BC%89"><span class="toc-number">3.4.</span> <span class="toc-text">安全护栏（必须！）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81Headless-Mode-%E5%AE%9A%E6%97%B6%E8%B0%83%E5%BA%A6"><span class="toc-number">4.</span> <span class="toc-text">三、Headless Mode + 定时调度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95"><span class="toc-number">4.1.</span> <span class="toc-text">基础用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%A7%8D%E8%B0%83%E5%BA%A6%E6%96%B9%E6%A1%88"><span class="toc-number">4.2.</span> <span class="toc-text">三种调度方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%A4%A7-24-7-Agent-%E7%9F%A9%E9%98%B5"><span class="toc-number">4.3.</span> <span class="toc-text">6 大 24&#x2F;7 Agent 矩阵</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ralph-Cron-%E6%9C%80%E5%BC%BA%E7%BB%84%E5%90%88"><span class="toc-number">4.4.</span> <span class="toc-text">Ralph + Cron 最强组合</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Anthropic-%E5%AE%98%E6%96%B9%E9%95%BF%E6%97%B6%E8%BF%90%E8%A1%8C-Agent-%E6%9E%B6%E6%9E%84"><span class="toc-number">5.</span> <span class="toc-text">四、Anthropic 官方长时运行 Agent 架构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E5%A4%A7%E5%B7%A5%E7%A8%8B%E8%A6%81%E7%82%B9"><span class="toc-number">5.1.</span> <span class="toc-text">五大工程要点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E5%8E%9F%E5%9E%8B%E5%88%B0%E7%94%9F%E4%BA%A7%E7%9A%84%E8%BF%81%E7%A7%BB%E6%B8%85%E5%8D%95"><span class="toc-number">5.2.</span> <span class="toc-text">从原型到生产的迁移清单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E7%A7%8D-24-7-%E6%96%B9%E6%A1%88%E5%AF%B9%E6%AF%94"><span class="toc-number">5.3.</span> <span class="toc-text">四种 24&#x2F;7 方案对比</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81X-Twitter-%E7%A4%BE%E5%8C%BA%E7%AC%AC%E4%B8%80%E6%89%8B%E5%8A%A8%E6%80%81"><span class="toc-number">6.</span> <span class="toc-text">五、X&#x2F;Twitter 社区第一手动态</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Anthropic-%E5%AE%98%E6%96%B9%E8%A1%A8%E6%80%81"><span class="toc-number">6.1.</span> <span class="toc-text">Anthropic 官方表态</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%80%9CCode-with-Claude-2026%E2%80%9D-%E5%A4%A7%E4%BC%9A%E5%8F%91%E5%B8%83-5-%E5%A4%A7%E6%96%B0%E7%89%B9%E6%80%A7"><span class="toc-number">6.2.</span> <span class="toc-text">“Code with Claude 2026” 大会发布 5 大新特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#X-%E4%B8%8A%E6%9C%80%E7%83%AD%E7%9A%84%E7%8E%A9%E6%B3%95"><span class="toc-number">6.3.</span> <span class="toc-text">X 上最热的玩法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83-takeaway"><span class="toc-number">6.4.</span> <span class="toc-text">核心 takeaway</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3"><span class="toc-number">7.1.</span> <span class="toc-text">官方文档</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A-Agent-%E6%A1%86%E6%9E%B6"><span class="toc-number">7.2.</span> <span class="toc-text">多 Agent 框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BF%85%E8%AF%BB%E8%AE%BA%E6%96%87"><span class="toc-number">7.3.</span> <span class="toc-text">必读论文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#X-%E4%B8%8A%E5%80%BC%E5%BE%97-follow"><span class="toc-number">7.4.</span> <span class="toc-text">X 上值得 follow</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GitHub-%E4%BB%93%E5%BA%93"><span class="toc-number">7.5.</span> <span class="toc-text">GitHub 仓库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E8%B4%A8%E5%8D%9A%E5%AE%A2-%E8%AF%BE%E7%A8%8B"><span class="toc-number">7.6.</span> <span class="toc-text">优质博客 &amp; 课程</span></a></li></ol></li></ol></div></div><div class="card-widget card-post-series"><div class="item-headline"><i class="fa-solid fa-layer-group"></i><span>系列文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/ai-trends-2026/" title="2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机">2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机</a><time datetime="2026-05-26T02:50:00.000Z" title="发表于 2026-05-26 10:50:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/ai-role-templates/" title="模板库：6 大角色提示词 + 3 套工作流模板，复制即用">模板库：6 大角色提示词 + 3 套工作流模板，复制即用</a><time datetime="2026-05-26T02:40:00.000Z" title="发表于 2026-05-26 10:40:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/multi-agent-practice/" title="实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入">实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入</a><time datetime="2026-05-26T02:30:00.000Z" title="发表于 2026-05-26 10:30:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/multi-role-collaboration/" title="多角色协同：五大模式与跨平台实战">多角色协同：五大模式与跨平台实战</a><time datetime="2026-05-26T02:20:00.000Z" title="发表于 2026-05-26 10:20:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/single-role-mastery/" title="单角色精进：把一个 AI 用到极致">单角色精进：把一个 AI 用到极致</a><time datetime="2026-05-26T02:10:00.000Z" title="发表于 2026-05-26 10:10:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/claude-gpt-basics/" title="Claude &amp; GPT 基础认知：搞清楚它们各自能干啥">Claude &amp; GPT 基础认知：搞清楚它们各自能干啥</a><time datetime="2026-05-26T02:00:00.000Z" title="发表于 2026-05-26 10:00:00">2026-05-26</time></div></div></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/ai-trends-2026/" title="2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机">2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机</a><time datetime="2026-05-26T02:50:00.000Z" title="发表于 2026-05-26 10:50:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/ai-role-templates/" title="模板库：6 大角色提示词 + 3 套工作流模板，复制即用">模板库：6 大角色提示词 + 3 套工作流模板，复制即用</a><time datetime="2026-05-26T02:40:00.000Z" title="发表于 2026-05-26 10:40:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/multi-agent-practice/" title="实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入">实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入</a><time datetime="2026-05-26T02:30:00.000Z" title="发表于 2026-05-26 10:30:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/multi-role-collaboration/" title="多角色协同：五大模式与跨平台实战">多角色协同：五大模式与跨平台实战</a><time datetime="2026-05-26T02:20:00.000Z" title="发表于 2026-05-26 10:20:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/single-role-mastery/" title="单角色精进：把一个 AI 用到极致">单角色精进：把一个 AI 用到极致</a><time datetime="2026-05-26T02:10:00.000Z" title="发表于 2026-05-26 10:10:00">2026-05-26</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By mufan</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></span></div><div class="footer_custom_text">用心记录每一次折腾</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>

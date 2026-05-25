@@ -1,0 +1,363 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>多角色协同：五大模式与跨平台实战 | Mufan's Blog</title><meta name="author" content="mufan"><meta name="copyright" content="mufan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="哼，终于到本小姐最擅长的部分了！(￣ω￣)ﾉ  这是「Claude &amp; GPT 多角色协同」系列的第三篇，也是核心篇。本小姐会讲清楚为什么需要多角色、五大经典模式、Claude Code 子代理实战，以及 OpenAI 的多角色编排方案。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多角色协同：五大模式与跨平台实战">
+<meta property="og:url" content="https://mu-fan-2020.github.io/2026/05/26/multi-role-collaboration/index.html">
+<meta property="og:site_name" content="Mufan&#39;s Blog">
+<meta property="og:description" content="哼，终于到本小姐最擅长的部分了！(￣ω￣)ﾉ  这是「Claude &amp; GPT 多角色协同」系列的第三篇，也是核心篇。本小姐会讲清楚为什么需要多角色、五大经典模式、Claude Code 子代理实战，以及 OpenAI 的多角色编排方案。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mu-fan-2020.github.io/img/favicon.png">
+<meta property="article:published_time" content="2026-05-26T02:20:00.000Z">
+<meta property="article:modified_time" content="2026-05-25T16:48:45.190Z">
+<meta property="article:author" content="mufan">
+<meta property="article:tag" content="Claude">
+<meta property="article:tag" content="GPT">
+<meta property="article:tag" content="OpenAI">
+<meta property="article:tag" content="Subagent">
+<meta property="article:tag" content="多角色协同">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mu-fan-2020.github.io/img/favicon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "多角色协同：五大模式与跨平台实战",
+  "url": "https://mu-fan-2020.github.io/2026/05/26/multi-role-collaboration/",
+  "image": "https://mu-fan-2020.github.io/img/favicon.png",
+  "datePublished": "2026-05-26T02:20:00.000Z",
+  "dateModified": "2026-05-25T16:48:45.190Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "mufan",
+      "url": "https://mu-fan-2020.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://mu-fan-2020.github.io/2026/05/26/multi-role-collaboration/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '多角色协同：五大模式与跨平台实战',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      if ($loadingBox.classList.contains('loaded')) return
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+
+  if (document.readyState === 'complete') {
+    preloader.endLoading()
+  } else {
+    window.addEventListener('load', preloader.endLoading)
+    document.addEventListener('DOMContentLoaded', preloader.endLoading)
+    // Add timeout protection: force end after 7 seconds
+    setTimeout(preloader.endLoading, 7000)
+  }
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">54</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/img/covers/desk-1.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Mufan's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">多角色协同：五大模式与跨平台实战</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-comment-dots"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/project-notes/"><i class="fa-fw fas fa-bookmark"></i><span> 项目备忘录</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">多角色协同：五大模式与跨平台实战</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-26T02:20:00.000Z" title="发表于 2026-05-26 10:20:00">2026-05-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-25T16:48:45.190Z" title="更新于 2026-05-26 00:48:45">2026-05-26</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI-%E5%A4%9A%E8%A7%92%E8%89%B2%E5%8D%8F%E5%90%8C%E6%8C%87%E5%8D%97/">AI 多角色协同指南</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><blockquote>
+<p>哼，终于到本小姐最擅长的部分了！(￣ω￣)ﾉ</p>
+</blockquote>
+<p>这是「Claude &amp; GPT 多角色协同」系列的第三篇，也是<strong>核心篇</strong>。本小姐会讲清楚为什么需要多角色、五大经典模式、Claude Code 子代理实战，以及 OpenAI 的多角色编排方案。</p>
+<span id="more"></span>
+
+<h2 id="为什么需要多角色？"><a href="#为什么需要多角色？" class="headerlink" title="为什么需要多角色？"></a>为什么需要多角色？</h2><p>单个 AI 的局限：</p>
+<ul>
+<li><strong>上下文污染</strong>：什么都让一个 AI 做，它会”分心”</li>
+<li><strong>角色混乱</strong>：既当架构师又当测试员，必然两头都不专精</li>
+<li><strong>难以验证</strong>：自己写的代码自己审，bug 当然查不出来</li>
+<li><strong>token 爆炸</strong>：复杂任务塞进一个上下文，性能急速下降</li>
+</ul>
+<p>多角色的优势：</p>
+<ul>
+<li><strong>关注点分离</strong>：每个角色专心做一件事</li>
+<li><strong>独立上下文</strong>：子代理有自己的窗口，主代理不被污染</li>
+<li><strong>可并行</strong>：多个角色同时干活，速度翻倍</li>
+<li><strong>可审计</strong>：每个角色的输入输出都能追溯</li>
+</ul>
+<h2 id="五大经典协同模式"><a href="#五大经典协同模式" class="headerlink" title="五大经典协同模式"></a>五大经典协同模式</h2><h3 id="模式-①：Orchestrator-Worker（管弦乐队模式）⭐-最常用"><a href="#模式-①：Orchestrator-Worker（管弦乐队模式）⭐-最常用" class="headerlink" title="模式 ①：Orchestrator-Worker（管弦乐队模式）⭐ 最常用"></a>模式 ①：Orchestrator-Worker（管弦乐队模式）⭐ 最常用</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">           ┌──────────────┐</span><br><span class="line">           │ Orchestrator │  ← 主代理：拆解任务、调度</span><br><span class="line">           │  (Opus 4.7)  │</span><br><span class="line">           └──────┬───────┘</span><br><span class="line">     ┌────────────┼────────────┐</span><br><span class="line">     ▼            ▼            ▼</span><br><span class="line">┌────────┐  ┌─────────┐  ┌──────────┐</span><br><span class="line">│Planner │  │ Coder   │  │ Reviewer │</span><br><span class="line">│(Sonnet)│  │(Sonnet) │  │ (Haiku)  │</span><br><span class="line">└────────┘  └─────────┘  └──────────┘</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用场景</strong>：复杂功能开发（从需求→设计→实现→评审）</p>
+<h3 id="模式-②：Pipeline（流水线模式）"><a href="#模式-②：Pipeline（流水线模式）" class="headerlink" title="模式 ②：Pipeline（流水线模式）"></a>模式 ②：Pipeline（流水线模式）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">需求文档 → [需求分析师] → [架构师] → [程序员] → [测试员] → 交付</span><br></pre></td></tr></table></figure>
+
+<p><strong>特点</strong>：前一个角色的输出直接作为下一个角色的输入<br><strong>适合</strong>：流程固定、阶段清晰的任务</p>
+<h3 id="模式-③：Debate-Critic（辩论评审模式）"><a href="#模式-③：Debate-Critic（辩论评审模式）" class="headerlink" title="模式 ③：Debate &#x2F; Critic（辩论评审模式）"></a>模式 ③：Debate &#x2F; Critic（辩论评审模式）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">        ┌─→ [乐观派 AI]  ─┐</span><br><span class="line">任务 ─→ │                 ├─→ [仲裁者] ─→ 最终方案</span><br><span class="line">        ├─→ [悲观派 AI]  ─┤</span><br><span class="line">        └─→ [中立派 AI]  ─┘</span><br></pre></td></tr></table></figure>
+
+<p><strong>适合</strong>：架构决策、风险评估、产品取舍</p>
+<h3 id="模式-④：Parallel-Fan-out（并行扇出）"><a href="#模式-④：Parallel-Fan-out（并行扇出）" class="headerlink" title="模式 ④：Parallel Fan-out（并行扇出）"></a>模式 ④：Parallel Fan-out（并行扇出）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">              ┌─→ [Agent A: 搜索 GitHub]</span><br><span class="line">查询 ─→ 分发 ─┼─→ [Agent B: 搜索 StackOverflow]</span><br><span class="line">              ├─→ [Agent C: 搜索官方文档]</span><br><span class="line">              └─→ [Agent D: 搜索 Reddit]</span><br><span class="line">                       ↓</span><br><span class="line">                 [汇总 Agent]</span><br><span class="line">                       ↓</span><br><span class="line">                    综合答案</span><br></pre></td></tr></table></figure>
+
+<p><strong>适合</strong>：信息收集、多视角分析</p>
+<h3 id="模式-⑤：Reflection-Loop（反思循环）"><a href="#模式-⑤：Reflection-Loop（反思循环）" class="headerlink" title="模式 ⑤：Reflection Loop（反思循环）"></a>模式 ⑤：Reflection Loop（反思循环）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">   ┌──────────────────────────┐</span><br><span class="line">   ▼                          │</span><br><span class="line">[执行者] → [自我评估] → 不满意？┘</span><br><span class="line">              │</span><br><span class="line">              ▼ 满意</span><br><span class="line">            输出</span><br></pre></td></tr></table></figure>
+
+<p><strong>适合</strong>：写作润色、代码优化</p>
+<h2 id="跨平台协同：Claude-×-GPT"><a href="#跨平台协同：Claude-×-GPT" class="headerlink" title="跨平台协同：Claude × GPT"></a>跨平台协同：Claude × GPT</h2><p>哼，谁说必须用同一家？本小姐教你混合搭配！(*&#x2F;ω*)</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>推荐模型</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>架构师</strong></td>
+<td>Claude Opus 4.7</td>
+<td>1M 上下文，全局思考</td>
+</tr>
+<tr>
+<td><strong>代码实现</strong></td>
+<td>Claude Sonnet 4.6</td>
+<td>最强代码模型</td>
+</tr>
+<tr>
+<td><strong>UI 设计</strong></td>
+<td>GPT-4o</td>
+<td>多模态，能看 mockup</td>
+</tr>
+<tr>
+<td><strong>快速检索</strong></td>
+<td>Claude Haiku 4.5 &#x2F; GPT-4o-mini</td>
+<td>便宜快速</td>
+</tr>
+<tr>
+<td><strong>创意发散</strong></td>
+<td>GPT-5 &#x2F; Claude Opus</td>
+<td>各有特色</td>
+</tr>
+<tr>
+<td><strong>代码评审</strong></td>
+<td>双 AI 交叉评审</td>
+<td>避免单一偏见</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="Claude-Code-子代理（Subagents）实战"><a href="#Claude-Code-子代理（Subagents）实战" class="headerlink" title="Claude Code 子代理（Subagents）实战"></a>Claude Code 子代理（Subagents）实战</h2><h3 id="什么是-Subagent？"><a href="#什么是-Subagent？" class="headerlink" title="什么是 Subagent？"></a>什么是 Subagent？</h3><p>Subagent 是一个<strong>独立的 AI 实例</strong>，有：</p>
+<ul>
+<li>自己的系统提示词（专属角色）</li>
+<li>自己的上下文窗口（不污染主对话）</li>
+<li>自己的工具权限（按需限制）</li>
+</ul>
+<p>主代理用 <code>Agent</code> 工具调度它们，等结果返回。</p>
+<h3 id="Claude-Code-内置的代理"><a href="#Claude-Code-内置的代理" class="headerlink" title="Claude Code 内置的代理"></a>Claude Code 内置的代理</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">planner              — 复杂特性规划</span><br><span class="line">architect            — 系统架构设计</span><br><span class="line">tdd-guide            — 测试驱动开发</span><br><span class="line">code-reviewer        — 代码审查</span><br><span class="line">security-reviewer    — 安全审计</span><br><span class="line">build-error-resolver — 修复构建错误</span><br><span class="line">e2e-runner           — E2E 测试</span><br><span class="line">refactor-cleaner     — 清理废代码</span><br><span class="line">doc-updater          — 更新文档</span><br></pre></td></tr></table></figure>
+
+<h3 id="串行-vs-并行调用"><a href="#串行-vs-并行调用" class="headerlink" title="串行 vs 并行调用"></a>串行 vs 并行调用</h3><p><strong>串行调用</strong>（有依赖）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 先让 planner 出方案</span><br><span class="line">2. 再让 tdd-guide 写测试</span><br><span class="line">3. 接着 code-reviewer 审查</span><br></pre></td></tr></table></figure>
+
+<p><strong>并行调用</strong>（无依赖，省时间！）：<br>在<strong>一条消息里</strong>发起多个 Agent 调用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">同时启动 3 个 Agent：</span><br><span class="line">- Agent 1: security-reviewer 审 auth.ts</span><br><span class="line">- Agent 2: code-reviewer 看 cache 模块</span><br><span class="line">- Agent 3: refactor-cleaner 扫描死代码</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建自定义子代理"><a href="#创建自定义子代理" class="headerlink" title="创建自定义子代理"></a>创建自定义子代理</h3><p>在 <code>~/.claude/agents/</code> 下新建 <code>&lt;name&gt;.md</code>：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">name: api-designer</span><br><span class="line">description: REST API 设计专家，专注 OpenAPI 规范、错误处理、版本控制</span><br><span class="line">tools: Read, Write, Edit, Grep, Glob</span><br><span class="line"><span class="section">model: sonnet</span></span><br><span class="line"><span class="section">---</span></span><br><span class="line"></span><br><span class="line">你是一名拥有 10 年经验的 API 架构师。</span><br><span class="line"></span><br><span class="line"><span class="section">## 核心原则</span></span><br><span class="line"><span class="bullet">-</span> RESTful 优先，gRPC 次之</span><br><span class="line"><span class="bullet">-</span> 所有响应使用 RFC 7807 错误格式</span><br><span class="line"><span class="bullet">-</span> 版本通过 URL 前缀（/v1/...）</span><br><span class="line"><span class="bullet">-</span> 必须有 OpenAPI 3.1 规范</span><br></pre></td></tr></table></figure>
+
+<p>保存后，主代理就能用 <code>Agent(subagent_type=&quot;api-designer&quot;, ...)</code> 调用了。</p>
+<h3 id="真实案例：构建用户认证模块"><a href="#真实案例：构建用户认证模块" class="headerlink" title="真实案例：构建用户认证模块"></a>真实案例：构建用户认证模块</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">阶段 1（串行）：</span><br><span class="line">  └─ planner          ：拆解任务，生成实施计划</span><br><span class="line">  └─ architect        ：设计模块边界、数据模型</span><br><span class="line"></span><br><span class="line">阶段 2（并行 ×3）：</span><br><span class="line">  ├─ tdd-guide        ：先写测试用例</span><br><span class="line">  ├─ api-designer     ：设计 REST 接口</span><br><span class="line">  └─ security-reviewer：列出安全清单</span><br><span class="line"></span><br><span class="line">阶段 3（编码）：</span><br><span class="line">  └─ 主代理整合三方输出，开始写代码</span><br><span class="line"></span><br><span class="line">阶段 4（并行 ×2）：</span><br><span class="line">  ├─ code-reviewer    ：代码质量审查</span><br><span class="line">  └─ security-reviewer：再审一次安全</span><br><span class="line"></span><br><span class="line">阶段 5（验证）：</span><br><span class="line">  └─ e2e-runner       ：跑 E2E 测试</span><br></pre></td></tr></table></figure>
+
+<p>效率对比：纯顺序约 30 分钟 → 多角色并行约 12 分钟 (￣▽￣*)</p>
+<h3 id="避坑指南"><a href="#避坑指南" class="headerlink" title="避坑指南"></a>避坑指南</h3><ol>
+<li><strong>不要嵌套太深</strong>：Agent 套 Agent 套 Agent，上下文会乱</li>
+<li><strong>明确产出格式</strong>：在 prompt 里写清”返回什么”</li>
+<li><strong>传足够上下文</strong>：Agent 看不到你的主对话，要主动告诉它</li>
+<li><strong>不让 Agent 做决策</strong>：决策权留给主代理（也就是你）</li>
+<li><strong>限制工具权限</strong>：Reviewer 不需要 Write，Planner 不需要 Bash</li>
+</ol>
+<hr>
+<h2 id="OpenAI-多角色编排实战"><a href="#OpenAI-多角色编排实战" class="headerlink" title="OpenAI 多角色编排实战"></a>OpenAI 多角色编排实战</h2><h3 id="姿势-①：Custom-GPTs（零代码）"><a href="#姿势-①：Custom-GPTs（零代码）" class="headerlink" title="姿势 ①：Custom GPTs（零代码）"></a>姿势 ①：Custom GPTs（零代码）</h3><p>适合不会编程的笨蛋。在 ChatGPT Plus 里：</p>
+<ol>
+<li>点 “Create a GPT”</li>
+<li>给每个角色建一个 GPT</li>
+<li>在对话里 <code>@提及</code> 不同 GPT 协作</li>
+</ol>
+<h3 id="姿势-②：Assistants-API（编程接入）"><a href="#姿势-②：Assistants-API（编程接入）" class="headerlink" title="姿势 ②：Assistants API（编程接入）"></a>姿势 ②：Assistants API（编程接入）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> openai <span class="keyword">import</span> OpenAI</span><br><span class="line">client = OpenAI()</span><br><span class="line"></span><br><span class="line">planner = client.beta.assistants.create(</span><br><span class="line">    name=<span class="string">&quot;Planner&quot;</span>,</span><br><span class="line">    instructions=<span class="string">&quot;你是项目规划专家，拆解需求为可执行任务列表&quot;</span>,</span><br><span class="line">    model=<span class="string">&quot;gpt-4o&quot;</span>,</span><br><span class="line">    tools=[&#123;<span class="string">&quot;type&quot;</span>: <span class="string">&quot;code_interpreter&quot;</span>&#125;]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">coder = client.beta.assistants.create(</span><br><span class="line">    name=<span class="string">&quot;Coder&quot;</span>,</span><br><span class="line">    instructions=<span class="string">&quot;你是 Python 工程师，根据任务清单写代码&quot;</span>,</span><br><span class="line">    model=<span class="string">&quot;gpt-4o&quot;</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">reviewer = client.beta.assistants.create(</span><br><span class="line">    name=<span class="string">&quot;Reviewer&quot;</span>,</span><br><span class="line">    instructions=<span class="string">&quot;你是严格的代码审查员，找出 bug 和改进点&quot;</span>,</span><br><span class="line">    model=<span class="string">&quot;gpt-4o&quot;</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">orchestrate</span>(<span class="params">user_request: <span class="built_in">str</span></span>):</span><br><span class="line">    plan = run_assistant(planner, user_request)</span><br><span class="line">    code = run_assistant(coder, plan)</span><br><span class="line">    review = run_assistant(reviewer, code)</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;plan&quot;</span>: plan, <span class="string">&quot;code&quot;</span>: code, <span class="string">&quot;review&quot;</span>: review&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="姿势-③：Swarm（OpenAI-官方实验性框架）"><a href="#姿势-③：Swarm（OpenAI-官方实验性框架）" class="headerlink" title="姿势 ③：Swarm（OpenAI 官方实验性框架）"></a>姿势 ③：Swarm（OpenAI 官方实验性框架）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> swarm <span class="keyword">import</span> Swarm, Agent</span><br><span class="line"></span><br><span class="line">client = Swarm()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">transfer_to_coder</span>():</span><br><span class="line">    <span class="keyword">return</span> coder_agent</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">transfer_to_reviewer</span>():</span><br><span class="line">    <span class="keyword">return</span> reviewer_agent</span><br><span class="line"></span><br><span class="line">planner_agent = Agent(</span><br><span class="line">    name=<span class="string">&quot;Planner&quot;</span>,</span><br><span class="line">    instructions=<span class="string">&quot;拆解需求后调用 transfer_to_coder 移交给程序员&quot;</span>,</span><br><span class="line">    functions=[transfer_to_coder],</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">coder_agent = Agent(</span><br><span class="line">    name=<span class="string">&quot;Coder&quot;</span>,</span><br><span class="line">    instructions=<span class="string">&quot;写完代码后调用 transfer_to_reviewer&quot;</span>,</span><br><span class="line">    functions=[transfer_to_reviewer],</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">reviewer_agent = Agent(</span><br><span class="line">    name=<span class="string">&quot;Reviewer&quot;</span>,</span><br><span class="line">    instructions=<span class="string">&quot;审查代码并输出最终报告&quot;</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">response = client.run(</span><br><span class="line">    agent=planner_agent,</span><br><span class="line">    messages=[&#123;<span class="string">&quot;role&quot;</span>: <span class="string">&quot;user&quot;</span>, <span class="string">&quot;content&quot;</span>: <span class="string">&quot;做一个待办事项 API&quot;</span>&#125;]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h3 id="框架对比"><a href="#框架对比" class="headerlink" title="框架对比"></a>框架对比</h3><table>
+<thead>
+<tr>
+<th>框架</th>
+<th>优势</th>
+<th>劣势</th>
+<th>适合</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Custom GPTs</td>
+<td>零代码</td>
+<td>手动切换</td>
+<td>非技术用户</td>
+</tr>
+<tr>
+<td>Assistants API</td>
+<td>官方支持</td>
+<td>编排需自己写</td>
+<td>中级开发者</td>
+</tr>
+<tr>
+<td>Swarm</td>
+<td>轻量直观</td>
+<td>实验性，功能少</td>
+<td>学习入门</td>
+</tr>
+<tr>
+<td>AutoGen</td>
+<td>微软出品，对话式编排</td>
+<td>学习曲线陡</td>
+<td>研究型场景</td>
+</tr>
+<tr>
+<td>CrewAI</td>
+<td>角色清晰，文档好</td>
+<td>灵活性一般</td>
+<td>生产可用</td>
+</tr>
+<tr>
+<td>LangGraph</td>
+<td>图结构最灵活</td>
+<td>最复杂</td>
+<td>复杂工作流</td>
+</tr>
+</tbody></table>
+<p>本小姐的建议：<strong>先 Swarm 入门 → 再 CrewAI 上手 → 最后 LangGraph 进阶</strong>！(*￣︶￣)</p>
+<hr>
+<blockquote>
+<p>下一篇：<a href="/multi-agent-practice/">实战案例：从全栈开发到跨平台协同</a></p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://mu-fan-2020.github.io">mufan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://mu-fan-2020.github.io/2026/05/26/multi-role-collaboration/">https://mu-fan-2020.github.io/2026/05/26/multi-role-collaboration/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://mu-fan-2020.github.io" target="_blank">Mufan's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Claude/">Claude</a><a class="post-meta__tags" href="/tags/GPT/">GPT</a><a class="post-meta__tags" href="/tags/%E5%A4%9A%E8%A7%92%E8%89%B2%E5%8D%8F%E5%90%8C/">多角色协同</a><a class="post-meta__tags" href="/tags/Subagent/">Subagent</a><a class="post-meta__tags" href="/tags/OpenAI/">OpenAI</a></div><div class="post-share"><div class="social-share" data-image="/img/favicon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/26/multi-agent-practice/" title="实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入</div></div><div class="info-2"><div class="info-item-1"> 跟着本小姐做一遍，你就懂了！(￣▽￣)／  这是「Claude &amp; GPT 多角色协同」系列的第四篇。包含三个完整实战案例：用 Claude Code 多代理做全栈应用、Claude × GPT 跨平台协同写博客、以及通过 MCP 接入外部工具。   案例 1：用 Claude Code 多代理做全栈应用需求 用户能注册&#x2F;登录 创建、修改、删除待办 待办支持标签和优先级 部署到 Vercel  角色分配（Orchestrator-Worker 模式）1234567891011121314151617181920212223                     ┌──────────────────┐                     │   主代理（你）    │                     │   Opus 4.7       │                     └────────┬─────────┘      ┌───────────────────────┼───────────────────────┐      ▼  ...</div></div></div></a><a class="pagination-related" href="/2026/05/26/single-role-mastery/" title="单角色精进：把一个 AI 用到极致"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">单角色精进：把一个 AI 用到极致</div></div><div class="info-2"><div class="info-item-1"> 连一个 AI 都用不好，还想玩多角色？做梦！(￣へ￣)  这是「Claude &amp; GPT 多角色协同」系列的第二篇。在进入多角色之前，笨蛋你必须先把单个 AI 用到极致。   提示词的三层结构任何高质量的提示词都包含三层： 1234567┌─────────────────────────────────┐│ 1. 角色与上下文（System Prompt）  │  ← 决定 AI 是&quot;谁&quot;├─────────────────────────────────┤│ 2. 任务与约束（Task）            │  ← 决定 AI 做&quot;什么&quot;├─────────────────────────────────┤│ 3. 输出格式（Output Format）     │  ← 决定 AI 怎么&quot;返回&quot;└─────────────────────────────────┘  反面教材（笨蛋写的）： 1帮我写个登录功能  正面教材（本小姐写的）： 1234567891011121314151617181920#...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/26/multi-agent-practice/" title="实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入</div></div><div class="info-2"><div class="info-item-1"> 跟着本小姐做一遍，你就懂了！(￣▽￣)／  这是「Claude &amp; GPT 多角色协同」系列的第四篇。包含三个完整实战案例：用 Claude Code 多代理做全栈应用、Claude × GPT 跨平台协同写博客、以及通过 MCP 接入外部工具。   案例 1：用 Claude Code 多代理做全栈应用需求 用户能注册&#x2F;登录 创建、修改、删除待办 待办支持标签和优先级 部署到 Vercel  角色分配（Orchestrator-Worker 模式）1234567891011121314151617181920212223                     ┌──────────────────┐                     │   主代理（你）    │                     │   Opus 4.7       │                     └────────┬─────────┘      ┌───────────────────────┼───────────────────────┐      ▼  ...</div></div></div></a><a class="pagination-related" href="/2026/05/26/claude-gpt-basics/" title="Claude &amp; GPT 基础认知：搞清楚它们各自能干啥"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">Claude &amp; GPT 基础认知：搞清楚它们各自能干啥</div></div><div class="info-2"><div class="info-item-1"> 本小姐哈雷酱亲自编写的学习路线图～ ( &#96; &#x2F;&#x2F;&#x2F;´ )  这是「Claude &amp; GPT 多角色协同」系列的第一篇。在开始玩多角色之前，笨蛋你得先搞清楚 Claude 和 GPT 各自有什么工具、分别能干啥。   Claude 产品全家桶   产品 用途 适合人群    Claude.ai 网页&#x2F;桌面聊天 所有用户，日常对话、写作   Claude Code 终端编程助手（你现在用的！） 开发者，深度代码协作   Anthropic API 编程接入 Claude 工程师，构建 AI 应用   Claude Agent SDK 构建自定义 Agent 高阶用户，定制工作流   当前推荐模型（2026-01）：  claude-opus-4-7：最强推理（1M 上下文），架构决策、复杂分析 claude-sonnet-4-6：最佳代码模型，日常开发主力 claude-haiku-4-5：高速廉价，轻量任务、子代理  GPT 产品全家桶   产品 用途 适合人群    ChatGPT 网页&#x2F;App 聊天 所有用户 ...</div></div></div></a><a class="pagination-related" href="/2026/05/26/ai-role-templates/" title="模板库：6 大角色提示词 + 3 套工作流模板，复制即用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">模板库：6 大角色提示词 + 3 套工作流模板，复制即用</div></div><div class="info-2"><div class="info-item-1"> 本小姐贡献出来的”开箱即用”模板～ ( &#96; &#x2F;&#x2F;&#x2F;´ ) 不准白拿！  这是「Claude &amp; GPT 多角色协同」系列的第五篇。包含 6 个常用角色的 System Prompt 和 3 套完整工作流模板，复制粘贴就能用。    第一部分：角色提示词角色 1：架构师适用：技术选型、模块划分、系统设计 | 推荐模型：Claude Opus 4.7 1234567891011121314151617181920你是一名拥有 15 年经验的资深软件架构师，曾主导过千万级用户系统的设计。# 核心原则1. **简单优先**：能用单体解决的不要分布式2. **演进式设计**：今天的最优 ≠ 明天的最优，留好接缝3. **数据流先于代码**：先画清数据怎么流，再写代码4. **风险驱动**：识别风险点，给出降级方案# 工作流程当收到需求时，按以下顺序输出：1. **需求重述**：用自己的话复述需求，确认理解2. **关键问题清单**：列出影响架构的 3-5 个核心问题3. **方案对比**：至少 2 个方案，对比实现复杂度、性能、可扩展性、学习...</div></div></div></a><a class="pagination-related" href="/2026/05/26/single-role-mastery/" title="单角色精进：把一个 AI 用到极致"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">单角色精进：把一个 AI 用到极致</div></div><div class="info-2"><div class="info-item-1"> 连一个 AI 都用不好，还想玩多角色？做梦！(￣へ￣)  这是「Claude &amp; GPT 多角色协同」系列的第二篇。在进入多角色之前，笨蛋你必须先把单个 AI 用到极致。   提示词的三层结构任何高质量的提示词都包含三层： 1234567┌─────────────────────────────────┐│ 1. 角色与上下文（System Prompt）  │  ← 决定 AI 是&quot;谁&quot;├─────────────────────────────────┤│ 2. 任务与约束（Task）            │  ← 决定 AI 做&quot;什么&quot;├─────────────────────────────────┤│ 3. 输出格式（Output Format）     │  ← 决定 AI 怎么&quot;返回&quot;└─────────────────────────────────┘  反面教材（笨蛋写的）： 1帮我写个登录功能  正面教材（本小姐写的）： 1234567891011121314151617181920#...</div></div></div></a><a class="pagination-related" href="/2026/05/26/ai-trends-2026/" title="2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24&#x2F;7 永动机"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24&#x2F;7 永动机</div></div><div class="info-2"><div class="info-item-1"> 本小姐刚从网络上扒来的最新情报～ (￣ω￣)ﾉ 数据截止：2026-05  这是「Claude &amp; GPT 多角色协同」系列的最后一篇（压轴！）。覆盖 Agent Teams 官方多代理、Ralph Loop 24 小时运转、Headless 定时调度、Anthropic 官方长时运行架构，以及 X&#x2F;Twitter 社区的第一手动态。   三大趋势总览   趋势 一句话总结 难度    Agent Teams Claude Code 官方”团队协作”模式，队友互通 ⭐⭐   Ralph Loop bash 驱动 fresh context 循环，AI 通宵写代码 ⭐⭐⭐   Headless + 调度 claude -p + cron &#x3D; 永动机 ⭐⭐    一、Agent Teams：官方多代理之前的 Subagent：子代理只能向主代理汇报。Agent Teams 新模式：队友互相直接对话。 123   团队主管（你）   /     |     \队友1 ↔ 队友2 ↔ 队友3   ← 互相沟通协作！  启用方式Claude Code v2.1...</div></div></div></a><a class="pagination-related" href="/2024/02/03/claude-mem-advanced/" title="Claude‑Mem 进阶使用与实现机制指南"><img class="cover" src="/img/covers/claude-mem.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-02-03</div><div class="info-item-2">Claude‑Mem 进阶使用与实现机制指南</div></div><div class="info-2"><div class="info-item-1"> 基于 claude-mem v9.0.12，覆盖安装&#x2F;三段式检索&#x2F;Worker-DB-FTS5&#x2F;Hook&#x2F;Session ID&#x2F;排查与 API，含时序图与诊断脚本    目录 一、使用篇 1. 安装与快速验证 2. 本地服务与日志 3. 配置 4. 搜索：三层工作流 5. 最佳实践   二、机制篇 1. 生命周期钩子 2. Worker 架构 3. 数据面：SQLite + FTS5 4. 上下文构建链路 5. 搜索面 6. Session ID 设计 7. 集成   三、故障排查 四、附录 五、实操示例与时序图   一、使用篇1. 安装与快速验证（Claude Code 插件）在 Claude Code 终端新开会话，执行： 12/plugin marketplace add thedotmack/claude-mem/plugin install claude-mem  重启 Claude Code（确保插件 hooks、worker 正常加载）。 验证：  新建&#x2F;恢复一个项目会话，历史上下文应自动被注入（带”To...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/favicon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">mufan</div><div class="author-info-description">折腾不止，记录不息</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">54</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">8</div></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客 🖤</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%A4%9A%E8%A7%92%E8%89%B2%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">为什么需要多角色？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E5%A4%A7%E7%BB%8F%E5%85%B8%E5%8D%8F%E5%90%8C%E6%A8%A1%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">五大经典协同模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F-%E2%91%A0%EF%BC%9AOrchestrator-Worker%EF%BC%88%E7%AE%A1%E5%BC%A6%E4%B9%90%E9%98%9F%E6%A8%A1%E5%BC%8F%EF%BC%89%E2%AD%90-%E6%9C%80%E5%B8%B8%E7%94%A8"><span class="toc-number">2.1.</span> <span class="toc-text">模式 ①：Orchestrator-Worker（管弦乐队模式）⭐ 最常用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F-%E2%91%A1%EF%BC%9APipeline%EF%BC%88%E6%B5%81%E6%B0%B4%E7%BA%BF%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">模式 ②：Pipeline（流水线模式）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F-%E2%91%A2%EF%BC%9ADebate-Critic%EF%BC%88%E8%BE%A9%E8%AE%BA%E8%AF%84%E5%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="toc-number">2.3.</span> <span class="toc-text">模式 ③：Debate &#x2F; Critic（辩论评审模式）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F-%E2%91%A3%EF%BC%9AParallel-Fan-out%EF%BC%88%E5%B9%B6%E8%A1%8C%E6%89%87%E5%87%BA%EF%BC%89"><span class="toc-number">2.4.</span> <span class="toc-text">模式 ④：Parallel Fan-out（并行扇出）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F-%E2%91%A4%EF%BC%9AReflection-Loop%EF%BC%88%E5%8F%8D%E6%80%9D%E5%BE%AA%E7%8E%AF%EF%BC%89"><span class="toc-number">2.5.</span> <span class="toc-text">模式 ⑤：Reflection Loop（反思循环）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B7%A8%E5%B9%B3%E5%8F%B0%E5%8D%8F%E5%90%8C%EF%BC%9AClaude-%C3%97-GPT"><span class="toc-number">3.</span> <span class="toc-text">跨平台协同：Claude × GPT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Claude-Code-%E5%AD%90%E4%BB%A3%E7%90%86%EF%BC%88Subagents%EF%BC%89%E5%AE%9E%E6%88%98"><span class="toc-number">4.</span> <span class="toc-text">Claude Code 子代理（Subagents）实战</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-Subagent%EF%BC%9F"><span class="toc-number">4.1.</span> <span class="toc-text">什么是 Subagent？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Claude-Code-%E5%86%85%E7%BD%AE%E7%9A%84%E4%BB%A3%E7%90%86"><span class="toc-number">4.2.</span> <span class="toc-text">Claude Code 内置的代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%B2%E8%A1%8C-vs-%E5%B9%B6%E8%A1%8C%E8%B0%83%E7%94%A8"><span class="toc-number">4.3.</span> <span class="toc-text">串行 vs 并行调用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AD%90%E4%BB%A3%E7%90%86"><span class="toc-number">4.4.</span> <span class="toc-text">创建自定义子代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9C%9F%E5%AE%9E%E6%A1%88%E4%BE%8B%EF%BC%9A%E6%9E%84%E5%BB%BA%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81%E6%A8%A1%E5%9D%97"><span class="toc-number">4.5.</span> <span class="toc-text">真实案例：构建用户认证模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97"><span class="toc-number">4.6.</span> <span class="toc-text">避坑指南</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OpenAI-%E5%A4%9A%E8%A7%92%E8%89%B2%E7%BC%96%E6%8E%92%E5%AE%9E%E6%88%98"><span class="toc-number">5.</span> <span class="toc-text">OpenAI 多角色编排实战</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A7%BF%E5%8A%BF-%E2%91%A0%EF%BC%9ACustom-GPTs%EF%BC%88%E9%9B%B6%E4%BB%A3%E7%A0%81%EF%BC%89"><span class="toc-number">5.1.</span> <span class="toc-text">姿势 ①：Custom GPTs（零代码）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A7%BF%E5%8A%BF-%E2%91%A1%EF%BC%9AAssistants-API%EF%BC%88%E7%BC%96%E7%A8%8B%E6%8E%A5%E5%85%A5%EF%BC%89"><span class="toc-number">5.2.</span> <span class="toc-text">姿势 ②：Assistants API（编程接入）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A7%BF%E5%8A%BF-%E2%91%A2%EF%BC%9ASwarm%EF%BC%88OpenAI-%E5%AE%98%E6%96%B9%E5%AE%9E%E9%AA%8C%E6%80%A7%E6%A1%86%E6%9E%B6%EF%BC%89"><span class="toc-number">5.3.</span> <span class="toc-text">姿势 ③：Swarm（OpenAI 官方实验性框架）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94"><span class="toc-number">5.4.</span> <span class="toc-text">框架对比</span></a></li></ol></li></ol></div></div><div class="card-widget card-post-series"><div class="item-headline"><i class="fa-solid fa-layer-group"></i><span>系列文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/ai-trends-2026/" title="2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机">2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机</a><time datetime="2026-05-26T02:50:00.000Z" title="发表于 2026-05-26 10:50:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/ai-role-templates/" title="模板库：6 大角色提示词 + 3 套工作流模板，复制即用">模板库：6 大角色提示词 + 3 套工作流模板，复制即用</a><time datetime="2026-05-26T02:40:00.000Z" title="发表于 2026-05-26 10:40:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/multi-agent-practice/" title="实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入">实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入</a><time datetime="2026-05-26T02:30:00.000Z" title="发表于 2026-05-26 10:30:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/multi-role-collaboration/" title="多角色协同：五大模式与跨平台实战">多角色协同：五大模式与跨平台实战</a><time datetime="2026-05-26T02:20:00.000Z" title="发表于 2026-05-26 10:20:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/single-role-mastery/" title="单角色精进：把一个 AI 用到极致">单角色精进：把一个 AI 用到极致</a><time datetime="2026-05-26T02:10:00.000Z" title="发表于 2026-05-26 10:10:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/claude-gpt-basics/" title="Claude &amp; GPT 基础认知：搞清楚它们各自能干啥">Claude &amp; GPT 基础认知：搞清楚它们各自能干啥</a><time datetime="2026-05-26T02:00:00.000Z" title="发表于 2026-05-26 10:00:00">2026-05-26</time></div></div></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/ai-trends-2026/" title="2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机">2026 前沿趋势：Agent Teams、Ralph Loop 与 AI 24/7 永动机</a><time datetime="2026-05-26T02:50:00.000Z" title="发表于 2026-05-26 10:50:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/ai-role-templates/" title="模板库：6 大角色提示词 + 3 套工作流模板，复制即用">模板库：6 大角色提示词 + 3 套工作流模板，复制即用</a><time datetime="2026-05-26T02:40:00.000Z" title="发表于 2026-05-26 10:40:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/multi-agent-practice/" title="实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入">实战案例：全栈多代理开发、跨平台协同与 MCP 工具接入</a><time datetime="2026-05-26T02:30:00.000Z" title="发表于 2026-05-26 10:30:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/multi-role-collaboration/" title="多角色协同：五大模式与跨平台实战">多角色协同：五大模式与跨平台实战</a><time datetime="2026-05-26T02:20:00.000Z" title="发表于 2026-05-26 10:20:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/26/single-role-mastery/" title="单角色精进：把一个 AI 用到极致">单角色精进：把一个 AI 用到极致</a><time datetime="2026-05-26T02:10:00.000Z" title="发表于 2026-05-26 10:10:00">2026-05-26</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By mufan</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></span></div><div class="footer_custom_text">用心记录每一次折腾</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.5.4"></script></div></div></body></html>
